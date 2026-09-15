@@ -1,0 +1,108 @@
+{
+    "name": "amuzcorp/nexia-app-sdk-laravel",
+    "description": "Contracts for Nexia App Packages",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.4",
+        "illuminate/database": "^12.0",
+        "illuminate/http": "^12.0",
+        "laravel/framework": "^12.0",
+        "laravel/scout": "^11.1",
+        "spatie/laravel-activitylog": "^5.0",
+        "spatie/laravel-medialibrary": "^11.0",
+        "symfony/html-sanitizer": "^8.0"
+    },
+    "conflict": {
+        "amuzcorp/nexia-app-sdk": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Nexia\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Nexia\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": [
+            "@php bin/check-retired-symbols.php src tests",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/AgentContractsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/AppDefinitionTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/AppPackageMetadataReaderTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/AttachmentContractsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/ApprovalDomainEnumsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/ApprovalDocumentBodyTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/ApprovalIdempotencyRequestTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/ApprovalLineDefinitionTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/ApprovalRoutePolicyStepTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/DescriptorStatusTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/DashboardContractsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/DataMigrationContractsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/FixtureContractsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/GuidanceContractsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/EventContractsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/ContributionI18nTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/AppDescriptorsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/SignatureContractsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/SignatureDocumentDataSourceContractsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/ApprovalDescriptorsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/ProcessDomainEnumsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/ProcessDescriptorsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/ProcessApprovalContractsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/ProcessUserTaskSubmissionConformanceTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/ApprovalProcessConformanceTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/ApprovalProcessBridgeConformanceTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/ApprovalOutcomeConsumerConformanceTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/ReceiveTaskCorrelationConformanceTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/ResourceTransferContractsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/FilterContractsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/FilterableContractsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/FrontendWireContractsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/HttpConcernsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/HttpControllerTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/HostBoundaryContractsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/KernelImportBoundaryTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/AppNeutralityBoundaryTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/PublicApiSnapshotReviewTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/NamespaceTypeResolutionTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/LaravelAdapterParityTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/ModelConcernsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/NavigationContractsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/PaletteContractsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/PermissionContractsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/ResourceCatalogContractsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/ResourceCompositionContractsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/ResourceImportContractsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/ResourceModuleContractsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/ResourceReferenceTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/SelfServiceContractsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/ResourceListQueryTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/TemplateContractsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/MutationContractsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/SetupContractsTest.php"
+        ]
+    },
+    "archive": {
+        "exclude": [
+            "/vendor/",
+            "/node_modules/",
+            "/.git/",
+            "/.phpunit.cache/",
+            "/.phpunit.result.cache",
+            "/coverage/",
+            "/build/",
+            "/tmp/"
+        ]
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "0.5.x-dev",
+            "dev-develop": "0.5.x-dev"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

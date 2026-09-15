@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "revision": "2026-09-15.1",
+  "contracts": [
+    {"id": "resource-reference-status", "php_enum": "Nexia\\ResourceReference\\ReferenceStatus", "react_export": "RESOURCE_REFERENCE_STATUSES", "values": ["available", "absent", "disabled", "failed", "stale", "unauthorized"]},
+    {"id": "app-availability", "php_enum": "Nexia\\AppRuntime\\AppAvailability", "react_export": "APP_AVAILABILITY_STATES", "values": ["operational", "unavailable", "disabled", "unauthorized", "failed", "stale"]},
+    {"id": "handoff-result-state", "php_enum": "Nexia\\Events\\HandoffResultState", "react_export": "HANDOFF_RESULT_STATES", "values": ["ACCEPTED", "REJECTED", "UNAUTHORIZED", "STALE", "RETRYABLE_FAILED", "TERMINAL_FAILED"]},
+    {"id": "signature-document-data-field-type", "php_enum": "Nexia\\Signature\\SignatureDocumentDataFieldType", "react_export": "SIGNATURE_DOCUMENT_DATA_FIELD_TYPES", "values": ["string", "text", "date", "datetime", "boolean", "integer", "decimal", "money", "resource_ref", "object", "list"]},
+    {"id": "signature-document-data-classification", "php_enum": "Nexia\\Signature\\SignatureDataClassification", "react_export": "SIGNATURE_DOCUMENT_DATA_CLASSIFICATIONS", "values": ["public", "internal", "confidential", "restricted"]},
+    {"id": "signature-document-data-formatter", "php_enum": "Nexia\\Signature\\SignatureDocumentDataFormatter", "react_export": "SIGNATURE_DOCUMENT_DATA_FORMATTERS", "values": ["plain", "date_iso", "date_local", "datetime_local", "boolean_yes_no", "integer", "decimal", "money_with_currency", "resource_label"]},
+    {"id": "signature-document-data-lookup-mode", "php_enum": "Nexia\\Signature\\SignatureDocumentDataLookupMode", "react_export": "SIGNATURE_DOCUMENT_DATA_LOOKUP_MODES", "values": ["direct_subject", "derived_ref", "explicit_source_ref", "owner_scoped_query"]},
+    {"id": "signature-document-data-status", "php_enum": "Nexia\\Signature\\SignatureDocumentDataStatus", "react_export": "SIGNATURE_DOCUMENT_DATA_STATUSES", "values": ["resolved", "selection_required", "missing", "stale", "unavailable"]}
+  ]
+}
