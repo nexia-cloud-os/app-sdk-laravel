@@ -1,0 +1,237 @@
+{
+    "valid": {
+        "row": {
+            "schema_version": 1,
+            "sources": [
+                {"alias": "record", "resource_key": "alpha_core.record"},
+                {"alias": "subject", "resource_key": "beta.subject"}
+            ],
+            "relationship": {"key": "catalog.reference.record_subject"},
+            "fields": [
+                {"source": "record", "field": "state"},
+                {"source": "subject", "field": "display"}
+            ],
+            "filters": [
+                {"source": "record", "field": "state", "operator": "in", "value": ["open", "pending"]}
+            ],
+            "dimensions": [],
+            "measures": [],
+            "result": {"shape": "rows"}
+        },
+        "aggregate": {
+            "schema_version": 1,
+            "sources": [
+                {"alias": "first", "resource_key": "alpha.record"},
+                {"alias": "second", "resource_key": "beta.subject"}
+            ],
+            "relationship": {"key": "catalog.dimension.common_party"},
+            "fields": [],
+            "filters": [],
+            "dimensions": [
+                {"source": "first", "field": "party", "bucket": null}
+            ],
+            "measures": [
+                {
+                    "alias": "first_count",
+                    "source": "first",
+                    "field": null,
+                    "operation": "count",
+                    "result_type": "integer",
+                    "null_behavior": "zero",
+                    "unit": "count"
+                },
+                {
+                    "alias": "second_count",
+                    "source": "second",
+                    "field": null,
+                    "operation": "count",
+                    "result_type": "integer",
+                    "null_behavior": "zero",
+                    "unit": "count"
+                }
+            ],
+            "result": {"shape": "aggregate"}
+        },
+        "row_v2": {
+            "schema_version": 2,
+            "sources": [
+                {"alias": "first", "resource_key": "alpha.record"},
+                {"alias": "middle", "resource_key": "beta.subject"},
+                {"alias": "last", "resource_key": "gamma.item"}
+            ],
+            "relationships": [
+                {"key": "catalog.reference.first_middle"},
+                {"key": "catalog.reference.middle_last"}
+            ],
+            "fields": [
+                {"source": "first", "field": "state"},
+                {"source": "middle", "field": "display"},
+                {"source": "last", "field": "public_id"}
+            ],
+            "filters": [
+                {"source": "last", "field": "state", "operator": "eq", "value": "active"}
+            ],
+            "dimensions": [],
+            "measures": [],
+            "result": {"shape": "rows"}
+        },
+        "row_v3_roles": {
+            "schema_version": 3,
+            "sources": [
+                {"alias": "employee", "resource_key": "people.worker"},
+                {"alias": "manager", "resource_key": "people.worker"},
+                {"alias": "reviewer", "resource_key": "people.worker"}
+            ],
+            "relationships": [
+                {"key": "catalog.reference.worker_manager", "source": "employee", "target": "manager"},
+                {"key": "catalog.reference.worker_manager", "source": "manager", "target": "reviewer"}
+            ],
+            "fields": [
+                {"source": "employee", "field": "public_id"},
+                {"source": "manager", "field": "public_id"},
+                {"source": "reviewer", "field": "public_id"}
+            ],
+            "filters": [],
+            "dimensions": [],
+            "measures": [],
+            "result": {"shape": "rows"}
+        },
+        "row_v3_branch": {
+            "schema_version": 3,
+            "sources": [
+                {"alias": "root", "resource_key": "alpha.criteria"},
+                {"alias": "job", "resource_key": "beta.job"},
+                {"alias": "grade", "resource_key": "gamma.grade"}
+            ],
+            "relationships": [
+                {"key": "catalog.reference.criteria_job", "source": "root", "target": "job"},
+                {"key": "catalog.reference.criteria_grade", "source": "root", "target": "grade"}
+            ],
+            "fields": [
+                {"source": "root", "field": "public_id"},
+                {"source": "job", "field": "public_id"},
+                {"source": "grade", "field": "public_id"}
+            ],
+            "filters": [],
+            "dimensions": [],
+            "measures": [],
+            "result": {"shape": "rows"}
+        },
+        "aggregate_v3_party": {
+            "schema_version": 3,
+            "sources": [
+                {"alias": "worker", "resource_key": "people.worker"},
+                {"alias": "candidate", "resource_key": "recruiting.candidate"},
+                {"alias": "assignment", "resource_key": "assets.asset_assignment"}
+            ],
+            "relationships": [
+                {"key": "catalog.dimension.worker_candidate", "source": "worker", "target": "candidate"},
+                {"key": "catalog.dimension.worker_assignment", "source": "worker", "target": "assignment"}
+            ],
+            "fields": [],
+            "filters": [],
+            "dimensions": [
+                {"source": "worker", "field": "party_public_id", "bucket": null}
+            ],
+            "measures": [
+                {"alias": "worker_count", "source": "worker", "field": null, "operation": "count", "result_type": "integer", "null_behavior": "zero", "unit": "count"},
+                {"alias": "candidate_count", "source": "candidate", "field": null, "operation": "count", "result_type": "integer", "null_behavior": "zero", "unit": "count"},
+                {"alias": "assignment_count", "source": "assignment", "field": null, "operation": "count", "result_type": "integer", "null_behavior": "zero", "unit": "count"}
+            ],
+            "result": {"shape": "aggregate"}
+        },
+        "aggregate_v4_count": {
+            "schema_version": 4,
+            "sources": [{"alias": "record", "resource_key": "alpha.record"}],
+            "relationships": [],
+            "fields": [],
+            "timezone": "Asia/Seoul",
+            "where": {"kind": "all", "children": []},
+            "dimensions": [],
+            "measures": [{"alias": "records", "source": "record", "field": null, "operation": "count", "result_type": "integer", "null_behavior": "zero", "unit": "count", "where": {"kind": "all", "children": []}}],
+            "having": {"kind": "condition", "target": {"kind": "measure", "alias": "records"}, "operator": "gte", "value": 1},
+            "derived": [],
+            "comparison": null,
+            "sort": [],
+            "limit": null,
+            "result": {"shape": "aggregate"}
+        },
+        "aggregate_v4_case_label": {
+            "schema_version": 4,
+            "sources": [{"alias": "record", "resource_key": "alpha.record"}],
+            "relationships": [],
+            "fields": [],
+            "timezone": "Asia/Seoul",
+            "where": {"kind": "all", "children": []},
+            "dimensions": [{"target": {"kind": "derived", "alias": "status_label"}, "bucket": null}],
+            "measures": [{"alias": "label_count", "source": "record", "field": {"kind": "derived", "alias": "status_label"}, "operation": "distinct_count", "result_type": "integer", "null_behavior": "zero", "unit": "count", "where": {"kind": "all", "children": []}}],
+            "having": {"kind": "all", "children": []},
+            "derived": [{"alias": "status_label", "stage": "row", "source": "record", "result_type": "string", "unit": null, "null_behavior": "null_if_empty", "expression": {"kind": "case", "branches": [{"when": {"kind": "condition", "target": {"kind": "field", "source": "record", "field": "status"}, "operator": "eq", "value": "open"}, "then": {"kind": "literal", "literal_type": "string", "value": "Open"}}], "otherwise": {"kind": "literal", "literal_type": "string", "value": "Other"}}}],
+            "comparison": null,
+            "sort": [{"target": {"kind": "derived", "alias": "status_label"}, "direction": "asc", "nulls": "last"}],
+            "limit": {"count": 10},
+            "result": {"shape": "aggregate"}
+        }
+    },
+    "invalid": [
+        {"name": "unsupported schema", "base": "row", "path": "schema_version", "value":  5, "code": "unsupported_schema_version", "error_path": "schema_version"},
+        {"name": "invalid source shape", "base": "row", "path": "sources.0", "value": false, "code": "invalid_shape", "error_path": "sources.0"},
+        {"name": "invalid source alias", "base": "row", "path": "sources.0.alias", "value": "Record", "code": "invalid_identifier", "error_path": "sources.0.alias"},
+        {"name": "unknown root", "base": "row", "path": "presentation", "value": true, "code": "unknown_key", "error_path": "presentation"},
+        {"name": "relationship kind", "base": "row", "path": "relationship.kind", "value": "resource_reference", "code": "unknown_key", "error_path": "relationship.kind"},
+        {"name": "relationship from source", "base": "row", "path": "relationship.from_source", "value": "record", "code": "unknown_key", "error_path": "relationship.from_source"},
+        {"name": "relationship to source", "base": "row", "path": "relationship.to_source", "value": "subject", "code": "unknown_key", "error_path": "relationship.to_source"},
+        {"name": "relationship from field", "base": "row", "path": "relationship.from_field", "value": "party_id", "code": "unknown_key", "error_path": "relationship.from_field"},
+        {"name": "relationship to field", "base": "row", "path": "relationship.to_field", "value": "party_id", "code": "unknown_key", "error_path": "relationship.to_field"},
+        {"name": "relationship dimension resource", "base": "row", "path": "relationship.dimension_resource_key", "value": "common.party", "code": "unknown_key", "error_path": "relationship.dimension_resource_key"},
+        {"name": "relationship reference field", "base": "row", "path": "relationship.reference_field", "value": "subject_public_id", "code": "unknown_key", "error_path": "relationship.reference_field"},
+        {"name": "relationship cardinality", "base": "row", "path": "relationship.cardinality", "value": "many_to_one", "code": "unknown_key", "error_path": "relationship.cardinality"},
+        {"name": "invalid relationship key", "base": "row", "path": "relationship.key", "value": "catalog relationship", "code": "invalid_identifier", "error_path": "relationship.key"},
+        {"name": "result limit", "base": "row", "path": "result.limit", "value": 100, "code": "unknown_key", "error_path": "result.limit"},
+        {"name": "source sql", "base": "row", "path": "sources.0.sql", "value": "select 1", "code": "unknown_key", "error_path": "sources.0.sql"},
+        {"name": "source table", "base": "row", "path": "sources.0.table", "value": "records", "code": "unknown_key", "error_path": "sources.0.table"},
+        {"name": "source model", "base": "row", "path": "sources.0.model", "value": "Record", "code": "unknown_key", "error_path": "sources.0.model"},
+        {"name": "source expression", "base": "row", "path": "sources.0.expression", "value": "count(*)", "code": "unknown_key", "error_path": "sources.0.expression"},
+        {"name": "source timeout", "base": "row", "path": "sources.0.timeout", "value": 10, "code": "unknown_key", "error_path": "sources.0.timeout"},
+        {"name": "source budget", "base": "row", "path": "sources.0.budget", "value": 10, "code": "unknown_key", "error_path": "sources.0.budget"},
+        {"name": "too many sources", "base": "row", "path": "sources.2", "value": {"alias": "third", "resource_key": "gamma.item"}, "code": "invalid_source_count", "error_path": "sources"},
+        {"name": "v1 plural relationship root", "base": "row", "path": "relationships", "value": [{"key": "catalog.reference.first_middle"}, {"key": "catalog.reference.middle_last"}], "code": "unknown_key", "error_path": "relationships"},
+        {"name": "v2 singular relationship root", "base": "row_v2", "path": "relationship", "value": {"key": "catalog.reference.first_middle"}, "code": "unknown_key", "error_path": "relationship"},
+        {"name": "v2 invalid source count", "base": "row_v2", "path": "sources", "value": [{"alias": "first", "resource_key": "alpha.record"}, {"alias": "middle", "resource_key": "beta.subject"}], "code": "invalid_source_count", "error_path": "sources"},
+        {"name": "v2 invalid relationship count", "base": "row_v2", "path": "relationships", "value": [{"key": "catalog.reference.first_middle"}], "code": "relationship_required", "error_path": "relationships"},
+        {"name": "v2 duplicate relationship", "base": "row_v2", "path": "relationships.1.key", "value": "catalog.reference.first_middle", "code": "duplicate_identifier", "error_path": "relationships.1.key"},
+        {"name": "v2 unknown field source", "base": "row_v2", "path": "fields.2.source", "value": "other", "code": "unknown_source_alias", "error_path": "fields.2.source"},
+        {"name": "v3 requires two sources", "base": "row_v3_roles", "path": "sources", "value": [{"alias": "employee", "resource_key": "people.worker"}], "code": "invalid_source_count", "error_path": "sources"},
+        {"name": "v3 requires relationship", "base": "row_v3_roles", "path": "relationships", "value": [], "code": "relationship_required", "error_path": "relationships"},
+        {"name": "v3 unknown relationship source", "base": "row_v3_roles", "path": "relationships.0.source", "value": "other", "code": "unknown_source_alias", "error_path": "relationships.0.source"},
+        {"name": "v3 unknown relationship target", "base": "row_v3_roles", "path": "relationships.0.target", "value": "other", "code": "unknown_source_alias", "error_path": "relationships.0.target"},
+        {"name": "v3 duplicate relationship tuple", "base": "row_v3_roles", "path": "relationships.1", "value": {"key": "catalog.reference.worker_manager", "source": "employee", "target": "manager"}, "code": "duplicate_identifier", "error_path": "relationships.1"},
+        {"name": "missing relationship", "base": "row", "path": "relationship", "value": null, "code": "relationship_required", "error_path": "relationship"},
+        {"name": "single source relationship", "base": "row", "path": "sources", "value": [{"alias": "record", "resource_key": "alpha_core.record"}], "code": "relationship_not_allowed", "error_path": "relationship"},
+        {"name": "duplicate source", "base": "row", "path": "sources.1.alias", "value": "record", "code": "duplicate_identifier", "error_path": "sources.1"},
+        {"name": "duplicate field", "base": "row", "path": "fields.1", "value": {"source": "record", "field": "state"}, "code": "duplicate_identifier", "error_path": "fields.1"},
+        {"name": "unknown field source", "base": "row", "path": "fields.0.source", "value": "other", "code": "unknown_source_alias", "error_path": "fields.0.source"},
+        {"name": "invalid row", "base": "row", "path": "measures.0", "value": {"alias": "record_count", "source": "record", "field": null, "operation": "count", "result_type": "integer", "null_behavior": "zero", "unit": "count"}, "code": "result_shape_mismatch", "error_path": "result.shape"},
+        {"name": "invalid filter", "base": "row", "path": "filters.0.value", "value": [], "code": "invalid_filter_value", "error_path": "filters.0.value"},
+        {"name": "invalid filter operator", "base": "row", "path": "filters.0.operator", "value": "contains", "code": "invalid_filter_value", "error_path": "filters.0.operator"},
+        {"name": "invalid result shape", "base": "row", "path": "result.shape", "value": "matrix", "code": "invalid_shape", "error_path": "result.shape"},
+        {"name": "invalid aggregate", "base": "aggregate", "path": "fields.0", "value": {"source": "first", "field": "state"}, "code": "result_shape_mismatch", "error_path": "result.shape"},
+        {"name": "invalid count", "base": "aggregate", "path": "measures.0.field", "value": "quantity", "code": "invalid_measure", "error_path": "measures.0"},
+        {"name": "duplicate dimension", "base": "aggregate", "path": "dimensions.1", "value": {"source": "first", "field": "party", "bucket": null}, "code": "duplicate_identifier", "error_path": "dimensions.1"},
+        {"name": "duplicate measure", "base": "aggregate", "path": "measures.1.alias", "value": "first_count", "code": "duplicate_identifier", "error_path": "measures.1.alias"},
+        {"name": "v4 missing derived reference", "base": "aggregate_v4_case_label", "path": "dimensions.0.target.alias", "value": "missing", "code": "invalid_identifier", "error_path": "dimensions.0.target.alias"},
+        {"name": "v4 wrong derived stage", "base": "aggregate_v4_case_label", "path": "derived.0.stage", "value": "aggregate", "code": "unknown_key", "error_path": "derived.0.source"},
+        {"name": "v4 invalid limit", "base": "aggregate_v4_case_label", "path": "limit.count", "value": 0, "code": "invalid_shape", "error_path": "limit.count"},
+        {"name": "v4 count requires null field", "base": "aggregate_v4_count", "path": "measures.0.field", "value": {"kind": "field", "source": "record", "field": "status"}, "code": "invalid_measure", "error_path": "measures.0.field"},
+        {"name": "v4 field target is not allowed in having", "base": "aggregate_v4_count", "path": "having.target", "value": {"kind": "field", "source": "record", "field": "status"}, "code": "unknown_key", "error_path": "having.target.source"},
+        {"name": "v4 measure target is not allowed in where", "base": "aggregate_v4_count", "path": "where", "value": {"kind": "condition", "target": {"kind": "measure", "alias": "records"}, "operator": "gte", "value": 1}, "code": "invalid_shape", "error_path": "where.target.kind"},
+        {"name": "v4 count requires integer result", "base": "aggregate_v4_count", "path": "measures.0.result_type", "value": "decimal", "code": "invalid_measure", "error_path": "measures.0"},
+        {"name": "v4 distinct count requires zero policy", "base": "aggregate_v4_case_label", "path": "measures.0.null_behavior", "value": "null_if_empty", "code": "invalid_measure", "error_path": "measures.0"},
+        {"name": "v4 invalid predicate scalar", "base": "aggregate_v4_case_label", "path": "derived.0.expression.branches.0.when.value", "value": [], "code": "invalid_filter_value", "error_path": "derived.0.expression.branches.0.when.value"},
+        {"name": "v4 predicate unknown key", "base": "aggregate_v4_case_label", "path": "derived.0.expression.branches.0.when.extra", "value": true, "code": "unknown_key", "error_path": "derived.0.expression.branches.0.when.extra"},
+        {"name": "v4 target unknown key", "base": "aggregate_v4_case_label", "path": "dimensions.0.target.extra", "value": true, "code": "unknown_key", "error_path": "dimensions.0.target.extra"},
+        {"name": "v4 derived cycle", "base": "aggregate_v4_case_label", "path": "derived.0.expression", "value": {"kind": "derived", "alias": "status_label"}, "code": "invalid_identifier", "error_path": "derived"},
+        {"name": "v4 unavailable comparison target", "base": "aggregate_v4_case_label", "path": "comparison", "value": {"kind": "previous_period", "dimension": {"source": "record", "field": "status", "bucket": "month"}, "targets": [{"kind": "derived", "alias": "missing"}]}, "code": "invalid_identifier", "error_path": "comparison.targets.0.alias"},
+        {"name": "v4 sort over budget", "base": "aggregate_v4_case_label", "path": "sort", "value": {"target": {"kind": "derived", "alias": "status_label"}, "direction": "asc", "nulls": "last"}, "repeat": 101, "code": "invalid_shape", "error_path": "sort"}
+    ]
+}
