@@ -3,7 +3,7 @@
         "Nexia\\Approval\\PreparedApprovalAttachments",
         "Nexia\\Contribution\\ContributionI18n::loadKey",
         "Nexia\\Contribution\\ContributionI18n::loadField",
-        "Nexia\\Contribution\\ContributionTranslationProvider::loadKey",
+        "Nexia\\Contribution\\Contracts\\ContributionTranslationProvider::loadKey",
         "Nexia\\Contribution\\AbstractResourceModuleContribution",
         "Nexia\\AppDescriptors\\ApprovalBindingContribution",
         "Nexia\\AppDescriptors\\PerformanceMeasurementDescriptor",

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Nexia\Permission\Contracts;
 
+use Nexia\Permission\PermissionDefinition;
+
 interface PermissionContribution
 {
     /**

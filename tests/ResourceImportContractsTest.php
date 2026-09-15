@@ -18,7 +18,7 @@ use Nexia\ResourceImport\ImportContributionValidator;
 use Nexia\ResourceImport\ImportRecipeDefinition;
 use Nexia\ResourceImport\ImportSourceProfile;
 use Nexia\ResourceImport\Contracts\ResourceImportPipeline;
-use Nexia\ResourceImport\Contracts\ResourceImportPipelineDefinition;
+use Nexia\ResourceImport\ResourceImportPipelineDefinition;
 use Nexia\ResourceImport\Workbook\Contracts\SafeWorkbookInspector;
 use Nexia\ResourceTransfer\TransferSchema;
 

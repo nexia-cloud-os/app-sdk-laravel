@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Nexia\Approval\Contracts;
 
 use Nexia\Approval\Contracts\ResourceSubjectActor;
-use Nexia\Approval\Contracts\ResourceSubjectActorDescriptor;
+use Nexia\Approval\Resolver\ResourceSubjectActorDescriptor;
 
 /**
  * Host registry an App uses to declare who its records are *about*.

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Nexia\AppDescriptors;
 
+use Nexia\AppDescriptors\Contracts\AppDescriptor;
+
 final class ReportingViewDescriptor implements AppDescriptor
 {
     public function __construct(

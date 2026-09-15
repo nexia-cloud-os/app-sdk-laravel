@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Nexia\ResourceImport\Contracts;
 
+use Nexia\ResourceImport\ImportRecipeDefinition;
+
 /**
  * App contribution for an import the host drives from the App's recipe.
  *

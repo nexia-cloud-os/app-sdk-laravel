@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nexia\ResourceComposition\Contracts;
 
+use Nexia\Laravel\ResourceComposition\Contracts\AuthorizedCompositionQueryProvider;
 use Nexia\Contribution\Contracts\ResourceCatalogContribution;
 
 /** Binds one Resource descriptor to its App-owned composition visibility query. */

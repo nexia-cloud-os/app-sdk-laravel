@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Nexia\Agent\Contracts;
 
+use Nexia\Agent\AgentToolDeclaration;
+
 /**
  * App-owned, route-backed Agent tools discovered from contribution locations.
  *

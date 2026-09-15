@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nexia\Signature;
 
+use Nexia\Signature\Contracts\SignatureDocumentPlanSource;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use Nexia\Identity\Contracts\Actor;

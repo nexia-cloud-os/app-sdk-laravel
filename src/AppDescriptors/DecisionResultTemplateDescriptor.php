@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nexia\AppDescriptors;
 
+use Nexia\AppDescriptors\Contracts\AppDescriptor;
 use Nexia\Process\Domain\Enums\DecisionHitPolicy;
 
 /**

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Nexia\AppDescriptors;
 
+use Nexia\AppDescriptors\Contracts\AppDescriptor;
+
 /**
  * App-contributed non-user process work action.
  *

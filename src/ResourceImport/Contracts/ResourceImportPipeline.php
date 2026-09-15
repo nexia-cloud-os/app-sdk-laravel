@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nexia\ResourceImport\Contracts;
 
+use Nexia\ResourceImport\ImportBatchState;
 use Nexia\Identity\Contracts\Actor;
 use Nexia\Organization\Contracts\LegalEntity;
 

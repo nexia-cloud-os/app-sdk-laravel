@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nexia\Signature;
 
+use Nexia\Signature\Contracts\SignatureDocumentPlanSource;
 use InvalidArgumentException;
 
 /** Published template plus the App-owned values and business-role snapshot. */

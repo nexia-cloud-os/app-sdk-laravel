@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nexia\ResourceImport;
 
+use Nexia\ResourceImport\Contracts\ResourceImportPipeline;
 use Nexia\ResourceTransfer\TransferSchema;
 
 /** One importable resource an App exposes, and the handler that commits it. */

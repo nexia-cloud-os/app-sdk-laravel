@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nexia\ResourceTransfer;
 
+use Nexia\ResourceTransfer\Contracts\ResourceTransferDefinition;
 use Nexia\ResourceTransfer\Contracts\ResourceTransferCatalog;
 
 final class ResourceTransfers

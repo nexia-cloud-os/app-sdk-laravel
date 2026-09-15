@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nexia\Approval\Resolver;
 
+use Nexia\Approval\Contracts\ResourceSubjectActor;
 use Nexia\Identity\Contracts\Actor;
 use Nexia\Organization\Contracts\LegalEntity;
 use Nexia\ResourceReference\ResourceRef;

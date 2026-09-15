@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Nexia\AppDescriptors;
 
+use Nexia\AppDescriptors\Contracts\AppDescriptor;
+
 /**
  * App-contributed Approval form domain binding.
  *

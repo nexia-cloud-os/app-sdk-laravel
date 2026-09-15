@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Nexia\ResourceReference\Contracts;
 
+use Nexia\ResourceReference\ResolvedResourceReference;
+use Nexia\ResourceReference\ResourceReferenceResolutionContext;
 use DateTimeImmutable;
 
 /** Optional owner-side exact search across an effective-date range for batch workloads. */

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Nexia\ResourceImport\Analysis;
 
+use Nexia\ResourceImport\Contracts\ImportAnalysisRows;
+
 /** Repeatable host-owned analysis snapshot returned without exposing persistence. */
 final readonly class ImportAnalysisSnapshot
 {

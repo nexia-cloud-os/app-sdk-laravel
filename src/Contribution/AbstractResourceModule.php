@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Nexia\Contribution;
 
+use Nexia\Contribution\Contracts\ResourceCatalogContribution;
 use LogicException;
 use Nexia\AppDescriptors\Contracts\AppDescriptorContribution;
-use Nexia\AppDescriptors\Contracts\AppDescriptorSet;
+use Nexia\AppDescriptors\AppDescriptorSet;
 
 /**
  * Canonical static descriptor surface for one Resource Module.

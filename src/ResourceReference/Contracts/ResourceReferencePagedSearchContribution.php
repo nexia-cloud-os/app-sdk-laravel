@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Nexia\ResourceReference\Contracts;
 
+use Nexia\ResourceReference\ResourceReferencePage;
+use Nexia\ResourceReference\ResourceReferenceResolutionContext;
+
 /** Selector-grade owner search with pagination and a type-level authorization probe. */
 interface ResourceReferencePagedSearchContribution extends ResourceReferenceSearchContribution
 {

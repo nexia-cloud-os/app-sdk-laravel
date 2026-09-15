@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Nexia\ResourceImport\Contracts;
 
+use Nexia\ResourceImport\ResourceImportPipelineDefinition;
+
 /**
  * App contribution for a file-import pipeline the host may drive.
  *

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nexia\Signature;
 
+use Nexia\Signature\Contracts\SignatureDocumentPlanSource;
 use InvalidArgumentException;
 
 /** One uploaded PDF with its complete interactive participant and field plan. */

@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Nexia\ResourceReference\Contracts;
 
+use Nexia\ResourceReference\ResolvedResourceReference;
+use Nexia\ResourceReference\ResourceReferenceResolutionContext;
+
 /** Optional owner-side bulk resolution for import and other batch workloads. */
 interface ResourceReferenceBatchResolutionContribution extends ResourceReferenceResolutionContribution
 {

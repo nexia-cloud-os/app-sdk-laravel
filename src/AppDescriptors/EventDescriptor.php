@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Nexia\AppDescriptors;
 
+use Nexia\AppDescriptors\Contracts\AppDescriptor;
+
 /** Standalone public integration Event contributed through the App descriptor set. */
 final readonly class EventDescriptor implements AppDescriptor
 {

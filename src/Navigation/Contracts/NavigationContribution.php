@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Nexia\Navigation\Contracts;
 
+use Nexia\Navigation\NavigationItem;
+
 /**
  * Marks an App class as a shell-navigation contributor.
  *

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Nexia\AppDescriptors;
 
+use Nexia\AppDescriptors\Contracts\AppDescriptor;
+
 /**
  * App-neutral binding from a stable App business intent to an executable
  * Process definition key. Apps never receive or persist Core database ids.

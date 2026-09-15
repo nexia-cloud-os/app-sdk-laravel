@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nexia\ResourceImport;
 
+use Nexia\ResourceImport\Contracts\ResourceImportPipeline;
 use InvalidArgumentException;
 use Nexia\ResourceImport\Contracts\ImportDecisionProvider;
 use Nexia\ResourceImport\Contracts\ImportRecipeProvider;

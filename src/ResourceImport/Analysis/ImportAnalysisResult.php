@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Nexia\ResourceImport\Analysis;
 
+use Nexia\ResourceImport\Contracts\ImportAnalysisRows;
+
 /** App-neutral parser result persisted by the host as encrypted chunks. */
 final readonly class ImportAnalysisResult
 {

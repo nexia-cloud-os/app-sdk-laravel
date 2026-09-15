@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Nexia\AppDescriptors\Contracts\AppDescriptorSet;
+use Nexia\AppDescriptors\AppDescriptorSet;
 use Nexia\AppDescriptors\SignatureDocumentDataContractDescriptor;
 use Nexia\AppDescriptors\SignatureDocumentDataFieldDescriptor;
 use Nexia\AppDescriptors\SignatureDocumentDataSourceDescriptor;

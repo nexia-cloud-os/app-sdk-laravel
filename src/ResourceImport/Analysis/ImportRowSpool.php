@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nexia\ResourceImport\Analysis;
 
+use Nexia\ResourceImport\Contracts\ImportAnalysisRows;
 use RuntimeException;
 use Traversable;
 

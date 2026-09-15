@@ -31,20 +31,6 @@
             "enum_wire_values": []
         },
         {
-            "kind": "interface",
-            "name": "Nexia\\Agent\\Contracts\\AgentToolContribution",
-            "file": "src/Agent/Contracts/AgentToolContribution.php",
-            "deprecated": false,
-            "public_signatures": [
-                {
-                    "signature": "agentTools(): array",
-                    "deprecated": false
-                }
-            ],
-            "dto_keys": [],
-            "enum_wire_values": []
-        },
-        {
             "kind": "class",
             "name": "Nexia\\Agent\\AgentToolDeclaration",
             "file": "src/Agent/AgentToolDeclaration.php",
@@ -195,26 +181,12 @@
         },
         {
             "kind": "interface",
-            "name": "Nexia\\AppDescriptors\\Contracts\\AppDescriptor",
-            "file": "src/AppDescriptors/Contracts/AppDescriptor.php",
+            "name": "Nexia\\Agent\\Contracts\\AgentToolContribution",
+            "file": "src/Agent/Contracts/AgentToolContribution.php",
             "deprecated": false,
             "public_signatures": [
                 {
-                    "signature": "descriptorKey(): string",
-                    "deprecated": false
-                }
-            ],
-            "dto_keys": [],
-            "enum_wire_values": []
-        },
-        {
-            "kind": "interface",
-            "name": "Nexia\\AppDescriptors\\Contracts\\AppDescriptorContribution",
-            "file": "src/AppDescriptors/Contracts/AppDescriptorContribution.php",
-            "deprecated": false,
-            "public_signatures": [
-                {
-                    "signature": "appDescriptors(): AppDescriptorSet",
+                    "signature": "agentTools(): array",
                     "deprecated": false
                 }
             ],
@@ -361,20 +333,6 @@
             "enum_wire_values": []
         },
         {
-            "kind": "interface",
-            "name": "Nexia\\AppDescriptors\\Contracts\\BatchResourceSummaryContribution",
-            "file": "src/AppDescriptors/Contracts/BatchResourceSummaryContribution.php",
-            "deprecated": false,
-            "public_signatures": [
-                {
-                    "signature": "summarizeMany(array $resourceIds, ResourceSummaryContext $context): array",
-                    "deprecated": false
-                }
-            ],
-            "dto_keys": [],
-            "enum_wire_values": []
-        },
-        {
             "kind": "class",
             "name": "Nexia\\AppDescriptors\\CaseCorrelationSubjectDescriptor",
             "file": "src/AppDescriptors/CaseCorrelationSubjectDescriptor.php",
@@ -392,6 +350,48 @@
                 "sourcePath",
                 "subjectResourceKey"
             ],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
+            "name": "Nexia\\AppDescriptors\\Contracts\\AppDescriptor",
+            "file": "src/AppDescriptors/Contracts/AppDescriptor.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "descriptorKey(): string",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
+            "name": "Nexia\\AppDescriptors\\Contracts\\AppDescriptorContribution",
+            "file": "src/AppDescriptors/Contracts/AppDescriptorContribution.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "appDescriptors(): AppDescriptorSet",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
+            "name": "Nexia\\AppDescriptors\\Contracts\\BatchResourceSummaryContribution",
+            "file": "src/AppDescriptors/Contracts/BatchResourceSummaryContribution.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "summarizeMany(array $resourceIds, ResourceSummaryContext $context): array",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
             "enum_wire_values": []
         },
         {
@@ -420,6 +420,24 @@
                 },
                 {
                     "signature": "summarize(string $resourceKey, string $resourceId, ResourceSummaryContext $context,): ?ResourceSummary",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
+            "name": "Nexia\\AppDescriptors\\Contracts\\ResourceSummaryContribution",
+            "file": "src/AppDescriptors/Contracts/ResourceSummaryContribution.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "resourceKey(): string",
+                    "deprecated": false
+                },
+                {
+                    "signature": "summarize(string $resourceId, ResourceSummaryContext $context): ?ResourceSummary",
                     "deprecated": false
                 }
             ],
@@ -979,24 +997,6 @@
             "enum_wire_values": []
         },
         {
-            "kind": "interface",
-            "name": "Nexia\\AppDescriptors\\Contracts\\ResourceSummaryContribution",
-            "file": "src/AppDescriptors/Contracts/ResourceSummaryContribution.php",
-            "deprecated": false,
-            "public_signatures": [
-                {
-                    "signature": "resourceKey(): string",
-                    "deprecated": false
-                },
-                {
-                    "signature": "summarize(string $resourceId, ResourceSummaryContext $context): ?ResourceSummary",
-                    "deprecated": false
-                }
-            ],
-            "dto_keys": [],
-            "enum_wire_values": []
-        },
-        {
             "kind": "class",
             "name": "Nexia\\AppDescriptors\\ResourceSummaryField",
             "file": "src/AppDescriptors/ResourceSummaryField.php",
@@ -1519,20 +1519,6 @@
         },
         {
             "kind": "interface",
-            "name": "Nexia\\AppRuntime\\Contracts\\ShellResourceContribution",
-            "file": "src/AppRuntime/Contracts/ShellResourceContribution.php",
-            "deprecated": false,
-            "public_signatures": [
-                {
-                    "signature": "shellResource(): ShellResourceDescriptor",
-                    "deprecated": false
-                }
-            ],
-            "dto_keys": [],
-            "enum_wire_values": []
-        },
-        {
-            "kind": "interface",
             "name": "Nexia\\AppRuntime\\Contracts\\AppManifest",
             "file": "src/AppRuntime/Contracts/AppManifest.php",
             "deprecated": false,
@@ -1609,6 +1595,20 @@
             "public_signatures": [
                 {
                     "signature": "resolve(AppManifest $manifest): array",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
+            "name": "Nexia\\AppRuntime\\Contracts\\ShellResourceContribution",
+            "file": "src/AppRuntime/Contracts/ShellResourceContribution.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "shellResource(): ShellResourceDescriptor",
                     "deprecated": false
                 }
             ],
@@ -1924,6 +1924,20 @@
         },
         {
             "kind": "interface",
+            "name": "Nexia\\Approval\\Contracts\\ApprovalLineResolver",
+            "file": "src/Approval/Contracts/ApprovalLineResolver.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "resolve(ResolverContext $context): ResolvedApprovalLine",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
             "name": "Nexia\\Approval\\Contracts\\ApprovalResolverRegistrar",
             "file": "src/Approval/Contracts/ApprovalResolverRegistrar.php",
             "deprecated": false,
@@ -1934,6 +1948,20 @@
                 },
                 {
                     "signature": "registered(string $type): bool",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
+            "name": "Nexia\\Approval\\Contracts\\ResourceSubjectActor",
+            "file": "src/Approval/Contracts/ResourceSubjectActor.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "subjectActorKey(ResourceRef $resourceRef, LegalEntity $legalEntity): ?int",
                     "deprecated": false
                 }
             ],
@@ -2291,20 +2319,6 @@
             "enum_wire_values": []
         },
         {
-            "kind": "interface",
-            "name": "Nexia\\Approval\\Contracts\\ApprovalLineResolver",
-            "file": "src/Approval/Contracts/ApprovalLineResolver.php",
-            "deprecated": false,
-            "public_signatures": [
-                {
-                    "signature": "resolve(ResolverContext $context): ResolvedApprovalLine",
-                    "deprecated": false
-                }
-            ],
-            "dto_keys": [],
-            "enum_wire_values": []
-        },
-        {
             "kind": "class",
             "name": "Nexia\\Approval\\Resolver\\ApprovalResolverDescriptor",
             "file": "src/Approval/Resolver/ApprovalResolverDescriptor.php",
@@ -2409,7 +2423,7 @@
             "deprecated": false,
             "public_signatures": [
                 {
-                    "signature": "__construct(public Actor $submitter, public LegalEntity $legalEntity, public ?ResourceRef $resourceRef = null, public array $payload = [], public array $config = [], /** * The person `$resourceRef` is about, when its owning App declared a * {@see ResourceSubjectActor}. Core fills this in before a resolver * runs; callers leave it null. Null means no provider answered — a * subject-anchored resolver must fail closed rather than fall back to * the submitter, which would silently approve the wrong line. */ public ?Actor $subjectActor = null,)",
+                    "signature": "__construct(public Actor $submitter, public LegalEntity $legalEntity, public ?ResourceRef $resourceRef = null, public array $payload = [], public array $config = [], /** * The person `$resourceRef` is about, when its owning App declared a * {@see ResourceSubjectActor}. Core fills this in before a resolver * runs; callers leave it null. Null means no provider answered \u2014 a * subject-anchored resolver must fail closed rather than fall back to * the submitter, which would silently approve the wrong line. */ public ?Actor $subjectActor = null,)",
                     "deprecated": false
                 },
                 {
@@ -2427,20 +2441,6 @@
                 "payload",
                 "submitter"
             ],
-            "enum_wire_values": []
-        },
-        {
-            "kind": "interface",
-            "name": "Nexia\\Approval\\Contracts\\ResourceSubjectActor",
-            "file": "src/Approval/Contracts/ResourceSubjectActor.php",
-            "deprecated": false,
-            "public_signatures": [
-                {
-                    "signature": "subjectActorKey(ResourceRef $resourceRef, LegalEntity $legalEntity): ?int",
-                    "deprecated": false
-                }
-            ],
-            "dto_keys": [],
             "enum_wire_values": []
         },
         {
@@ -2924,15 +2924,6 @@
             "enum_wire_values": []
         },
         {
-            "kind": "class",
-            "name": "Nexia\\Contribution\\ContributionI18n",
-            "file": "src/Contribution/ContributionI18n.php",
-            "deprecated": false,
-            "public_signatures": [],
-            "dto_keys": [],
-            "enum_wire_values": []
-        },
-        {
             "kind": "interface",
             "name": "Nexia\\Contribution\\Contracts\\ContributionTranslationProvider",
             "file": "src/Contribution/Contracts/ContributionTranslationProvider.php",
@@ -2953,29 +2944,6 @@
                 }
             ],
             "dto_keys": [],
-            "enum_wire_values": []
-        },
-        {
-            "kind": "class",
-            "name": "Nexia\\Contribution\\ResourceAuthorizationContract",
-            "file": "src/Contribution/ResourceAuthorizationContract.php",
-            "deprecated": false,
-            "public_signatures": [
-                {
-                    "signature": "custom(ResourceRecordOwner $recordOwner, AssignmentScope $permissionScope, ResourceLegalEntityParticipation $legalEntityParticipation,): self",
-                    "deprecated": false
-                },
-                {
-                    "signature": "standard(ResourceRecordOwner $recordOwner, AssignmentScope $permissionScope, ResourceLegalEntityParticipation $legalEntityParticipation,): self",
-                    "deprecated": false
-                }
-            ],
-            "dto_keys": [
-                "legalEntityParticipation",
-                "permissionScope",
-                "recordOwner",
-                "visibilityProfile"
-            ],
             "enum_wire_values": []
         },
         {
@@ -3004,6 +2972,38 @@
                 }
             ],
             "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "class",
+            "name": "Nexia\\Contribution\\ContributionI18n",
+            "file": "src/Contribution/ContributionI18n.php",
+            "deprecated": false,
+            "public_signatures": [],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "class",
+            "name": "Nexia\\Contribution\\ResourceAuthorizationContract",
+            "file": "src/Contribution/ResourceAuthorizationContract.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "custom(ResourceRecordOwner $recordOwner, AssignmentScope $permissionScope, ResourceLegalEntityParticipation $legalEntityParticipation,): self",
+                    "deprecated": false
+                },
+                {
+                    "signature": "standard(ResourceRecordOwner $recordOwner, AssignmentScope $permissionScope, ResourceLegalEntityParticipation $legalEntityParticipation,): self",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [
+                "legalEntityParticipation",
+                "permissionScope",
+                "recordOwner",
+                "visibilityProfile"
+            ],
             "enum_wire_values": []
         },
         {
@@ -3059,6 +3059,34 @@
             }
         },
         {
+            "kind": "interface",
+            "name": "Nexia\\Dashboard\\Contracts\\DashboardQuerySourceContribution",
+            "file": "src/Dashboard/Contracts/DashboardQuerySourceContribution.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "dashboardQuerySources(): array",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
+            "name": "Nexia\\Dashboard\\Contracts\\DashboardWidgetContribution",
+            "file": "src/Dashboard/Contracts/DashboardWidgetContribution.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "dashboardWidgets(): array",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
             "kind": "class",
             "name": "Nexia\\Dashboard\\DashboardQuerySource",
             "file": "src/Dashboard/DashboardQuerySource.php",
@@ -3094,20 +3122,6 @@
             "enum_wire_values": []
         },
         {
-            "kind": "interface",
-            "name": "Nexia\\Dashboard\\Contracts\\DashboardQuerySourceContribution",
-            "file": "src/Dashboard/Contracts/DashboardQuerySourceContribution.php",
-            "deprecated": false,
-            "public_signatures": [
-                {
-                    "signature": "dashboardQuerySources(): array",
-                    "deprecated": false
-                }
-            ],
-            "dto_keys": [],
-            "enum_wire_values": []
-        },
-        {
             "kind": "class",
             "name": "Nexia\\Dashboard\\DashboardWidget",
             "file": "src/Dashboard/DashboardWidget.php",
@@ -3132,20 +3146,6 @@
                 "spec",
                 "titleKey"
             ],
-            "enum_wire_values": []
-        },
-        {
-            "kind": "interface",
-            "name": "Nexia\\Dashboard\\Contracts\\DashboardWidgetContribution",
-            "file": "src/Dashboard/Contracts/DashboardWidgetContribution.php",
-            "deprecated": false,
-            "public_signatures": [
-                {
-                    "signature": "dashboardWidgets(): array",
-                    "deprecated": false
-                }
-            ],
-            "dto_keys": [],
             "enum_wire_values": []
         },
         {
@@ -3743,6 +3743,24 @@
             "enum_wire_values": []
         },
         {
+            "kind": "interface",
+            "name": "Nexia\\Fixture\\Contracts\\FixtureContribution",
+            "file": "src/Fixture/Contracts/FixtureContribution.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "fixtureKeys(): array",
+                    "deprecated": false
+                },
+                {
+                    "signature": "seed(FixtureContext $context): void",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
             "kind": "class",
             "name": "Nexia\\Fixture\\FixtureContext",
             "file": "src/Fixture/FixtureContext.php",
@@ -3790,24 +3808,6 @@
                 "actorUserId",
                 "fixtureKey"
             ],
-            "enum_wire_values": []
-        },
-        {
-            "kind": "interface",
-            "name": "Nexia\\Fixture\\Contracts\\FixtureContribution",
-            "file": "src/Fixture/Contracts/FixtureContribution.php",
-            "deprecated": false,
-            "public_signatures": [
-                {
-                    "signature": "fixtureKeys(): array",
-                    "deprecated": false
-                },
-                {
-                    "signature": "seed(FixtureContext $context): void",
-                    "deprecated": false
-                }
-            ],
-            "dto_keys": [],
             "enum_wire_values": []
         },
         {
@@ -4033,6 +4033,20 @@
                 },
                 {
                     "signature": "requireByPublicId(string $publicId): Actor",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
+            "name": "Nexia\\Identity\\Contracts\\BatchPartyDirectory",
+            "file": "src/Identity/Contracts/BatchPartyDirectory.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "activePeopleByEmails(array $emails, int $limitPerEmail = 2): array",
                     "deprecated": false
                 }
             ],
@@ -4669,20 +4683,6 @@
         },
         {
             "kind": "interface",
-            "name": "Nexia\\Identity\\Contracts\\BatchPartyDirectory",
-            "file": "src/Identity/Contracts/BatchPartyDirectory.php",
-            "deprecated": false,
-            "public_signatures": [
-                {
-                    "signature": "activePeopleByEmails(array $emails, int $limitPerEmail = 2): array",
-                    "deprecated": false
-                }
-            ],
-            "dto_keys": [],
-            "enum_wire_values": []
-        },
-        {
-            "kind": "interface",
             "name": "Nexia\\Laravel\\Identity\\Contracts\\PartyDirectory",
             "file": "src/Laravel/Identity/Contracts/PartyDirectory.php",
             "deprecated": false,
@@ -4902,16 +4902,12 @@
         },
         {
             "kind": "interface",
-            "name": "Nexia\\ResourceReference\\Contracts\\ReferenceAvailability",
-            "file": "src/ResourceReference/Contracts/ReferenceAvailability.php",
+            "name": "Nexia\\Laravel\\ResourceComposition\\Contracts\\AuthorizedCompositionQueryProvider",
+            "file": "src/Laravel/ResourceComposition/Contracts/AuthorizedCompositionQueryProvider.php",
             "deprecated": false,
             "public_signatures": [
                 {
-                    "signature": "ownerInstalled(string $resourceKey): bool",
-                    "deprecated": false
-                },
-                {
-                    "signature": "status(Actor $actor, ?int $legalEntityId, string $resourceKey, ?ResourceReferenceResolutionContext $context = null,): ReferenceStatus",
+                    "signature": "query(CompositionQueryContext $context): AuthorizedCompositionQuery",
                     "deprecated": false
                 }
             ],
@@ -4926,6 +4922,24 @@
             "public_signatures": [
                 {
                     "signature": "fromPaginator(LengthAwarePaginator $paginator, Closure $map): ResourceReferencePage",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
+            "name": "Nexia\\Laravel\\ResourceTransfer\\Contracts\\ResourceTransferExportSource",
+            "file": "src/Laravel/ResourceTransfer/Contracts/ResourceTransferExportSource.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "evidence(ResourceTransferExportRequest $request): array",
+                    "deprecated": false
+                },
+                {
+                    "signature": "rows(ResourceTransferExportRequest $request): iterable",
                     "deprecated": false
                 }
             ],
@@ -5249,6 +5263,20 @@
         },
         {
             "kind": "interface",
+            "name": "Nexia\\Navigation\\Contracts\\NavigationContribution",
+            "file": "src/Navigation/Contracts/NavigationContribution.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "navigationItems(): array",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
             "name": "Nexia\\Navigation\\Contracts\\NavigationDestinations",
             "file": "src/Navigation/Contracts/NavigationDestinations.php",
             "deprecated": false,
@@ -5267,20 +5295,6 @@
                 },
                 {
                     "signature": "route(string $contributor): string",
-                    "deprecated": false
-                }
-            ],
-            "dto_keys": [],
-            "enum_wire_values": []
-        },
-        {
-            "kind": "interface",
-            "name": "Nexia\\Navigation\\Contracts\\NavigationContribution",
-            "file": "src/Navigation/Contracts/NavigationContribution.php",
-            "deprecated": false,
-            "public_signatures": [
-                {
-                    "signature": "navigationItems(): array",
                     "deprecated": false
                 }
             ],
@@ -5782,6 +5796,20 @@
             "enum_wire_values": []
         },
         {
+            "kind": "interface",
+            "name": "Nexia\\Palette\\Contracts\\PaletteCommandContribution",
+            "file": "src/Palette/Contracts/PaletteCommandContribution.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "paletteCommandItems(): array",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
             "kind": "class",
             "name": "Nexia\\Palette\\PaletteCommand",
             "file": "src/Palette/PaletteCommand.php",
@@ -5829,20 +5857,6 @@
             "enum_wire_values": []
         },
         {
-            "kind": "interface",
-            "name": "Nexia\\Palette\\Contracts\\PaletteCommandContribution",
-            "file": "src/Palette/Contracts/PaletteCommandContribution.php",
-            "deprecated": false,
-            "public_signatures": [
-                {
-                    "signature": "paletteCommandItems(): array",
-                    "deprecated": false
-                }
-            ],
-            "dto_keys": [],
-            "enum_wire_values": []
-        },
-        {
             "kind": "enum",
             "name": "Nexia\\Permission\\AssignmentScope",
             "file": "src/Permission/AssignmentScope.php",
@@ -5861,18 +5875,6 @@
             }
         },
         {
-            "kind": "enum",
-            "name": "Nexia\\Permission\\GrantControl",
-            "file": "src/Permission/GrantControl.php",
-            "deprecated": false,
-            "public_signatures": [],
-            "dto_keys": [],
-            "enum_wire_values": {
-                "Protected": "protected",
-                "Standard": "standard"
-            }
-        },
-        {
             "kind": "interface",
             "name": "Nexia\\Permission\\Contracts\\LegalEntityMemberSelfAccessContribution",
             "file": "src/Permission/Contracts/LegalEntityMemberSelfAccessContribution.php",
@@ -5887,6 +5889,46 @@
             "enum_wire_values": []
         },
         {
+            "kind": "interface",
+            "name": "Nexia\\Permission\\Contracts\\PermissionContribution",
+            "file": "src/Permission/Contracts/PermissionContribution.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "catalogPermissionDefinitions(): array",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
+            "name": "Nexia\\Permission\\Contracts\\RolePresetContribution",
+            "file": "src/Permission/Contracts/RolePresetContribution.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "rolePresets(): array",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "enum",
+            "name": "Nexia\\Permission\\GrantControl",
+            "file": "src/Permission/GrantControl.php",
+            "deprecated": false,
+            "public_signatures": [],
+            "dto_keys": [],
+            "enum_wire_values": {
+                "Protected": "protected",
+                "Standard": "standard"
+            }
+        },
+        {
             "kind": "class",
             "name": "Nexia\\Permission\\PermissionAppDefinition",
             "file": "src/Permission/PermissionAppDefinition.php",
@@ -5898,20 +5940,6 @@
                 },
                 {
                     "signature": "resource(string $resource, array $actions): self",
-                    "deprecated": false
-                }
-            ],
-            "dto_keys": [],
-            "enum_wire_values": []
-        },
-        {
-            "kind": "interface",
-            "name": "Nexia\\Permission\\Contracts\\PermissionContribution",
-            "file": "src/Permission/Contracts/PermissionContribution.php",
-            "deprecated": false,
-            "public_signatures": [
-                {
-                    "signature": "catalogPermissionDefinitions(): array",
                     "deprecated": false
                 }
             ],
@@ -6063,20 +6091,6 @@
                 "risk",
                 "version"
             ],
-            "enum_wire_values": []
-        },
-        {
-            "kind": "interface",
-            "name": "Nexia\\Permission\\Contracts\\RolePresetContribution",
-            "file": "src/Permission/Contracts/RolePresetContribution.php",
-            "deprecated": false,
-            "public_signatures": [
-                {
-                    "signature": "rolePresets(): array",
-                    "deprecated": false
-                }
-            ],
-            "dto_keys": [],
             "enum_wire_values": []
         },
         {
@@ -6583,20 +6597,6 @@
         },
         {
             "kind": "interface",
-            "name": "Nexia\\Laravel\\ResourceComposition\\Contracts\\AuthorizedCompositionQueryProvider",
-            "file": "src/Laravel/ResourceComposition/Contracts/AuthorizedCompositionQueryProvider.php",
-            "deprecated": false,
-            "public_signatures": [
-                {
-                    "signature": "query(CompositionQueryContext $context): AuthorizedCompositionQuery",
-                    "deprecated": false
-                }
-            ],
-            "dto_keys": [],
-            "enum_wire_values": []
-        },
-        {
-            "kind": "interface",
             "name": "Nexia\\ResourceComposition\\Contracts\\CompositionQueryContribution",
             "file": "src/ResourceComposition/Contracts/CompositionQueryContribution.php",
             "deprecated": false,
@@ -6644,15 +6644,6 @@
                 "metadata",
                 "rows"
             ],
-            "enum_wire_values": []
-        },
-        {
-            "kind": "interface",
-            "name": "Nexia\\ResourceImport\\Contracts\\ImportAnalysisRows",
-            "file": "src/ResourceImport/Contracts/ImportAnalysisRows.php",
-            "deprecated": false,
-            "public_signatures": [],
-            "dto_keys": [],
             "enum_wire_values": []
         },
         {
@@ -6720,6 +6711,15 @@
         },
         {
             "kind": "interface",
+            "name": "Nexia\\ResourceImport\\Contracts\\ImportAnalysisRows",
+            "file": "src/ResourceImport/Contracts/ImportAnalysisRows.php",
+            "deprecated": false,
+            "public_signatures": [],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
             "name": "Nexia\\ResourceImport\\Contracts\\ImportDecisionProvider",
             "file": "src/ResourceImport/Contracts/ImportDecisionProvider.php",
             "deprecated": false,
@@ -6748,6 +6748,20 @@
         },
         {
             "kind": "interface",
+            "name": "Nexia\\ResourceImport\\Contracts\\ImportRecipeContribution",
+            "file": "src/ResourceImport/Contracts/ImportRecipeContribution.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "resourceImportRecipes(): array",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
             "name": "Nexia\\ResourceImport\\Contracts\\ImportRecipeProvider",
             "file": "src/ResourceImport/Contracts/ImportRecipeProvider.php",
             "deprecated": false,
@@ -6768,6 +6782,60 @@
             "public_signatures": [
                 {
                     "signature": "rejected(array $rows): array",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
+            "name": "Nexia\\ResourceImport\\Contracts\\ResourceImportPipeline",
+            "file": "src/ResourceImport/Contracts/ResourceImportPipeline.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "apply(string $batchId, LegalEntity $legalEntity, Actor $actor): ImportBatchState",
+                    "deprecated": false
+                },
+                {
+                    "signature": "receive(LegalEntity $legalEntity, Actor $actor, string $profileKey, int $schemaVersion, string $fileId, string $fileHash, int $rowCount, array $mapping, string $idempotencyKey,): ImportBatchState",
+                    "deprecated": false
+                },
+                {
+                    "signature": "retry(string $batchId, LegalEntity $legalEntity, Actor $actor, array $mapping, string $idempotencyKey,): ImportBatchState",
+                    "deprecated": false
+                },
+                {
+                    "signature": "validateRows(string $batchId, LegalEntity $legalEntity, Actor $actor, array $rows, array $mapping,): ImportBatchState",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
+            "name": "Nexia\\ResourceImport\\Contracts\\ResourceImportPipelineContribution",
+            "file": "src/ResourceImport/Contracts/ResourceImportPipelineContribution.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "resourceImportPipelines(): array",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
+            "name": "Nexia\\ResourceImport\\Contracts\\ResourceImportRowSource",
+            "file": "src/ResourceImport/Contracts/ResourceImportRowSource.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "chunks(int $size): iterable",
                     "deprecated": false
                 }
             ],
@@ -7113,20 +7181,6 @@
             "enum_wire_values": []
         },
         {
-            "kind": "interface",
-            "name": "Nexia\\ResourceImport\\Contracts\\ImportRecipeContribution",
-            "file": "src/ResourceImport/Contracts/ImportRecipeContribution.php",
-            "deprecated": false,
-            "public_signatures": [
-                {
-                    "signature": "resourceImportRecipes(): array",
-                    "deprecated": false
-                }
-            ],
-            "dto_keys": [],
-            "enum_wire_values": []
-        },
-        {
             "kind": "class",
             "name": "Nexia\\ResourceImport\\ImportRecipeDefinition",
             "file": "src/ResourceImport/ImportRecipeDefinition.php",
@@ -7403,46 +7457,6 @@
             "enum_wire_values": []
         },
         {
-            "kind": "interface",
-            "name": "Nexia\\ResourceImport\\Contracts\\ResourceImportPipeline",
-            "file": "src/ResourceImport/Contracts/ResourceImportPipeline.php",
-            "deprecated": false,
-            "public_signatures": [
-                {
-                    "signature": "apply(string $batchId, LegalEntity $legalEntity, Actor $actor): ImportBatchState",
-                    "deprecated": false
-                },
-                {
-                    "signature": "receive(LegalEntity $legalEntity, Actor $actor, string $profileKey, int $schemaVersion, string $fileId, string $fileHash, int $rowCount, array $mapping, string $idempotencyKey,): ImportBatchState",
-                    "deprecated": false
-                },
-                {
-                    "signature": "retry(string $batchId, LegalEntity $legalEntity, Actor $actor, array $mapping, string $idempotencyKey,): ImportBatchState",
-                    "deprecated": false
-                },
-                {
-                    "signature": "validateRows(string $batchId, LegalEntity $legalEntity, Actor $actor, array $rows, array $mapping,): ImportBatchState",
-                    "deprecated": false
-                }
-            ],
-            "dto_keys": [],
-            "enum_wire_values": []
-        },
-        {
-            "kind": "interface",
-            "name": "Nexia\\ResourceImport\\Contracts\\ResourceImportPipelineContribution",
-            "file": "src/ResourceImport/Contracts/ResourceImportPipelineContribution.php",
-            "deprecated": false,
-            "public_signatures": [
-                {
-                    "signature": "resourceImportPipelines(): array",
-                    "deprecated": false
-                }
-            ],
-            "dto_keys": [],
-            "enum_wire_values": []
-        },
-        {
             "kind": "class",
             "name": "Nexia\\ResourceImport\\ResourceImportPipelineDefinition",
             "file": "src/ResourceImport/ResourceImportPipelineDefinition.php",
@@ -7468,20 +7482,6 @@
                 "schemaVersion",
                 "sourceProfiles"
             ],
-            "enum_wire_values": []
-        },
-        {
-            "kind": "interface",
-            "name": "Nexia\\ResourceImport\\Contracts\\ResourceImportRowSource",
-            "file": "src/ResourceImport/Contracts/ResourceImportRowSource.php",
-            "deprecated": false,
-            "public_signatures": [
-                {
-                    "signature": "chunks(int $size): iterable",
-                    "deprecated": false
-                }
-            ],
-            "dto_keys": [],
             "enum_wire_values": []
         },
         {
@@ -7519,6 +7519,102 @@
                 },
                 {
                     "signature": "seal(Actor $actor, ResourceRef $resource): string",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
+            "name": "Nexia\\ResourceReference\\Contracts\\ReferenceAvailability",
+            "file": "src/ResourceReference/Contracts/ReferenceAvailability.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "ownerInstalled(string $resourceKey): bool",
+                    "deprecated": false
+                },
+                {
+                    "signature": "status(Actor $actor, ?int $legalEntityId, string $resourceKey, ?ResourceReferenceResolutionContext $context = null,): ReferenceStatus",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
+            "name": "Nexia\\ResourceReference\\Contracts\\ResourceReferenceBatchResolutionContribution",
+            "file": "src/ResourceReference/Contracts/ResourceReferenceBatchResolutionContribution.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "resolveMany(array $resourceIds, ResourceReferenceResolutionContext $context,): array",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
+            "name": "Nexia\\ResourceReference\\Contracts\\ResourceReferenceEffectiveRangeSearchContribution",
+            "file": "src/ResourceReference/Contracts/ResourceReferenceEffectiveRangeSearchContribution.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "searchEffectiveRange(array $queries, DateTimeImmutable $from, DateTimeImmutable $until, ResourceReferenceResolutionContext $context, int $limit,): array",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
+            "name": "Nexia\\ResourceReference\\Contracts\\ResourceReferencePagedSearchContribution",
+            "file": "src/ResourceReference/Contracts/ResourceReferencePagedSearchContribution.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "authorized(ResourceReferenceResolutionContext $context): bool",
+                    "deprecated": false
+                },
+                {
+                    "signature": "searchPage(string $query, ResourceReferenceResolutionContext $context, int $page, int $perPage,): ResourceReferencePage",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
+            "name": "Nexia\\ResourceReference\\Contracts\\ResourceReferenceResolutionContribution",
+            "file": "src/ResourceReference/Contracts/ResourceReferenceResolutionContribution.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "resolve(string $resourceId, ResourceReferenceResolutionContext $context,): ?ResolvedResourceReference",
+                    "deprecated": false
+                },
+                {
+                    "signature": "resourceKey(): string",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
+            "name": "Nexia\\ResourceReference\\Contracts\\ResourceReferenceSearchContribution",
+            "file": "src/ResourceReference/Contracts/ResourceReferenceSearchContribution.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "search(string $query, ResourceReferenceResolutionContext $context, int $limit,): array",
                     "deprecated": false
                 }
             ],
@@ -7729,34 +7825,6 @@
             "enum_wire_values": []
         },
         {
-            "kind": "interface",
-            "name": "Nexia\\ResourceReference\\Contracts\\ResourceReferenceBatchResolutionContribution",
-            "file": "src/ResourceReference/Contracts/ResourceReferenceBatchResolutionContribution.php",
-            "deprecated": false,
-            "public_signatures": [
-                {
-                    "signature": "resolveMany(array $resourceIds, ResourceReferenceResolutionContext $context,): array",
-                    "deprecated": false
-                }
-            ],
-            "dto_keys": [],
-            "enum_wire_values": []
-        },
-        {
-            "kind": "interface",
-            "name": "Nexia\\ResourceReference\\Contracts\\ResourceReferenceEffectiveRangeSearchContribution",
-            "file": "src/ResourceReference/Contracts/ResourceReferenceEffectiveRangeSearchContribution.php",
-            "deprecated": false,
-            "public_signatures": [
-                {
-                    "signature": "searchEffectiveRange(array $queries, DateTimeImmutable $from, DateTimeImmutable $until, ResourceReferenceResolutionContext $context, int $limit,): array",
-                    "deprecated": false
-                }
-            ],
-            "dto_keys": [],
-            "enum_wire_values": []
-        },
-        {
             "kind": "class",
             "name": "Nexia\\ResourceReference\\ResourceReferencePage",
             "file": "src/ResourceReference/ResourceReferencePage.php",
@@ -7781,24 +7849,6 @@
             "enum_wire_values": []
         },
         {
-            "kind": "interface",
-            "name": "Nexia\\ResourceReference\\Contracts\\ResourceReferencePagedSearchContribution",
-            "file": "src/ResourceReference/Contracts/ResourceReferencePagedSearchContribution.php",
-            "deprecated": false,
-            "public_signatures": [
-                {
-                    "signature": "authorized(ResourceReferenceResolutionContext $context): bool",
-                    "deprecated": false
-                },
-                {
-                    "signature": "searchPage(string $query, ResourceReferenceResolutionContext $context, int $page, int $perPage,): ResourceReferencePage",
-                    "deprecated": false
-                }
-            ],
-            "dto_keys": [],
-            "enum_wire_values": []
-        },
-        {
             "kind": "class",
             "name": "Nexia\\ResourceReference\\ResourceReferenceResolutionContext",
             "file": "src/ResourceReference/ResourceReferenceResolutionContext.php",
@@ -7815,38 +7865,6 @@
                 "includeProtectedValues",
                 "purpose"
             ],
-            "enum_wire_values": []
-        },
-        {
-            "kind": "interface",
-            "name": "Nexia\\ResourceReference\\Contracts\\ResourceReferenceResolutionContribution",
-            "file": "src/ResourceReference/Contracts/ResourceReferenceResolutionContribution.php",
-            "deprecated": false,
-            "public_signatures": [
-                {
-                    "signature": "resolve(string $resourceId, ResourceReferenceResolutionContext $context,): ?ResolvedResourceReference",
-                    "deprecated": false
-                },
-                {
-                    "signature": "resourceKey(): string",
-                    "deprecated": false
-                }
-            ],
-            "dto_keys": [],
-            "enum_wire_values": []
-        },
-        {
-            "kind": "interface",
-            "name": "Nexia\\ResourceReference\\Contracts\\ResourceReferenceSearchContribution",
-            "file": "src/ResourceReference/Contracts/ResourceReferenceSearchContribution.php",
-            "deprecated": false,
-            "public_signatures": [
-                {
-                    "signature": "search(string $query, ResourceReferenceResolutionContext $context, int $limit,): array",
-                    "deprecated": false
-                }
-            ],
-            "dto_keys": [],
             "enum_wire_values": []
         },
         {
@@ -7911,24 +7929,6 @@
             "public_signatures": [
                 {
                     "signature": "find(string $resourceKey): ?ResourceTransferDefinition",
-                    "deprecated": false
-                }
-            ],
-            "dto_keys": [],
-            "enum_wire_values": []
-        },
-        {
-            "kind": "interface",
-            "name": "Nexia\\Laravel\\ResourceTransfer\\Contracts\\ResourceTransferExportSource",
-            "file": "src/Laravel/ResourceTransfer/Contracts/ResourceTransferExportSource.php",
-            "deprecated": false,
-            "public_signatures": [
-                {
-                    "signature": "evidence(ResourceTransferExportRequest $request): array",
-                    "deprecated": false
-                },
-                {
-                    "signature": "rows(ResourceTransferExportRequest $request): iterable",
                     "deprecated": false
                 }
             ],
@@ -8116,6 +8116,34 @@
         },
         {
             "kind": "interface",
+            "name": "Nexia\\SelfService\\Contracts\\SelfServiceActionItemContribution",
+            "file": "src/SelfService/Contracts/SelfServiceActionItemContribution.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "selfServiceActions(SelfServiceActionQuery $query): array",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
+            "name": "Nexia\\SelfService\\Contracts\\SelfWorkContextContribution",
+            "file": "src/SelfService/Contracts/SelfWorkContextContribution.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "workContexts(SelfWorkContextQuery $query): array",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
             "name": "Nexia\\SelfService\\Contracts\\SelfWorkContextRefs",
             "file": "src/SelfService/Contracts/SelfWorkContextRefs.php",
             "deprecated": false,
@@ -8152,20 +8180,6 @@
                 "summary",
                 "title"
             ],
-            "enum_wire_values": []
-        },
-        {
-            "kind": "interface",
-            "name": "Nexia\\SelfService\\Contracts\\SelfServiceActionItemContribution",
-            "file": "src/SelfService/Contracts/SelfServiceActionItemContribution.php",
-            "deprecated": false,
-            "public_signatures": [
-                {
-                    "signature": "selfServiceActions(SelfServiceActionQuery $query): array",
-                    "deprecated": false
-                }
-            ],
-            "dto_keys": [],
             "enum_wire_values": []
         },
         {
@@ -8216,20 +8230,6 @@
             "dto_keys": [
                 "tab"
             ],
-            "enum_wire_values": []
-        },
-        {
-            "kind": "interface",
-            "name": "Nexia\\SelfService\\Contracts\\SelfWorkContextContribution",
-            "file": "src/SelfService/Contracts/SelfWorkContextContribution.php",
-            "deprecated": false,
-            "public_signatures": [
-                {
-                    "signature": "workContexts(SelfWorkContextQuery $query): array",
-                    "deprecated": false
-                }
-            ],
-            "dto_keys": [],
             "enum_wire_values": []
         },
         {
@@ -8639,6 +8639,20 @@
             "public_signatures": [
                 {
                     "signature": "submit(SignatureDocumentPlanSubmission $submission,): CurrentBoundSignableDocumentResult|PreparedSignableDocumentResult",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
+            "name": "Nexia\\Signature\\Contracts\\SignatureDocumentPlanSource",
+            "file": "src/Signature/Contracts/SignatureDocumentPlanSource.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "kind(): SignatureDocumentSourceKind",
                     "deprecated": false
                 }
             ],
@@ -9832,20 +9846,6 @@
                 "Stale": "stale",
                 "Unavailable": "unavailable"
             }
-        },
-        {
-            "kind": "interface",
-            "name": "Nexia\\Signature\\Contracts\\SignatureDocumentPlanSource",
-            "file": "src/Signature/Contracts/SignatureDocumentPlanSource.php",
-            "deprecated": false,
-            "public_signatures": [
-                {
-                    "signature": "kind(): SignatureDocumentSourceKind",
-                    "deprecated": false
-                }
-            ],
-            "dto_keys": [],
-            "enum_wire_values": []
         },
         {
             "kind": "class",

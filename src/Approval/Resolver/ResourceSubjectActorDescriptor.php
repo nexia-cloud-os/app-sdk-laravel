@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nexia\Approval\Resolver;
 
+use Nexia\Approval\Contracts\ResourceSubjectActor;
 use InvalidArgumentException;
 
 /**
