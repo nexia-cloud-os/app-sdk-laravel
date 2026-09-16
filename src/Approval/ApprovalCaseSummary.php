@@ -20,5 +20,9 @@ final readonly class ApprovalCaseSummary
         public string $bindingResourceKey,
         public string $bindingActionKey,
         public string $resourceVersion,
+        public string $outcomeSource = 'human',
+        public ?string $policyKey = null,
+        public ?int $policyVersion = null,
+        public ?string $documentFingerprint = null,
     ) {}
 }

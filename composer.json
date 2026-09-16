@@ -82,6 +82,7 @@
             "@php -d zend.assertions=1 -d assert.exception=1 tests/ResourceListQueryTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/TemplateContractsTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/MutationContractsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/NotificationContractsTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/SetupContractsTest.php"
         ]
     },
