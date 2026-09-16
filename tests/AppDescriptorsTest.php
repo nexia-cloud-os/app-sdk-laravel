@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-use Nexia\AppDescriptors\Contracts\AppDescriptor;
-use Nexia\AppDescriptors\Contracts\AppDescriptorContribution;
 use Nexia\AppDescriptors\AppDescriptorSet;
 use Nexia\AppDescriptors\ApprovalBusinessTemplatePresetDescriptor;
 use Nexia\AppDescriptors\ApprovalDocumentSchema;
 use Nexia\AppDescriptors\ApprovalFormBindingDescriptor;
 use Nexia\AppDescriptors\ApprovalRoutePolicyPresetDescriptor;
 use Nexia\AppDescriptors\CaseCorrelationSubjectDescriptor;
+use Nexia\AppDescriptors\Contracts\AppDescriptor;
+use Nexia\AppDescriptors\Contracts\AppDescriptorContribution;
 use Nexia\AppDescriptors\DecisionResultTemplateDescriptor;
 use Nexia\AppDescriptors\DescriptorStatus;
 use Nexia\AppDescriptors\DescriptorValidationException;
@@ -307,6 +307,95 @@ ResourceDescriptorContract::assertValid('PartyField', [new ResourceDescriptor(
     version: '1.0',
     fieldSchema: ['owner_party_public_id' => $partyField],
 )]);
+
+$polymorphicField = [
+    'type' => 'resource_reference',
+    'accepted_resource_keys' => ['sample-owner.worker', 'sample-owner.team'],
+    'selector_purpose' => 'sample.owner.select',
+    'selector_permissions' => ['sample.expense_report.update'],
+    'target_resource_key_field' => 'context_resource_key',
+];
+ResourceDescriptorContract::assertValid('PolymorphicReferenceField', [new ResourceDescriptor(
+    key: 'sample.expense_report',
+    version: '1.0',
+    fieldSchema: [
+        'context_resource_key' => ['type' => 'string', 'composition' => ['relationship_binding' => true]],
+        'context_public_id' => $polymorphicField,
+    ],
+)]);
+foreach ([
+    [...$polymorphicField, 'target_resource_key_field' => 'context-resource-key'],
+    [...$polymorphicField, 'target_resource_key_field' => null],
+    [...$polymorphicField, 'accepted_resource_keys' => ['sample-owner.worker']],
+    [...$polymorphicField, 'derived' => true],
+] as $invalidPolymorphicField) {
+    try {
+        ResourceDescriptorContract::assertValid('InvalidPolymorphicReferenceField', [new ResourceDescriptor(
+            key: 'sample.expense_report',
+            version: '1.0',
+            fieldSchema: [
+                'context_resource_key' => ['type' => 'string', 'composition' => ['selectable' => true]],
+                'context_public_id' => $invalidPolymorphicField,
+            ],
+        )]);
+        throw new RuntimeException('Polymorphic Resource Reference discriminator metadata must be valid.');
+    } catch (DescriptorValidationException) {
+        // Expected contract validation.
+    }
+}
+foreach ([
+    [],
+    ['context_resource_key' => ['type' => 'string']],
+    ['context_resource_key' => ['type' => 'resource_reference', 'composition' => ['selectable' => true]]],
+    ['context_resource_key' => ['type' => 'string', 'derived' => true, 'composition' => ['selectable' => true]]],
+] as $invalidDiscriminatorSchema) {
+    try {
+        ResourceDescriptorContract::assertValid('InvalidPolymorphicDiscriminator', [new ResourceDescriptor(
+            key: 'sample.expense_report',
+            version: '1.0',
+            fieldSchema: [...$invalidDiscriminatorSchema, 'context_public_id' => $polymorphicField],
+        )]);
+        throw new RuntimeException('Polymorphic Resource Reference discriminators must be owner-published composition strings.');
+    } catch (DescriptorValidationException) {
+        // Expected contract validation.
+    }
+}
+$temporalReference = [
+    'type' => 'resource_reference',
+    'accepted_resource_keys' => ['sample-owner.worker'],
+    'selector_purpose' => 'sample.owner.select',
+    'selector_permissions' => ['sample.expense_report.update'],
+    'composition' => ['temporal_interval' => [
+        'start_field' => 'effective_from', 'end_field' => 'effective_until',
+        'end_bound' => 'exclusive', 'null_start' => 'reject', 'null_end' => 'open',
+    ]],
+];
+$temporalFields = [
+    'subject_public_id' => $temporalReference,
+    'effective_from' => ['type' => 'string', 'format' => 'date'],
+    'effective_until' => ['type' => 'string', 'format' => 'date', 'nullable' => true],
+];
+ResourceDescriptorContract::assertValid('TemporalReference', [new ResourceDescriptor(
+    key: 'sample.expense_report', version: '1.0', fieldSchema: $temporalFields,
+)]);
+foreach ([
+    ['end_bound' => 'inclusive'],
+    ['start_field' => 'missing'],
+] as $invalidTemporalInterval) {
+    try {
+        ResourceDescriptorContract::assertValid('InvalidTemporalReference', [new ResourceDescriptor(
+            key: 'sample.expense_report',
+            version: '1.0',
+            fieldSchema: [...$temporalFields, 'subject_public_id' => [
+                ...$temporalReference,
+                'composition' => ['temporal_interval' => [...$temporalReference['composition']['temporal_interval'], ...$invalidTemporalInterval]],
+            ]],
+        )]);
+        throw new RuntimeException('Invalid temporal interval descriptor metadata was accepted.');
+    } catch (DescriptorValidationException) {
+        // Expected contract validation.
+    }
+}
 $partyFieldWithoutConstraint = $partyField;
 unset($partyFieldWithoutConstraint['party_selection']);
 

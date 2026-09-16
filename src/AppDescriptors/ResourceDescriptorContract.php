@@ -181,6 +181,63 @@ final class ResourceDescriptorContract
                 );
             }
 
+            $hasTargetResourceKeyField = array_key_exists('target_resource_key_field', $field);
+            $targetResourceKeyField = $field['target_resource_key_field'] ?? null;
+            if ($hasTargetResourceKeyField) {
+                $targetField = is_string($targetResourceKeyField)
+                    ? ($resource->fieldSchema[$targetResourceKeyField] ?? null)
+                    : null;
+                $targetComposition = is_array($targetField)
+                    && is_array($targetField['composition'] ?? null)
+                    ? $targetField['composition']
+                    : [];
+
+                if (! is_string($targetResourceKeyField)
+                    || preg_match('/\A[a-z][a-z0-9_]{0,159}\z/D', $targetResourceKeyField) !== 1
+                    || count($accepted) < 2
+                    || ($field['derived'] ?? false) === true
+                    || ! is_array($targetField)
+                    || ($targetField['type'] ?? null) !== 'string'
+                    || ($targetField['derived'] ?? false) === true
+                    || (($targetComposition['selectable'] ?? false) !== true
+                        && ($targetComposition['relationship_binding'] ?? false) !== true)) {
+                    throw DescriptorValidationException::contribution(
+                        $contributor,
+                        "resource [{$resource->key}] Resource Reference field [{$fieldKey}] target_resource_key_field requires a stored multi-target reference and an owner-published composition string discriminator field.",
+                        $path.'.target_resource_key_field',
+                    );
+                }
+            }
+
+            $temporalInterval = is_array($field['composition'] ?? null)
+                ? ($field['composition']['temporal_interval'] ?? null)
+                : null;
+            if ($temporalInterval !== null) {
+                $start = is_array($temporalInterval) ? ($temporalInterval['start_field'] ?? null) : null;
+                $end = is_array($temporalInterval) ? ($temporalInterval['end_field'] ?? null) : null;
+                $startField = is_string($start) ? ($resource->fieldSchema[$start] ?? null) : null;
+                $endField = is_string($end) ? ($resource->fieldSchema[$end] ?? null) : null;
+                if (! is_array($temporalInterval)
+                    || array_diff(array_keys($temporalInterval), ['start_field', 'end_field', 'end_bound', 'null_start', 'null_end']) !== []
+                    || ! is_string($start)
+                    || ! is_string($end)
+                    || ! is_array($startField)
+                    || ! is_array($endField)
+                    || ($startField['type'] ?? null) !== 'string'
+                    || ($startField['format'] ?? null) !== 'date'
+                    || ($endField['type'] ?? null) !== 'string'
+                    || ($endField['format'] ?? null) !== 'date'
+                    || ($temporalInterval['end_bound'] ?? null) !== 'exclusive'
+                    || ($temporalInterval['null_start'] ?? null) !== 'reject'
+                    || ($temporalInterval['null_end'] ?? null) !== 'open') {
+                    throw DescriptorValidationException::contribution(
+                        $contributor,
+                        "resource [{$resource->key}] Resource Reference field [{$fieldKey}] temporal_interval requires direct date bounds with [start, end) semantics.",
+                        $path.'.composition.temporal_interval',
+                    );
+                }
+            }
+
             $purpose = $field['selector_purpose'] ?? null;
             if (! is_string($purpose)
                 || mb_strlen($purpose) > 160
