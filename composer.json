@@ -105,5 +105,8 @@
         }
     },
     "minimum-stability": "dev",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "support": {
+        "issues": "https://github.com/nexia-cloud-os/developer-support/issues"
+    }
 }
