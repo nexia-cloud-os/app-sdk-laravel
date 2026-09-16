@@ -190,6 +190,8 @@ $boundedResolutionContext = new ResourceReferenceResolutionContext(
     operatingUnit: $operatingUnit,
     includeProtectedValues: true,
     effectiveThrough: new DateTimeImmutable('2026-09-30T23:59:59+09:00'),
+    filters: ['status' => ['ready', 'needs_review']],
+    sort: '-employee',
 );
 $selectionContext = new ResourceReferenceSelectionContext(
     consumerResourceKey: 'sample.expense_report',
@@ -225,6 +227,8 @@ if ($partySelection->toArray() !== [
     || $resolutionContext->effectiveThrough !== null
     || ! $boundedResolutionContext->includeProtectedValues
     || $boundedResolutionContext->effectiveThrough?->format('Y-m-d') !== '2026-09-30'
+    || $boundedResolutionContext->filters !== ['status' => ['ready', 'needs_review']]
+    || $boundedResolutionContext->sort !== '-employee'
     || $selectionPage->page->items !== [$resolved]
     || ! interface_exists(ResourceReferenceSelections::class)
     || (new ResourceReferenceSelectionResult(ReferenceStatus::Available, $resolved))->reference !== $resolved) {

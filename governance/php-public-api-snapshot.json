@@ -1709,7 +1709,7 @@
             "deprecated": false,
             "public_signatures": [
                 {
-                    "signature": "__construct(public int|string $key, public string $publicId, public string $state, public ResourceRef $resourceRef, public string $bindingKey, public string $bindingVersion, public string $bindingAppKey, public string $bindingResourceKey, public string $bindingActionKey, public string $resourceVersion,)",
+                    "signature": "__construct(public int|string $key, public string $publicId, public string $state, public ResourceRef $resourceRef, public string $bindingKey, public string $bindingVersion, public string $bindingAppKey, public string $bindingResourceKey, public string $bindingActionKey, public string $resourceVersion, public string $outcomeSource = 'human', public ?string $policyKey = null, public ?int $policyVersion = null, public ?string $documentFingerprint = null,)",
                     "deprecated": false
                 }
             ],
@@ -1720,6 +1720,7 @@
                 "bindingResourceKey",
                 "bindingVersion",
                 "key",
+                "outcomeSource",
                 "publicId",
                 "resourceRef",
                 "resourceVersion",
@@ -1817,6 +1818,25 @@
                 "label",
                 "publicId",
                 "version"
+            ],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "class",
+            "name": "Nexia\\Approval\\AutomaticApprovalEvaluation",
+            "file": "src/Approval/AutomaticApprovalEvaluation.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "__construct(public ResourceRef $resourceRef, public string $resourceVersion, public string $documentFingerprint, public array $facts,)",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [
+                "documentFingerprint",
+                "facts",
+                "resourceRef",
+                "resourceVersion"
             ],
             "enum_wire_values": []
         },
@@ -1948,6 +1968,38 @@
                 },
                 {
                     "signature": "registered(string $type): bool",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
+            "name": "Nexia\\Approval\\Contracts\\AutomaticApprovalFactProvider",
+            "file": "src/Approval/Contracts/AutomaticApprovalFactProvider.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "evaluate(ResourceRef $resourceRef, LegalEntity $legalEntity): ?AutomaticApprovalEvaluation",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
+            "name": "Nexia\\Approval\\Contracts\\AutomaticApprovalFactProviderRegistrar",
+            "file": "src/Approval/Contracts/AutomaticApprovalFactProviderRegistrar.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "register(string $bindingKey, callable $factory): void",
+                    "deprecated": false
+                },
+                {
+                    "signature": "registered(string $bindingKey): bool",
                     "deprecated": false
                 }
             ],
@@ -5391,6 +5443,101 @@
         },
         {
             "kind": "interface",
+            "name": "Nexia\\Notification\\Contracts\\NotificationContribution",
+            "file": "src/Notification/Contracts/NotificationContribution.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "notificationCategories(): iterable",
+                    "deprecated": false
+                },
+                {
+                    "signature": "notificationIntents(): iterable",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
+            "name": "Nexia\\Notification\\Contracts\\NotificationIntent",
+            "file": "src/Notification/Contracts/NotificationIntent.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "deepLink(array $params): ?string",
+                    "deprecated": false
+                },
+                {
+                    "signature": "policySnapshot(): array",
+                    "deprecated": false
+                },
+                {
+                    "signature": "render(array $params, string $locale): array",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
+            "name": "Nexia\\Notification\\Contracts\\NotificationPublisher",
+            "file": "src/Notification/Contracts/NotificationPublisher.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "publish(EventEnvelope $source, NotificationPublication $publication): void",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "class",
+            "name": "Nexia\\Notification\\NotificationCategory",
+            "file": "src/Notification/NotificationCategory.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "__construct(public string $key, public string $labelKey, public int $order, public string $variant = 'neutral', public string $icon = 'default',)",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [
+                "icon",
+                "key",
+                "labelKey",
+                "order",
+                "variant"
+            ],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "class",
+            "name": "Nexia\\Notification\\NotificationPublication",
+            "file": "src/Notification/NotificationPublication.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "__construct(public string $intentKey, public ResourceRef $owner, public int $legalEntityId, public array $recipientIds, public array $params, public string $dedupeKey,)",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [
+                "dedupeKey",
+                "intentKey",
+                "legalEntityId",
+                "owner",
+                "params",
+                "recipientIds"
+            ],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
             "name": "Nexia\\OfficialSeal\\Contracts\\OfficialSealDirectory",
             "file": "src/OfficialSeal/Contracts/OfficialSealDirectory.php",
             "deprecated": false,
@@ -6565,12 +6712,13 @@
             "dto_keys": [
                 "dimensions",
                 "fields",
-                "filters",
                 "measures",
+                "population",
                 "relationships",
                 "result",
                 "schemaVersion",
-                "sources"
+                "sources",
+                "where"
             ],
             "enum_wire_values": []
         },
@@ -7855,13 +8003,14 @@
             "deprecated": false,
             "public_signatures": [
                 {
-                    "signature": "__construct(public ?LegalEntity $legalEntity, public Actor $actor, public DateTimeImmutable $asOf, public string $purpose, public ?OperatingUnit $operatingUnit = null, public bool $includeProtectedValues = false, public ?DateTimeImmutable $effectiveThrough = null,)",
+                    "signature": "__construct(public ?LegalEntity $legalEntity, public Actor $actor, public DateTimeImmutable $asOf, public string $purpose, public ?OperatingUnit $operatingUnit = null, public bool $includeProtectedValues = false, public ?DateTimeImmutable $effectiveThrough = null, public array $filters = [], public ?string $sort = null,)",
                     "deprecated": false
                 }
             ],
             "dto_keys": [
                 "actor",
                 "asOf",
+                "filters",
                 "includeProtectedValues",
                 "purpose"
             ],
