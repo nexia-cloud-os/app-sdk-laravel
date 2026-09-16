@@ -834,8 +834,12 @@ final readonly class CompositionSpec
             || (is_float($value) && is_finite($value));
     }
 
-    private static function unit(mixed $value, string $path): string
+    private static function unit(mixed $value, string $path): ?string
     {
+        if ($value === null) {
+            return null;
+        }
+
         if (! is_string($value)
             || $value !== trim($value)
             || strlen($value) > 64
