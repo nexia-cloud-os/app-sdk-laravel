@@ -1,15 +1,17 @@
 ---
 status: published
 version: 0.6.0
-date: 2026-09-17
-title: Modern Resource Composition and workflow contracts
-description: Introduce the current Resource Composition wire contract and app-neutral notification and automatic-approval contracts.
+date: 2026-09-16
+title: Modern composition and developer contracts
+description: Release the current composition contract, notifications, and automatic approval surfaces.
 ---
 
 ## Changed
 
-- Resource Composition numeric measures may preserve an owner-published unit of JSON `null`; count and distinct-count measures still require the `count` unit.
+- SDK distribution moves to GitHub (`nexia-cloud-os/app-sdk-laravel`) for private Composer source and public npmjs for `@amuzcorp/nexia-app-sdk-react`. Existing `0.5.0` artifacts retain their versions and content. Consumers update registry/repository configuration; npm downloads need no token, while private Composer source still requires GitHub access.
+
 - Resource Composition now has one modern `schema_version: 1` wire contract. It requires graph `relationships`, `population`, typed `where` predicates, and the modern result fields; row results additionally require `row_source`.
+- React SDK source development supports `pnpm run build:watch` from `packages/react`. It updates the public `dist` exports as source changes, reports type errors, and resumes after corrections. Core can run this watcher with Vite when the local SDK source is selected. Published package names and exports are unchanged.
 - `ResourceReferenceResolutionContext` accepts bounded, owner-defined selector filters and sorting so a resource provider can apply them before pagination. Existing constructors remain compatible because the new arguments are optional.
 
 ## Removed
@@ -23,5 +25,4 @@ description: Introduce the current Resource Composition wire contract and app-ne
 
 ## Upgrade required
 
-- Update every saved Resource Composition payload to the current `schema_version: 1` shape before it is read. Old schema-v1 through schema-v5 payloads are rejected and must not be sent to the SDK.
-- Publish and adopt the Laravel SDK 0.6.0 artifact in a clean Composer consumer before updating Core locks. Local source checkouts and path repositories are not release evidence.
+Use Core 0.6.0 with these Laravel and React 0.6.0 artifacts. Earlier composition payloads are not converted automatically. Recreate affected saved compositions through the coordinated upgrade procedure; do not run a destructive reset implicitly. Review and update consumer compatibility constraints before adoption.

@@ -1,15 +1,17 @@
 ---
 status: published
 version: 0.6.0
-date: 2026-09-17
-title: 현대식 Resource Composition 및 워크플로 계약
-description: 현재 Resource Composition wire 계약과 App 공통 알림 및 자동승인 계약을 도입합니다.
+date: 2026-09-16
+title: 현대식 Composition과 개발 계약
+description: 현재 Composition 계약과 업무 알림 및 자동승인 계약을 릴리스합니다.
 ---
 
 ## 변경
 
-- Resource Composition 숫자 measure은 소유자가 발행한 JSON `null` unit을 그대로 사용할 수 있습니다. count와 distinct-count measure은 계속 `count` unit이 필요합니다.
+- SDK 배포 경로를 비공개 Composer 소스용 GitHub(`nexia-cloud-os/app-sdk-laravel`)와 `@amuzcorp/nexia-app-sdk-react`용 공개 npmjs로 옮깁니다. 기존 `0.5.0` artifact의 버전과 내용은 유지합니다. 사용 환경의 registry·저장소 설정을 갱신하세요. npm 다운로드에는 토큰이 필요 없고 비공개 Composer 소스에는 GitHub 접근 권한이 필요합니다.
+
 - Resource Composition은 이제 단일 현대식 `schema_version: 1` wire 계약을 사용합니다. graph `relationships`, `population`, typed `where` predicate와 현대식 result 필드를 필수로 하며, 행 결과에는 `row_source`도 필요합니다.
+- React SDK의 `packages/react`에서 `pnpm run build:watch`로 소스 변경을 감시할 수 있습니다. 변경된 소스를 공개 `dist` export에 반영하고, 타입 오류를 표시하며 수정 후 다시 빌드합니다. Core는 로컬 SDK 소스를 선택했을 때 이 감시를 Vite와 함께 실행할 수 있습니다. 배포 패키지명과 공개 export는 유지합니다.
 - `ResourceReferenceResolutionContext`에 범위가 제한된 소유자 정의 선택기 필터와 정렬을 전달할 수 있습니다. 리소스 제공자는 이를 페이지네이션 전에 처리할 수 있으며, 새 인자는 선택 사항이므로 기존 생성 코드는 호환됩니다.
 
 ## 제거
@@ -23,5 +25,4 @@ description: 현재 Resource Composition wire 계약과 App 공통 알림 및 �
 
 ## 업그레이드 필요
 
-- 저장된 모든 Resource Composition payload를 읽기 전에 현재 `schema_version: 1` 형태로 바꾸세요. 이전 schema-v1부터 schema-v5 payload는 거부되며 SDK에 전송하면 안 됩니다.
-- Core lock을 바꾸기 전에 Laravel SDK 0.6.0 artifact를 깨끗한 Composer consumer에서 릴리스·적용하세요. 로컬 소스 checkout과 path repository는 릴리스 근거가 아닙니다.
+Laravel·React 0.6.0 artifact는 Core 0.6.0과 함께 사용하세요. 이전 Composition payload는 자동 변환되지 않습니다. 영향을 받는 저장된 Composition을 조정된 업그레이드 절차에 따라 다시 생성하고, 파괴적인 초기화를 자동 실행하지 마세요. 채택 전에 소비 패키지의 호환성 범위를 검토하고 갱신하세요.
