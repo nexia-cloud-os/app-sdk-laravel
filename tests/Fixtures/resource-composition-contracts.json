@@ -307,6 +307,57 @@
       "result": {
         "shape": "aggregate"
       }
+    },
+    "aggregate_unitless_numeric": {
+      "schema_version": 1,
+      "sources": [
+        {
+          "alias": "record",
+          "resource_key": "alpha.record"
+        }
+      ],
+      "relationships": [],
+      "population": {
+        "mode": "anchor",
+        "source": "record"
+      },
+      "fields": [],
+      "timezone": "Asia/Seoul",
+      "where": {
+        "kind": "all",
+        "children": []
+      },
+      "dimensions": [],
+      "measures": [
+        {
+          "alias": "score_total",
+          "source": "record",
+          "field": {
+            "kind": "field",
+            "source": "record",
+            "field": "score"
+          },
+          "operation": "sum",
+          "result_type": "decimal",
+          "null_behavior": "null_if_empty",
+          "unit": null,
+          "where": {
+            "kind": "all",
+            "children": []
+          }
+        }
+      ],
+      "having": {
+        "kind": "all",
+        "children": []
+      },
+      "derived": [],
+      "comparison": null,
+      "sort": [],
+      "limit": null,
+      "result": {
+        "shape": "aggregate"
+      }
     }
   },
   "invalid": [
@@ -754,6 +805,14 @@
       "value": "matrix",
       "code": "invalid_shape",
       "error_path": "result.shape"
+    },
+    {
+      "name": "count requires count unit",
+      "base": "aggregate_count",
+      "path": "measures.0.unit",
+      "value": null,
+      "code": "invalid_measure",
+      "error_path": "measures.0"
     }
   ]
 }
