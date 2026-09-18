@@ -45,8 +45,9 @@ interface ResourceReferences
     ): ?ResourceReferencePage;
 
     /**
-     * Owner-defined exact search across an effective-date range. Providers
-     * without the optional batch capability return an empty list.
+     * Owner-defined exact search across an effective-date range. An empty
+     * query list returns no results. Providers without the optional batch
+     * capability also return an empty list.
      *
      * @param  list<string>  $queries
      * @return list<ResolvedResourceReference>
@@ -59,6 +60,16 @@ interface ResourceReferences
         ResourceReferenceResolutionContext $context,
         int $limit = 10_000,
     ): array;
+
+    /** Complete authorized population overlapping an effective-date range, when supported. */
+    public function searchEffectiveRangePage(
+        string $resourceKey,
+        DateTimeImmutable $from,
+        DateTimeImmutable $until,
+        ResourceReferenceResolutionContext $context,
+        int $page = 1,
+        int $perPage = 500,
+    ): ?ResourceReferencePage;
 
     public function authorized(string $resourceKey, ResourceReferenceResolutionContext $context): bool;
 

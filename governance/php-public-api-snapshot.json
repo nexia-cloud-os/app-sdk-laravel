@@ -7707,6 +7707,20 @@
         },
         {
             "kind": "interface",
+            "name": "Nexia\\ResourceReference\\Contracts\\ResourceReferenceEffectiveRangePagedSearchContribution",
+            "file": "src/ResourceReference/Contracts/ResourceReferenceEffectiveRangePagedSearchContribution.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "searchEffectiveRangePage(DateTimeImmutable $from, DateTimeImmutable $until, ResourceReferenceResolutionContext $context, int $page, int $perPage,): ResourceReferencePage",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
             "name": "Nexia\\ResourceReference\\Contracts\\ResourceReferenceEffectiveRangeSearchContribution",
             "file": "src/ResourceReference/Contracts/ResourceReferenceEffectiveRangeSearchContribution.php",
             "deprecated": false,
@@ -7811,6 +7825,10 @@
                 },
                 {
                     "signature": "searchEffectiveRange(string $resourceKey, array $queries, DateTimeImmutable $from, DateTimeImmutable $until, ResourceReferenceResolutionContext $context, int $limit = 10_000,): array",
+                    "deprecated": false
+                },
+                {
+                    "signature": "searchEffectiveRangePage(string $resourceKey, DateTimeImmutable $from, DateTimeImmutable $until, ResourceReferenceResolutionContext $context, int $page = 1, int $perPage = 500,): ?ResourceReferencePage",
                     "deprecated": false
                 },
                 {
