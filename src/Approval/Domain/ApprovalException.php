@@ -20,6 +20,9 @@ final class ApprovalException extends RuntimeException
      */
     public array $errorParams = [];
 
+    /** Host-owned preparation context; never included in the public error payload. */
+    public ?\Nexia\ResourceReference\ResourceRef $preparationResourceRef = null;
+
     public static function invalidTransition(string $state, string $transition): self
     {
         $exception = new self("Approval case in state [{$state}] cannot apply transition [{$transition}].");

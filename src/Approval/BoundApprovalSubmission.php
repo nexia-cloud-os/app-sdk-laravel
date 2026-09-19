@@ -36,5 +36,6 @@ final readonly class BoundApprovalSubmission
         public ?string $category = null,
         public ?string $idempotencyKey = null,
         public ?string $idempotencyFingerprint = null,
+        public ?string $requirementContextKey = null,
     ) {}
 }

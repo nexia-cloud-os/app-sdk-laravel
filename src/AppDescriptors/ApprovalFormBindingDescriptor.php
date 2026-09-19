@@ -24,6 +24,7 @@ final class ApprovalFormBindingDescriptor implements AppDescriptor
 
     /**
      * @param  list<string>  $entryModes
+     * @param  list<string>  $additionalSubmitPermissionKeys Alternative capability permissions; the App still authorizes the exact subject.
      */
     public function __construct(
         public readonly string $appKey,
@@ -46,6 +47,15 @@ final class ApprovalFormBindingDescriptor implements AppDescriptor
         public readonly ?string $recalledLabelKey = null,
         public readonly ?string $cancelledLabelKey = null,
         public readonly ?string $submitPermissionKey = null,
+        // Opt in only after both formal and approval-free execution consult the
+        // shared requirement at submission. A composer alone is not support.
+        public readonly bool $supportsRequirementPolicy = false,
+        public readonly array $additionalSubmitPermissionKeys = [],
+        // Common-data operations may only be configured company-wide.
+        public readonly bool $requirementPolicyLegalEntityScoped = true,
+        // Some bindings include mandatory work and configurable conditions; only
+        // their contributed contexts are editable, never a blanket bypass.
+        public readonly bool $requirementPolicyContextsOnly = false,
     ) {
         if (trim($appKey) === '') {
             throw new \InvalidArgumentException('ApprovalFormBindingDescriptor app_key must be a non-empty string.');
@@ -83,6 +93,12 @@ final class ApprovalFormBindingDescriptor implements AppDescriptor
         }
         if ($submitPermissionKey !== null && trim($submitPermissionKey) === '') {
             throw new \InvalidArgumentException("ApprovalFormBindingDescriptor [{$id}] submit_permission_key must be a non-empty string or null.");
+        }
+
+        foreach ($additionalSubmitPermissionKeys as $permission) {
+            if (! is_string($permission) || trim($permission) === '') {
+                throw new \InvalidArgumentException("ApprovalFormBindingDescriptor [{$id}] submit permissions must be non-empty strings.");
+            }
         }
 
         $this->key = trim($appKey).'.'.trim($resourceKey).'.'.trim($actionKey);

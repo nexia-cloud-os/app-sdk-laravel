@@ -15,6 +15,8 @@ final readonly class ProcessWorkActionSuspension
 
     public const KIND_SIGNATURE = 'signature';
 
+    public const KIND_OPERATION = 'operation';
+
     /** @param array<string, mixed> $metadata */
     public function __construct(
         public string $kind,
@@ -23,7 +25,7 @@ final readonly class ProcessWorkActionSuspension
         public string $phase,
         public array $metadata = [],
     ) {
-        if (! in_array($kind, [self::KIND_APPROVAL, self::KIND_SIGNATURE], true)) {
+        if (! in_array($kind, [self::KIND_APPROVAL, self::KIND_SIGNATURE, self::KIND_OPERATION], true)) {
             throw new InvalidArgumentException("Unsupported Process work-action suspension kind [{$kind}].");
         }
         foreach (['topic' => $topic, 'referenceId' => $referenceId, 'phase' => $phase] as $field => $value) {

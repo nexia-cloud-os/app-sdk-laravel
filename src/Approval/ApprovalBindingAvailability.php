@@ -23,6 +23,7 @@ final readonly class ApprovalBindingAvailability
         public ?string $templateName = null,
         public bool $rejectRequiresComment = false,
         public bool $hasRouteConstraint = false,
+        public bool $hasUsableLine = true,
     ) {}
 
     public static function unavailable(string $bindingKey): self
@@ -41,6 +42,7 @@ final readonly class ApprovalBindingAvailability
             'template_name' => $this->templateName,
             'reject_requires_comment' => $this->rejectRequiresComment,
             'has_route_constraint' => $this->hasRouteConstraint,
+            'has_usable_line' => $this->hasUsableLine,
         ];
     }
 }

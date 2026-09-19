@@ -276,7 +276,7 @@
             "deprecated": false,
             "public_signatures": [
                 {
-                    "signature": "__construct(public readonly string $appKey, public readonly string $resourceKey, public readonly string $actionKey, public readonly string $labelKey, public readonly array $entryModes, public readonly string $formWidgetKey, public readonly string $documentSchemaKey, public readonly string $version = '1.0', public readonly DescriptorStatus $status = DescriptorStatus::Active, public readonly ?string $descriptionKey = null, public readonly ?string $approvedLabelKey = null, public readonly ?string $rejectedLabelKey = null, // Recall and cancellation are outcomes of this binding just as approval // and rejection are. Without these, an App can name the first two and // the host has to fall back to a subject-less platform label for the // other two, so every binding in an App contributes an identically // named recalled/cancelled trigger. public readonly ?string $recalledLabelKey = null, public readonly ?string $cancelledLabelKey = null, public readonly ?string $submitPermissionKey = null,)",
+                    "signature": "__construct(public readonly string $appKey, public readonly string $resourceKey, public readonly string $actionKey, public readonly string $labelKey, public readonly array $entryModes, public readonly string $formWidgetKey, public readonly string $documentSchemaKey, public readonly string $version = '1.0', public readonly DescriptorStatus $status = DescriptorStatus::Active, public readonly ?string $descriptionKey = null, public readonly ?string $approvedLabelKey = null, public readonly ?string $rejectedLabelKey = null, // Recall and cancellation are outcomes of this binding just as approval // and rejection are. Without these, an App can name the first two and // the host has to fall back to a subject-less platform label for the // other two, so every binding in an App contributes an identically // named recalled/cancelled trigger. public readonly ?string $recalledLabelKey = null, public readonly ?string $cancelledLabelKey = null, public readonly ?string $submitPermissionKey = null, // Opt in only after both formal and approval-free execution consult the // shared requirement at submission. A composer alone is not support. public readonly bool $supportsRequirementPolicy = false, public readonly array $additionalSubmitPermissionKeys = [], // Common-data operations may only be configured company-wide. public readonly bool $requirementPolicyLegalEntityScoped = true, // Some bindings include mandatory work and configurable conditions; only // their contributed contexts are editable, never a blanket bypass. public readonly bool $requirementPolicyContextsOnly = false,)",
                     "deprecated": false
                 },
                 {
@@ -294,14 +294,18 @@
             ],
             "dto_keys": [
                 "actionKey",
+                "additionalSubmitPermissionKeys",
                 "appKey",
                 "documentSchemaKey",
                 "entryModes",
                 "formWidgetKey",
                 "key",
                 "labelKey",
+                "requirementPolicyContextsOnly",
+                "requirementPolicyLegalEntityScoped",
                 "resourceKey",
                 "status",
+                "supportsRequirementPolicy",
                 "version"
             ],
             "enum_wire_values": []
@@ -666,7 +670,7 @@
             "deprecated": false,
             "public_signatures": [
                 {
-                    "signature": "__construct(public string $bindingKey, public string $outcomeTopic, public array $outcomes = ['approved', 'rejected', 'recalled', 'cancelled'], public string $templatePayloadKey = 'template_key', public string $routePolicyPayloadKey = 'approval_route_policy_key', public ?string $businessTemplatePresetKey = null, public ?string $routePolicyPresetKey = null,)",
+                    "signature": "__construct(public string $bindingKey, public string $outcomeTopic, public array $outcomes = ['approved', 'rejected', 'recalled', 'cancelled'], public string $templatePayloadKey = 'template_key', public string $routePolicyPayloadKey = 'approval_route_policy_key', public ?string $businessTemplatePresetKey = null, public ?string $routePolicyPresetKey = null, public bool $supportsLinePreparation = false,)",
                     "deprecated": false
                 },
                 {
@@ -679,6 +683,7 @@
                 "outcomeTopic",
                 "outcomes",
                 "routePolicyPayloadKey",
+                "supportsLinePreparation",
                 "templatePayloadKey"
             ],
             "enum_wire_values": []
@@ -719,7 +724,7 @@
             "deprecated": false,
             "public_signatures": [
                 {
-                    "signature": "__construct(public readonly string $key, public readonly string $version, public readonly ?string $appKey, public readonly string $labelKey, public readonly string $category, public readonly array $structure, public readonly array $decisions = [], public readonly array $dependencies = [], public readonly DescriptorStatus $status = DescriptorStatus::Active, public readonly ?string $descriptionKey = null, public readonly array $nameKeys = [],)",
+                    "signature": "__construct(public readonly string $key, public readonly string $version, public readonly ?string $appKey, public readonly string $labelKey, public readonly string $category, public readonly array $structure, public readonly array $decisions = [], public readonly array $dependencies = [], public readonly DescriptorStatus $status = DescriptorStatus::Active, public readonly ?string $descriptionKey = null, public readonly array $nameKeys = [], /** Install one editable definition per Legal Entity; never overwrite an existing definition. */ public readonly bool $installByDefault = false,)",
                     "deprecated": false
                 },
                 {
@@ -731,6 +736,7 @@
                 "category",
                 "decisions",
                 "dependencies",
+                "installByDefault",
                 "key",
                 "labelKey",
                 "nameKeys",
@@ -779,7 +785,7 @@
             "deprecated": false,
             "public_signatures": [
                 {
-                    "signature": "__construct(public readonly string $kind, public readonly string $appKey, public readonly string $actionKey, public readonly string $labelKey, public readonly string $topic, public readonly string $version = '1.0', public readonly array $payloadSchema = [], public readonly array $allowedBindingSources = [], public readonly array $inputContract = [], public readonly DescriptorStatus $status = DescriptorStatus::Active, public readonly ?ProcessApprovalTaskConfiguration $approvalTask = null, public readonly array $outputContract = [],)",
+                    "signature": "__construct(public readonly string $kind, public readonly string $appKey, public readonly string $actionKey, public readonly string $labelKey, public readonly string $topic, public readonly string $version = '1.0', public readonly array $payloadSchema = [], public readonly array $allowedBindingSources = [], public readonly array $inputContract = [], public readonly DescriptorStatus $status = DescriptorStatus::Active, public readonly ?ProcessApprovalTaskConfiguration $approvalTask = null, public readonly array $outputContract = [], /** @var array<string, array{resource_keys: list<string>, multiple?: bool, required?: bool, max_items?: int}> */ public readonly array $resourceInputs = [], public readonly ?string $targetResourceInput = null,)",
                     "deprecated": false
                 },
                 {
@@ -797,6 +803,7 @@
                 "labelKey",
                 "outputContract",
                 "payloadSchema",
+                "resourceInputs",
                 "status",
                 "topic",
                 "version"
@@ -1682,6 +1689,7 @@
                 "bindingKey",
                 "hasPublishedTemplate",
                 "hasRouteConstraint",
+                "hasUsableLine",
                 "rejectRequiresComment"
             ],
             "enum_wire_values": []
@@ -1772,12 +1780,13 @@
             "deprecated": false,
             "public_signatures": [
                 {
-                    "signature": "__construct(public LegalEntity $legalEntity, public ?string $value, public string $action, public string $fingerprint, public string $resourceType,)",
+                    "signature": "__construct(public LegalEntity $legalEntity, public ?string $value, public string $action, public string $fingerprint, public string $resourceType, /** Retain business creation/execution evidence beyond the HTTP retry window. */ public bool $durable = false,)",
                     "deprecated": false
                 }
             ],
             "dto_keys": [
                 "action",
+                "durable",
                 "fingerprint",
                 "legalEntity",
                 "resourceType"
@@ -1799,6 +1808,24 @@
                 "replayed",
                 "resourceId",
                 "statusCode"
+            ],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "class",
+            "name": "Nexia\\Approval\\ApprovalRequirementContext",
+            "file": "src/Approval/ApprovalRequirementContext.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "__construct(public string $key, public string $label, public bool $defaultRequired,)",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [
+                "defaultRequired",
+                "key",
+                "label"
             ],
             "enum_wire_values": []
         },
@@ -1847,7 +1874,7 @@
             "deprecated": false,
             "public_signatures": [
                 {
-                    "signature": "__construct(public LegalEntity $legalEntity, public Actor $drafter, public string $templateKey, public int $templateVersion, public string $bindingKey, public string $bindingVersion, public ResourceRef $resourceRef, public string $resourceVersion, public array $documentValues, public ApprovalLineDefinition $lineDefinition, public string $title, public ?string $supplementalBody = null, public array $referenceUserIds = [], public array $circulationUserIds = [], public ?string $summary = null, public ?string $typeLabel = null, public ?string $category = null, public ?string $idempotencyKey = null, public ?string $idempotencyFingerprint = null,)",
+                    "signature": "__construct(public LegalEntity $legalEntity, public Actor $drafter, public string $templateKey, public int $templateVersion, public string $bindingKey, public string $bindingVersion, public ResourceRef $resourceRef, public string $resourceVersion, public array $documentValues, public ApprovalLineDefinition $lineDefinition, public string $title, public ?string $supplementalBody = null, public array $referenceUserIds = [], public array $circulationUserIds = [], public ?string $summary = null, public ?string $typeLabel = null, public ?string $category = null, public ?string $idempotencyKey = null, public ?string $idempotencyFingerprint = null, public ?string $requirementContextKey = null,)",
                     "deprecated": false
                 }
             ],
@@ -1958,6 +1985,34 @@
         },
         {
             "kind": "interface",
+            "name": "Nexia\\Approval\\Contracts\\ApprovalRequirementContextProvider",
+            "file": "src/Approval/Contracts/ApprovalRequirementContextProvider.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "approvalRequirementContexts(string $bindingKey, ?LegalEntity $legalEntity, Actor $actor): array",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
+            "name": "Nexia\\Approval\\Contracts\\ApprovalRequirements",
+            "file": "src/Approval/Contracts/ApprovalRequirements.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "required(string $bindingKey, int|string|null $legalEntityKey, bool $default, ?string $contextKey = null): bool",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
             "name": "Nexia\\Approval\\Contracts\\ApprovalResolverRegistrar",
             "file": "src/Approval/Contracts/ApprovalResolverRegistrar.php",
             "deprecated": false,
@@ -2045,7 +2100,7 @@
             "deprecated": false,
             "public_signatures": [
                 {
-                    "signature": "__construct(public ApprovalCaseReference $case, public ApprovalRouteReference $route, public string $templateKey, public int $templateVersion, public string $bindingKey, public string $bindingVersion,)",
+                    "signature": "__construct(public ApprovalCaseReference $case, public ?ApprovalRouteReference $route, public string $templateKey, public int $templateVersion, public string $bindingKey, public string $bindingVersion, public ?\\Nexia\\Approval\\Domain\\ApprovalLineDefinition $lineDefinition = null,)",
                     "deprecated": false
                 }
             ],
@@ -2053,7 +2108,6 @@
                 "bindingKey",
                 "bindingVersion",
                 "case",
-                "route",
                 "templateKey",
                 "templateVersion"
             ],
@@ -2066,7 +2120,7 @@
             "deprecated": false,
             "public_signatures": [
                 {
-                    "signature": "__construct(public LegalEntity $legalEntity, public Actor $drafter, public string $templateKey, public string $routePolicyKey, public string $bindingKey, public ResourceRef $resourceRef, public string $resourceVersion, public array $documentValues, public string $title, public ?string $supplementalBody = null, public array $referenceUserIds = [], public array $circulationUserIds = [], public ?string $summary = null, public ?string $typeLabel = null, public ?string $category = null, public ?string $idempotencyKey = null, public ?string $idempotencyFingerprint = null,)",
+                    "signature": "__construct(public LegalEntity $legalEntity, public Actor $drafter, public string $templateKey, public ?string $routePolicyKey, public string $bindingKey, public ResourceRef $resourceRef, public string $resourceVersion, public array $documentValues, public string $title, public ?string $supplementalBody = null, public array $referenceUserIds = [], public array $circulationUserIds = [], public ?string $summary = null, public ?string $typeLabel = null, public ?string $category = null, public ?string $idempotencyKey = null, public ?string $idempotencyFingerprint = null, public ?\\Nexia\\Approval\\Domain\\ApprovalLineDefinition $lineDefinition = null, public ?string $requirementContextKey = null,)",
                     "deprecated": false
                 }
             ],
@@ -2079,7 +2133,6 @@
                 "referenceUserIds",
                 "resourceRef",
                 "resourceVersion",
-                "routePolicyKey",
                 "templateKey",
                 "title"
             ],
@@ -6599,7 +6652,7 @@
             "deprecated": false,
             "public_signatures": [
                 {
-                    "signature": "__construct(public string $appKey, public string $actionKey, public string $descriptorVersion, public string $processInstancePublicId, public int|string $externalTaskKey, public string $idempotencyKey, public LegalEntity $legalEntity, public Actor $actor, public ResourceRef $resourceRef, public array $input, public ?string $elementId = null,)",
+                    "signature": "__construct(public string $appKey, public string $actionKey, public string $descriptorVersion, public string $processInstancePublicId, public int|string $externalTaskKey, public string $idempotencyKey, public LegalEntity $legalEntity, public Actor $actor, public ResourceRef $resourceRef, public array $input, public ?string $elementId = null, /** Original case identity for message correlation; never replace with a downstream target. */ public ?ResourceRef $originResourceRef = null, /** @var array<string, ResourceRef|list<ResourceRef>|null> */ public array $resourceInputs = [], public ?\\Nexia\\Approval\\Domain\\ApprovalLineDefinition $approvalLine = null,)",
                     "deprecated": false
                 }
             ],
@@ -6613,6 +6666,7 @@
                 "input",
                 "legalEntity",
                 "processInstancePublicId",
+                "resourceInputs",
                 "resourceRef"
             ],
             "enum_wire_values": []

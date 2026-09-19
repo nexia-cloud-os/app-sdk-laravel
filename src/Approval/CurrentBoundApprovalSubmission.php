@@ -23,7 +23,7 @@ final readonly class CurrentBoundApprovalSubmission
         public LegalEntity $legalEntity,
         public Actor $drafter,
         public string $templateKey,
-        public string $routePolicyKey,
+        public ?string $routePolicyKey,
         public string $bindingKey,
         public ResourceRef $resourceRef,
         public string $resourceVersion,
@@ -37,5 +37,7 @@ final readonly class CurrentBoundApprovalSubmission
         public ?string $category = null,
         public ?string $idempotencyKey = null,
         public ?string $idempotencyFingerprint = null,
+        public ?\Nexia\Approval\Domain\ApprovalLineDefinition $lineDefinition = null,
+        public ?string $requirementContextKey = null,
     ) {}
 }
