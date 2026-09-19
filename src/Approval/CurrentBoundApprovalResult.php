@@ -9,10 +9,11 @@ final readonly class CurrentBoundApprovalResult
 {
     public function __construct(
         public ApprovalCaseReference $case,
-        public ApprovalRouteReference $route,
+        public ?ApprovalRouteReference $route,
         public string $templateKey,
         public int $templateVersion,
         public string $bindingKey,
         public string $bindingVersion,
+        public ?\Nexia\Approval\Domain\ApprovalLineDefinition $lineDefinition = null,
     ) {}
 }

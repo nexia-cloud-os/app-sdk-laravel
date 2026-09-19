@@ -36,7 +36,8 @@ final class ProcessWorkActionDescriptor implements AppDescriptor
      * @param  string  $labelKey  Translation key for the action label shown in the BPMN picker.
      * @param  string  $topic  Worker topic (for serviceTask) or message topic (for sendTask / receiveTask).
      * @param  array<string, mixed>  $payloadSchema  Per-key validation + authoring map. Each entry:
-     *                                               `{ type?, enum?, required?, label_key?, help_key?, enum_labels? }`.
+     *                                               `{ type?, enum?, required?, label_key?, help_key?, enum_labels?, deprecated? }`.
+     *                                               Deprecated fields retain validation for existing definitions but are omitted from authoring catalogs.
      *                                               `type`/`enum`/`required` are publish-time validation (U06.6). The
      *                                               authoring metadata (U06.3) is display-only and never reaches the
      *                                               persisted payload: `label_key` names the field label shown in
@@ -88,7 +89,30 @@ final class ProcessWorkActionDescriptor implements AppDescriptor
         public readonly DescriptorStatus $status = DescriptorStatus::Active,
         public readonly ?ProcessApprovalTaskConfiguration $approvalTask = null,
         public readonly array $outputContract = [],
+        /** @var array<string, array{resource_keys: list<string>, multiple?: bool, required?: bool, max_items?: int}> */
+        public readonly array $resourceInputs = [],
+        public readonly ?string $targetResourceInput = null,
     ) {
+        foreach ($resourceInputs as $field => $contract) {
+            if (! is_string($field) || trim($field) === '' || ! is_array($contract)
+                || ! is_array($contract['resource_keys'] ?? null) || $contract['resource_keys'] === []
+                || ! array_is_list($contract['resource_keys'])
+                || array_filter($contract['resource_keys'], static fn ($key): bool => ! is_string($key) || preg_match('/^[a-z][a-z0-9-]*\\.[a-z][a-z0-9_.-]*$/D', $key) !== 1) !== []
+                || ! is_int($contract['max_items'] ?? 50) || ($contract['max_items'] ?? 50) < 1 || ($contract['max_items'] ?? 50) > 100
+                || ! is_bool($contract['multiple'] ?? false) || ! is_bool($contract['required'] ?? true)) {
+                throw new \InvalidArgumentException('Process resource inputs require bounded, typed reference contracts.');
+            }
+            if (($contract['required'] ?? true) && ! ($payloadSchema[$field]['required'] ?? false)) {
+                throw new \InvalidArgumentException('Required Process resource inputs must declare required payload fields.');
+            }
+            if (($payloadSchema[$field]['type'] ?? null) !== (($contract['multiple'] ?? false) ? 'array' : 'object')) {
+                throw new \InvalidArgumentException('Process resource inputs must also declare their payload object or array shape.');
+            }
+        }
+        if ($targetResourceInput !== null && (! isset($resourceInputs[$targetResourceInput])
+            || ($resourceInputs[$targetResourceInput]['multiple'] ?? false))) {
+            throw new \InvalidArgumentException('A Process operation target must be a single resource input.');
+        }
         if (! in_array($kind, self::SUPPORTED_KINDS, true)) {
             throw new \InvalidArgumentException(
                 "ProcessWorkActionDescriptor [{$appKey}.{$actionKey}] kind [{$kind}] must be one of: "
