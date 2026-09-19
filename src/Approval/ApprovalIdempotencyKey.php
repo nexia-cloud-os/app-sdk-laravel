@@ -19,6 +19,8 @@ final readonly class ApprovalIdempotencyKey
         public string $action,
         public string $fingerprint,
         public string $resourceType,
+        /** Retain business creation/execution evidence beyond the HTTP retry window. */
+        public bool $durable = false,
     ) {
         foreach (['action' => $action, 'fingerprint' => $fingerprint, 'resourceType' => $resourceType] as $field => $candidate) {
             if ($candidate === '' || $candidate !== trim($candidate)) {

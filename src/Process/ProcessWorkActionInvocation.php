@@ -27,5 +27,10 @@ final readonly class ProcessWorkActionInvocation
         public ResourceRef $resourceRef,
         public array $input,
         public ?string $elementId = null,
+        /** Original case identity for message correlation; never replace with a downstream target. */
+        public ?ResourceRef $originResourceRef = null,
+        /** @var array<string, ResourceRef|list<ResourceRef>|null> */
+        public array $resourceInputs = [],
+        public ?\Nexia\Approval\Domain\ApprovalLineDefinition $approvalLine = null,
     ) {}
 }

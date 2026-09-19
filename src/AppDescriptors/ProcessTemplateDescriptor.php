@@ -105,6 +105,8 @@ final class ProcessTemplateDescriptor implements AppDescriptor
         public readonly DescriptorStatus $status = DescriptorStatus::Active,
         public readonly ?string $descriptionKey = null,
         public readonly array $nameKeys = [],
+        /** Install one editable definition per Legal Entity; never overwrite an existing definition. */
+        public readonly bool $installByDefault = false,
     ) {
         if (trim($key) === '') {
             throw new \InvalidArgumentException('ProcessTemplateDescriptor key must be a non-empty string.');

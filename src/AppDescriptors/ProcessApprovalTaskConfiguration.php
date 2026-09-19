@@ -20,6 +20,7 @@ final readonly class ProcessApprovalTaskConfiguration
         public string $routePolicyPayloadKey = 'approval_route_policy_key',
         public ?string $businessTemplatePresetKey = null,
         public ?string $routePolicyPresetKey = null,
+        public bool $supportsLinePreparation = false,
     ) {
         foreach ([
             'bindingKey' => $bindingKey,
@@ -62,6 +63,7 @@ final readonly class ProcessApprovalTaskConfiguration
             'route_policy_payload_key' => $this->routePolicyPayloadKey,
             'business_template_preset_key' => $this->businessTemplatePresetKey,
             'route_policy_preset_key' => $this->routePolicyPresetKey,
+            'supports_line_preparation' => $this->supportsLinePreparation,
         ], static fn (mixed $value): bool => $value !== null);
     }
 }
