@@ -72,6 +72,11 @@ ScoutSearchResolverRegistry::configure($identityResolver, $engineResolver);
 
 assert(ScoutSearchResolverRegistry::identityResolver() === $identityResolver);
 assert(ScoutSearchResolverRegistry::engineResolver() === $engineResolver);
+// A database-only App host has no shared tenant search identity catalog.
+ScoutSearchResolverRegistry::configure(null, $engineResolver);
+assert(ScoutSearchResolverRegistry::identityResolver() === null);
+assert(ScoutSearchResolverRegistry::engineResolver() === $engineResolver);
+ScoutSearchResolverRegistry::configure($identityResolver, $engineResolver);
 assert(! method_exists(NexiaEntityModel::class, 'configureSearchResourceIdentityResolver'));
 assert(! method_exists(NexiaEntityModel::class, 'configureScoutSearchEngineResolver'));
 

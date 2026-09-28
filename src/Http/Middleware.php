@@ -6,6 +6,9 @@ namespace Nexia\Http;
 
 final class Middleware
 {
+    /** Host-authenticated App request entry; the host owns tenant/session restoration. */
+    public const APP_REQUEST = 'nexia.app.request';
+
     public const AGENT_DELEGATION = 'agent.delegation';
 
     public const APP_INSTALLED = 'app.installed';

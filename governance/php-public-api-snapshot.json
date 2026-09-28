@@ -899,11 +899,19 @@
             "deprecated": false,
             "public_signatures": [
                 {
-                    "signature": "__construct(public readonly string $key, public readonly string $version, public readonly ?string $labelKey = null, public readonly DescriptorStatus $status = DescriptorStatus::Active, public readonly array $fieldSchema = [], public readonly array $searchSchema = [], public readonly array $lifecycleEvents = [], public readonly bool $publicForBuilder = true, /** @var list<ResourceActionDescriptor> App-owned operations beyond ordinary Resource CRUD. */ public readonly array $actions = [], public readonly ?ResourceMutationDescriptor $mutation = null,)",
+                    "signature": "__construct(public readonly string $key, public readonly string $version, public readonly ?string $labelKey = null, public readonly DescriptorStatus $status = DescriptorStatus::Active, public readonly array $fieldSchema = [], public readonly array $searchSchema = [], public readonly array $lifecycleEvents = [], public readonly bool $publicForBuilder = true, /** @var list<ResourceActionDescriptor> App-owned operations beyond ordinary Resource CRUD. */ public readonly array $actions = [], public readonly ?ResourceMutationDescriptor $mutation = null, /** Public contract discovery only, never data access. Null preserves the existing visibility. */ public readonly ?bool $publicForIntegration = null,)",
                     "deprecated": false
                 },
                 {
                     "signature": "descriptorKey(): string",
+                    "deprecated": false
+                },
+                {
+                    "signature": "integrationContract(): ?array",
+                    "deprecated": false
+                },
+                {
+                    "signature": "isPublicForIntegration(): bool",
                     "deprecated": false
                 }
             ],
@@ -1517,6 +1525,18 @@
             "deprecated": false,
             "public_signatures": [
                 {
+                    "signature": "declaration(string $packagePath): array",
+                    "deprecated": false
+                },
+                {
+                    "signature": "declarationFromJson(string $composerJson, ?string $manifestJson = null): array",
+                    "deprecated": false
+                },
+                {
+                    "signature": "metadataFromJson(string $composerJson, ?string $manifestJson = null): array",
+                    "deprecated": false
+                },
+                {
                     "signature": "read(string $packagePath): AppDefinition",
                     "deprecated": false
                 }
@@ -1624,12 +1644,40 @@
         },
         {
             "kind": "interface",
+            "name": "Nexia\\AppRuntime\\Contracts\\TenantAppInitializerContribution",
+            "file": "src/AppRuntime/Contracts/TenantAppInitializerContribution.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "initialize(TenantAppInitializationContext $context): void",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
             "name": "Nexia\\AppRuntime\\Contracts\\TenantInstallableAppManifest",
             "file": "src/AppRuntime/Contracts/TenantInstallableAppManifest.php",
             "deprecated": false,
             "public_signatures": [
                 {
                     "signature": "definition(): AppDefinition",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
+            "name": "Nexia\\AppRuntime\\Contracts\\VersionedTenantAppInitializerContribution",
+            "file": "src/AppRuntime/Contracts/VersionedTenantAppInitializerContribution.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "version(): string",
                     "deprecated": false
                 }
             ],
@@ -1653,6 +1701,24 @@
             ],
             "dto_keys": [
                 "overrides"
+            ],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "class",
+            "name": "Nexia\\AppRuntime\\TenantAppInitializationContext",
+            "file": "src/AppRuntime/TenantAppInitializationContext.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "__construct(public AppDefinition $definition, public string $tenantId, public string $initializationVersion,)",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [
+                "definition",
+                "initializationVersion",
+                "tenantId"
             ],
             "enum_wire_values": []
         },
@@ -4953,7 +5019,7 @@
             "deprecated": false,
             "public_signatures": [
                 {
-                    "signature": "configure(SearchResourceIdentityResolver $identityResolver, ScoutSearchEngineResolver $engineResolver,): void",
+                    "signature": "configure(?SearchResourceIdentityResolver $identityResolver, ScoutSearchEngineResolver $engineResolver,): void",
                     "deprecated": false
                 },
                 {
@@ -5152,6 +5218,32 @@
                 },
                 {
                     "signature": "configure(?Closure $augmenter): void",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "class",
+            "name": "Nexia\\Laravel\\Resources\\ResourceWriteRoutes",
+            "file": "src/Laravel/Resources/ResourceWriteRoutes.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "byController(iterable $routes): array",
+                    "deprecated": false
+                },
+                {
+                    "signature": "detailForModel(string $modelClass, array $byController): ?array",
+                    "deprecated": false
+                },
+                {
+                    "signature": "forModel(string $modelClass, array $byController): array",
+                    "deprecated": false
+                },
+                {
+                    "signature": "isMemberRoute(Route $route): bool",
                     "deprecated": false
                 }
             ],
@@ -5365,6 +5457,20 @@
                 "Succeeded": "succeeded",
                 "Updated": "updated"
             }
+        },
+        {
+            "kind": "class",
+            "name": "Nexia\\Navigation\\AppNavigation",
+            "file": "src/Navigation/AppNavigation.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "resolve(array $declaration, string $appKey, array $screens): array",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
         },
         {
             "kind": "interface",
@@ -7800,6 +7906,20 @@
                 },
                 {
                     "signature": "searchPage(string $query, ResourceReferenceResolutionContext $context, int $page, int $perPage,): ResourceReferencePage",
+                    "deprecated": false
+                }
+            ],
+            "dto_keys": [],
+            "enum_wire_values": []
+        },
+        {
+            "kind": "interface",
+            "name": "Nexia\\ResourceReference\\Contracts\\ResourceReferenceQuerySchemaContribution",
+            "file": "src/ResourceReference/Contracts/ResourceReferenceQuerySchemaContribution.php",
+            "deprecated": false,
+            "public_signatures": [
+                {
+                    "signature": "querySchema(): array",
                     "deprecated": false
                 }
             ],

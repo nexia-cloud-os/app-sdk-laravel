@@ -43,7 +43,36 @@ final class ResourceDescriptor implements AppDescriptor
         /** @var list<ResourceActionDescriptor> App-owned operations beyond ordinary Resource CRUD. */
         public readonly array $actions = [],
         public readonly ?ResourceMutationDescriptor $mutation = null,
+        /** Public contract discovery only, never data access. Null preserves the existing visibility. */
+        public readonly ?bool $publicForIntegration = null,
     ) {}
+
+    public function isPublicForIntegration(): bool
+    {
+        return $this->publicForIntegration ?? $this->publicForBuilder;
+    }
+
+    /** Public discovery metadata only; it grants no data or action authority. */
+    public function integrationContract(): ?array
+    {
+        if (! $this->isPublicForIntegration() || $this->status === DescriptorStatus::Removed) {
+            return null;
+        }
+
+        return [
+            'key' => $this->key, 'version' => $this->version, 'status' => $this->status->value,
+            'label_key' => $this->labelKey, 'fields' => (object) $this->fieldSchema,
+            'search' => (object) $this->searchSchema,
+            'actions' => array_map(static fn ($action): array => [
+                'key' => $action->key, 'permission' => $action->permission,
+                'effect' => $action->effect->value, 'input_schema' => $action->inputSchema,
+            ], $this->actions),
+            'events' => array_values(array_map(static fn ($event): array => [
+                'key' => $event->key, 'schema_version' => $event->schemaVersion,
+                'stability' => $event->stability, 'payload_schema' => (object) $event->payloadSchema,
+            ], array_filter($this->lifecycleEvents, static fn ($event): bool => $event->publicForComposition))),
+        ];
+    }
 
     public function descriptorKey(): string
     {
