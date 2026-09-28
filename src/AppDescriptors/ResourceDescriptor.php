@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Nexia\AppDescriptors;
 
+use Nexia\Actions\ActionDefinition;
+
 use Nexia\AppDescriptors\Contracts\AppDescriptor;
 
 /**
@@ -40,7 +42,7 @@ final class ResourceDescriptor implements AppDescriptor
         public readonly array $searchSchema = [],
         public readonly array $lifecycleEvents = [],
         public readonly bool $publicForBuilder = true,
-        /** @var list<ResourceActionDescriptor> App-owned operations beyond ordinary Resource CRUD. */
+        /** @var list<ActionDefinition> App-owned operations beyond ordinary Resource CRUD. */
         public readonly array $actions = [],
         public readonly ?ResourceMutationDescriptor $mutation = null,
         /** Public contract discovery only, never data access. Null preserves the existing visibility. */

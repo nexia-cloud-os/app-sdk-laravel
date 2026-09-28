@@ -31,6 +31,7 @@ final class DashboardWidget
         public readonly ?string $familyKey = null,
         public readonly RendererCapability $capability = RendererCapability::HumanOnly,
         public readonly array $requiredAnyPermission = [],
+        public readonly bool $discoverable = true,
     ) {
         if ($titleKey === '' || $titleKey !== trim($titleKey)) {
             throw new InvalidArgumentException("DashboardWidget {$key} titleKey must be a non-blank catalog key");

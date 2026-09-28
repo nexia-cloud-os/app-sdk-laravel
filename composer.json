@@ -1,5 +1,5 @@
 {
-    "name": "amuzcorp/nexia-app-sdk-laravel",
+    "name": "nexia/sdk-laravel",
     "description": "Contracts for Nexia App Packages",
     "type": "library",
     "license": "proprietary",
@@ -14,7 +14,8 @@
         "symfony/html-sanitizer": "^8.0"
     },
     "conflict": {
-        "amuzcorp/nexia-app-sdk": "*"
+        "amuzcorp/nexia-app-sdk": "*",
+        "amuzcorp/nexia-app-sdk-laravel": "*"
     },
     "autoload": {
         "psr-4": {
@@ -42,6 +43,8 @@
             "@php -d zend.assertions=1 -d assert.exception=1 tests/ApprovalRoutePolicyStepTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/DescriptorStatusTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/DashboardContractsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/ReportContractsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/ActionContractsTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/DataMigrationContractsTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/FixtureContractsTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/GuidanceContractsTest.php",
