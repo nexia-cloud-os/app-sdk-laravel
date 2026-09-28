@@ -5,21 +5,9 @@ declare(strict_types=1);
 require __DIR__.'/register-source-autoload.php';
 
 /** @return list<string> */
-function snapshotSymbols(): array
+function sourceSymbols(): array
 {
-    $snapshot = json_decode(
-        (string) file_get_contents(dirname(__DIR__).'/governance/php-public-api-snapshot.json'),
-        true,
-        flags: JSON_THROW_ON_ERROR,
-    );
-
-    return array_values(array_filter(array_column($snapshot['symbols'] ?? [], 'name'), 'is_string'));
-}
-
-/** @return list<string> */
-function traitSymbols(): array
-{
-    $traits = [];
+    $symbols = [];
     $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(
         dirname(__DIR__).'/src',
         FilesystemIterator::SKIP_DOTS,
@@ -38,16 +26,16 @@ function traitSymbols(): array
 
         $tokens = token_get_all($source);
         foreach ($tokens as $index => $token) {
-            if (! is_array($token) || $token[0] !== T_TRAIT) {
+            if (! is_array($token) || ! in_array($token[0], [T_CLASS, T_INTERFACE, T_ENUM, T_TRAIT], true)) {
                 continue;
             }
 
             for ($cursor = $index + 1; isset($tokens[$cursor]); $cursor++) {
-                if (! is_array($tokens[$cursor]) || $tokens[$cursor][0] === T_WHITESPACE) {
+                if (is_array($tokens[$cursor]) && in_array($tokens[$cursor][0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT], true)) {
                     continue;
                 }
-                if ($tokens[$cursor][0] === T_STRING) {
-                    $traits[] = $namespace[1].'\\'.$tokens[$cursor][1];
+                if (is_array($tokens[$cursor]) && $tokens[$cursor][0] === T_STRING) {
+                    $symbols[] = $namespace[1].'\\'.$tokens[$cursor][1];
                 }
 
                 break;
@@ -55,7 +43,7 @@ function traitSymbols(): array
         }
     }
 
-    return $traits;
+    return $symbols;
 }
 
 /** @return list<string> */
@@ -102,7 +90,7 @@ function assertResolvableType(string $type, string $context, array &$failures): 
 }
 
 $failures = [];
-$symbols = array_values(array_unique([...snapshotSymbols(), ...traitSymbols()]));
+$symbols = array_values(array_unique(sourceSymbols()));
 
 foreach ($symbols as $symbol) {
     if (! class_exists($symbol) && ! interface_exists($symbol) && ! trait_exists($symbol) && ! enum_exists($symbol)) {
