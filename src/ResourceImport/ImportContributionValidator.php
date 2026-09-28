@@ -121,6 +121,24 @@ final class ImportContributionValidator
             );
         }
 
+        $importableKeys = array_fill_keys(array_map(
+            static fn (array $column): string => $column['key'],
+            array_filter($definition->schema->columns(), static fn (array $column): bool => $column['importable']),
+        ), true);
+        if (! array_is_list($definition->templateExampleRows)) {
+            throw new InvalidArgumentException("Resource import [{$definition->resourceKey}] template examples must be a list.");
+        }
+        foreach ($definition->templateExampleRows as $row) {
+            if (! is_array($row)) {
+                throw new InvalidArgumentException("Resource import [{$definition->resourceKey}] has an invalid template example row.");
+            }
+            foreach ($row as $key => $value) {
+                if (! is_string($key) || ! isset($importableKeys[$key]) || (! is_scalar($value) && $value !== null)) {
+                    throw new InvalidArgumentException("Resource import [{$definition->resourceKey}] has an invalid template example value.");
+                }
+            }
+        }
+
         self::dataMigrationStage($definition);
     }
 

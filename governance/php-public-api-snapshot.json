@@ -7665,7 +7665,7 @@
             "deprecated": false,
             "public_signatures": [
                 {
-                    "signature": "__construct(public readonly string $resourceKey, public readonly TransferSchema $schema, public readonly string $handlerClass, public readonly string $profileScope = 'ai', public readonly array $permissionKeys = [], public readonly array $fillRuleProposals = [], public readonly array $requestsCoreResources = [], public readonly array $columnAliases = [], public readonly array $sourceProfiles = [], public readonly int $schemaVersion = 1, /** Require the uploaded header row to equal the declared template headers, including order. */ public readonly bool $requiresExactTemplateHeaders = false, /** Match only literal declared aliases; leave every other uploaded header unmatched. */ public readonly bool $matchesDeclaredHeadersOnly = false, /** Bind settled decisions into the server-side preview proof before any write may start. */ public readonly bool $requiresDecisionBoundPreview = false, /** Record successful executions as evidence for this declared migration stage. */ public readonly ?DataMigrationStageIdentity $dataMigrationStage = null,)",
+                    "signature": "__construct(public readonly string $resourceKey, public readonly TransferSchema $schema, public readonly string $handlerClass, public readonly string $profileScope = 'ai', public readonly array $permissionKeys = [], public readonly array $fillRuleProposals = [], public readonly array $requestsCoreResources = [], public readonly array $columnAliases = [], public readonly array $sourceProfiles = [], public readonly int $schemaVersion = 1, /** Require the uploaded header row to equal the declared template headers, including order. */ public readonly bool $requiresExactTemplateHeaders = false, /** Match only literal declared aliases; leave every other uploaded header unmatched. */ public readonly bool $matchesDeclaredHeadersOnly = false, /** Bind settled decisions into the server-side preview proof before any write may start. */ public readonly bool $requiresDecisionBoundPreview = false, /** Record successful executions as evidence for this declared migration stage. */ public readonly ?DataMigrationStageIdentity $dataMigrationStage = null, public readonly array $templateExampleRows = [],)",
                     "deprecated": false
                 }
             ],
@@ -7682,7 +7682,8 @@
                 "resourceKey",
                 "schema",
                 "schemaVersion",
-                "sourceProfiles"
+                "sourceProfiles",
+                "templateExampleRows"
             ],
             "enum_wire_values": []
         },
