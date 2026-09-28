@@ -66,6 +66,7 @@ function validPipelineDefinition(): ResourceImportPipelineDefinition
             labelKey: 'fixture.import.sources.ecount',
             columnAliases: ['transaction_key' => ['거래번호']],
         )],
+        templateExampleRows: [['transaction_key' => 'TX-001', 'amount' => 1200, 'currency' => 'KRW']],
         dataMigrationStage: new DataMigrationStageIdentity(
             stageKey: 'fixture.loan_transactions',
             providerKey: 'ecount',
@@ -94,6 +95,17 @@ function importContractMustFail(callable $callback, string $message): void
 ImportContributionValidator::portfolio(
     [validRecipeDefinition()],
     [validPipelineDefinition()],
+);
+assert(validPipelineDefinition()->templateExampleRows[0]['transaction_key'] === 'TX-001');
+
+importContractMustFail(
+    fn () => ImportContributionValidator::pipeline(new ResourceImportPipelineDefinition(
+        resourceKey: 'fixture.bad_template_example',
+        schema: TransferSchema::make()->field('name'),
+        handlerClass: ResourceImportContractsPipeline::class,
+        templateExampleRows: [['unknown' => 'value']],
+    )),
+    'invalid template example value',
 );
 
 $spool = ImportRowSpool::create();
