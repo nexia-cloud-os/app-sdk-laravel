@@ -1004,6 +1004,25 @@ $signatureRequestSubmission = new SignatureRequestSubmission(
 );
 $signatureRequestSubmissionArray = $signatureRequestSubmission->toArray();
 
+$credentialSubmission = new SignatureRequestSubmission(...[
+    ...get_object_vars($signatureRequestSubmission), 'participants' => [$signatureParticipantWithVerifier],
+]);
+$credentialWire = \Nexia\Signature\SignatureRequestWire::submission($credentialSubmission);
+$credentialRestored = \Nexia\Signature\SignatureRequestWire::restoreSubmission(
+    json_decode(json_encode($credentialWire, JSON_THROW_ON_ERROR), true, flags: JSON_THROW_ON_ERROR),
+    $signatureContractLegalEntity, $signatureContractActor,
+);
+if ($credentialRestored->participants[0]->requestPasswordVerifier?->valueForSignatureHost() !== $opaqueVerifier->valueForSignatureHost()
+    || str_contains(json_encode($credentialRestored->toArray(), JSON_THROW_ON_ERROR), $opaqueVerifier->valueForSignatureHost())
+    || str_contains(json_encode($credentialRestored->toLogSafeArray(), JSON_THROW_ON_ERROR), $opaqueVerifier->valueForSignatureHost())) {
+    throw new RuntimeException('Only authenticated host transport may carry the password verifier.');
+}
+foreach ([['foreign' => 'opaque'], [1 => null], [1 => str_repeat('x', 1025)]] as $invalidVerifiers) {
+    signatureContractMustThrow(fn () => \Nexia\Signature\SignatureRequestWire::restoreSubmission(
+        [...$credentialWire, 'request_password_verifiers' => $invalidVerifiers], $signatureContractLegalEntity, $signatureContractActor,
+    ), 'Credential handoff must reject unknown participants and malformed material.');
+}
+
 if (array_keys($signatureRequestSubmissionArray) !== [
     'legal_entity_public_id',
     'actor_public_id',

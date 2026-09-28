@@ -12,6 +12,16 @@ use Nexia\Approval\Domain\ApprovalRoutePolicyStep;
 
 foreach ([
     new ProcessStartBindingDescriptor('sample', 'start', 'sample.process', 'process', 'sample.record', 'sample.record.start', 'sample.start'),
+    new \Nexia\AppDescriptors\ProcessWorkActionDescriptor('serviceTask', 'sample', 'finish', 'sample.finish', 'sample.finish'),
+    new \Nexia\AppDescriptors\ProcessUserTaskFormDescriptor('sample.form', 'sample', 'sample.form.title',
+        rendering: ['mode' => 'slot_widget', 'slot' => \Nexia\AppDescriptors\ProcessUserTaskFormDescriptor::FORM_SLOT, 'component' => 'SampleForm', 'slot_api_version' => 1], submissionActionKey: 'submit'),
+    new \Nexia\AppDescriptors\SignatureDocumentDataSourceDescriptor(
+        'sample', 'sample.document', 1, ['sample.record'], \Nexia\Signature\SignatureDocumentDataCardinality::One,
+        \Nexia\Signature\SignatureDocumentDataLookupMode::DerivedRef, [],
+        [new \Nexia\AppDescriptors\SignatureDocumentDataFieldDescriptor('name', \Nexia\Signature\SignatureDocumentDataFieldType::String,
+            true, \Nexia\Signature\SignatureDataClassification::Confidential, [\Nexia\Signature\SignatureDocumentDataFormatter::Plain], 'sample.name')],
+        ['name' => 'Synthetic'], 'sample.document.title', 'sample.document.description', defaultSourceRefAnchor: 'record',
+    ),
     new ApprovalDocumentSchema('sample', 'record', [['fields' => [['key' => 'name', 'label_key' => 'sample.name']]]]),
     new ApprovalRoutePolicyPresetDescriptor('sample', 'route', 'sample.route', [new ApprovalRoutePolicyStep('fixed_users', ['users' => [1]])]),
 ] as $descriptor) {

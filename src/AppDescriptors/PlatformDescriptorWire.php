@@ -13,6 +13,9 @@ use Nexia\Approval\Domain\Enums\ApprovalDocumentEditorMode;
 final class PlatformDescriptorWire
 {
     public const TYPES = [
+        'process_work' => ProcessWorkActionDescriptor::class,
+        'process_form' => ProcessUserTaskFormDescriptor::class,
+        'signature_data' => SignatureDocumentDataSourceDescriptor::class,
         'process_start' => ProcessStartBindingDescriptor::class,
         'process_template' => ProcessTemplateDescriptor::class,
         'approval_binding' => ApprovalFormBindingDescriptor::class,
@@ -26,11 +29,12 @@ final class PlatformDescriptorWire
     {
         $type = array_search($descriptor::class, self::TYPES, true);
         if ($type === false) throw new InvalidArgumentException('Unsupported platform descriptor.');
-        if ($descriptor instanceof SignatureTemplateBindingDescriptor) {
+        if ($descriptor instanceof SignatureTemplateBindingDescriptor || $descriptor instanceof SignatureDocumentDataSourceDescriptor) {
             return ['type' => $type, 'data' => $descriptor->toArray()];
         }
         $data = get_object_vars($descriptor);
-        if (! $descriptor instanceof ProcessTemplateDescriptor) unset($data['key']);
+        if (! $descriptor instanceof ProcessTemplateDescriptor && ! $descriptor instanceof ProcessUserTaskFormDescriptor) unset($data['key']);
+        if ($descriptor instanceof ProcessWorkActionDescriptor) $data['approvalTask'] = $descriptor->approvalTask === null ? null : get_object_vars($descriptor->approvalTask);
         $data['status'] = $descriptor->status->value;
         if ($descriptor instanceof ApprovalBusinessTemplatePresetDescriptor) {
             $data['documentEditorMode'] = $descriptor->documentEditorMode->value;
@@ -50,7 +54,10 @@ final class PlatformDescriptorWire
         $data = $wire['data'];
         if ($wire['type'] === 'signature_template') {
             $descriptor = SignatureTemplateBindingDescriptor::fromArray($data);
+        } elseif ($wire['type'] === 'signature_data') {
+            $descriptor = SignatureDocumentDataSourceDescriptor::fromArray($data);
         } else {
+            if ($wire['type'] === 'process_work' && isset($data['approvalTask'])) $data['approvalTask'] = new ProcessApprovalTaskConfiguration(...$data['approvalTask']);
             $data['status'] = DescriptorStatus::from($data['status']);
             if ($wire['type'] === 'approval_template') {
                 $data['documentEditorMode'] = ApprovalDocumentEditorMode::from($data['documentEditorMode']);

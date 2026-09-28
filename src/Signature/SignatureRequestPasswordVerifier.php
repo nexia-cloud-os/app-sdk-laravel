@@ -30,7 +30,7 @@ final readonly class SignatureRequestPasswordVerifier
         return $this->handoffValue;
     }
 
-    /** For the in-process SDK handoff to the Core Signature host only. */
+    /** For the SDK handoff to the Core Signature host only, never a browser or log payload. */
     public function valueForSignatureHost(): string
     {
         return $this->handoffValue;
