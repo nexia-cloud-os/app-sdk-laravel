@@ -51,6 +51,7 @@ final class ProcessUserTaskFormDescriptor implements AppDescriptor
         'date',
         'dateTime',
         'resourceRef',
+        'ResourceRef',
         'document',
         'UserRef',
         'list<UserRef>',
