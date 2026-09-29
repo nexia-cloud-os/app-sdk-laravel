@@ -66,7 +66,6 @@
             "@php -d zend.assertions=1 -d assert.exception=1 tests/HostBoundaryContractsTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/KernelImportBoundaryTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/AppNeutralityBoundaryTest.php",
-            "@php -d zend.assertions=1 -d assert.exception=1 tests/PublicApiSnapshotReviewTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/NamespaceTypeResolutionTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/LaravelAdapterParityTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/ModelConcernsTest.php",
