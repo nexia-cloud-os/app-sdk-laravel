@@ -95,15 +95,21 @@ final class AppPackageMetadataReader
                     throw new RuntimeException('Package nexia.json version 2 requires runtime laravel.');
                 }
                 $legacy = $composer['extra']['nexia'] ?? [];
-                if (! is_array($legacy) || array_intersect(array_keys($legacy), ['app', 'core_version', 'test_paths', 'navigation']) !== []) {
+                if (! is_array($legacy) || array_intersect(array_keys($legacy), ['app', 'core_version', 'test_paths', 'navigation', 'platform']) !== []) {
                     throw new RuntimeException('Declare Nexia metadata only in nexia.json; remove duplicate extra.nexia declarations.');
                 }
                 $metadata = $manifest['app'] ?? null;
                 if (! is_array($metadata) || array_is_list($metadata)) {
                     throw new RuntimeException('nexia.json must declare an app object.');
                 }
-                if (array_diff(array_keys($manifest), ['schema_version', 'runtime', 'app', 'core_version', 'test_paths', 'navigation']) !== []) {
+                if (array_diff(array_keys($manifest), ['schema_version', 'runtime', 'app', 'core_version', 'test_paths', 'navigation', 'platform']) !== []) {
                     throw new RuntimeException('Unsupported nexia.json field.');
+                }
+                if (array_key_exists('platform', $manifest)) {
+                    if (! is_array($manifest['platform'])) {
+                        throw new RuntimeException('Platform requirements must be an object.');
+                    }
+                    RuntimeRequirements::validateDeclaration($manifest['platform'], is_string($metadata['app_key'] ?? null) ? $metadata['app_key'] : '');
                 }
                 if (array_key_exists('navigation', $manifest)) {
                     \Nexia\Navigation\AppNavigation::validate($manifest['navigation'], is_string($metadata['app_key'] ?? null) ? $metadata['app_key'] : '');
