@@ -164,7 +164,7 @@ final class ResourceWriteRoutes
      *
      * Decided by the URI shape rather than by the controller method name:
      * a member route ends in a parameter. A sub-resource route such as
-     * `.../assets/{asset}/audit` ends in a literal segment and is
+     * `.../records/{record}/audit` ends in a literal segment and is
      * therefore not the member route for a write — which is the point,
      * because sending an update there would call a different operation.
      */
