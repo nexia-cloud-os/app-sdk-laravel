@@ -142,6 +142,12 @@ if (! $approvalRouteContext instanceof ReflectionNamedType || ! $approvalRouteCo
     throw new RuntimeException('Approval routes must accept a tenant-scoped context.');
 }
 
+$preparation = new ReflectionMethod(ApprovalIdempotency::class, 'execute')->getParameters()[2];
+if ($preparation->getName() !== 'prepare' || ! $preparation->isDefaultValueAvailable()
+    || $preparation->getDefaultValue() !== null || ! $preparation->getType()?->allowsNull()) {
+    throw new RuntimeException('Approval idempotency preparation must remain optional for existing callers.');
+}
+
 foreach ([
     Actor::class,
     ActorDirectory::class,

@@ -92,6 +92,10 @@ final class ProcessTemplateDescriptor implements AppDescriptor
      *                                                                                                                      Translation keys for user-visible
      *                                                                                                                      BPMN names, indexed by process or
      *                                                                                                                      globally unique element id.
+     * @param  string|null  $startResourceKey  Resource that a manually started
+     *                                         App process must anchor to. Event
+     *                                         and call-activity starts supply
+     *                                         their own subject instead.
      */
     public function __construct(
         public readonly string $key,
@@ -107,6 +111,7 @@ final class ProcessTemplateDescriptor implements AppDescriptor
         public readonly array $nameKeys = [],
         /** Install one editable definition per Legal Entity; never overwrite an existing definition. */
         public readonly bool $installByDefault = false,
+        public readonly ?string $startResourceKey = null,
     ) {
         if (trim($key) === '') {
             throw new \InvalidArgumentException('ProcessTemplateDescriptor key must be a non-empty string.');
@@ -138,6 +143,18 @@ final class ProcessTemplateDescriptor implements AppDescriptor
         if (! is_array($structure['definitions'] ?? null)) {
             throw new \InvalidArgumentException(
                 "ProcessTemplateDescriptor [{$key}] structure must be a canonical BPMN definitions document.",
+            );
+        }
+        if ($startResourceKey !== null && (
+            trim($startResourceKey) === ''
+            || ! array_any($dependencies, static fn (mixed $dependency): bool =>
+                is_array($dependency)
+                && ($dependency['kind'] ?? null) === 'resource'
+                && ($dependency['key'] ?? null) === $startResourceKey
+            )
+        )) {
+            throw new \InvalidArgumentException(
+                "ProcessTemplateDescriptor [{$key}] start_resource_key must name a declared resource dependency.",
             );
         }
 
