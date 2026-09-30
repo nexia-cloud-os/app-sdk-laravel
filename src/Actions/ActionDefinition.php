@@ -20,6 +20,9 @@ final readonly class ActionDefinition
     /** Derive the existing Agent transport from the same business action declaration. */
     public function agentTool(string $qualifiedKey): \Nexia\Agent\AgentToolDeclaration
     {
+        if ($this->execution !== null && ! $this->execution->available) {
+            throw new InvalidArgumentException('Action execution is unavailable.');
+        }
         if (! in_array(ActionPlacement::Agent, $this->placements, true)) {
             throw new InvalidArgumentException('This action is not available to Agents.');
         }
@@ -50,7 +53,8 @@ final readonly class ActionDefinition
             'input_schema' => $this->inputSchema, 'effect' => $this->effect->value, 'label_key' => $this->labelKey,
             'description' => $this->description, 'targets' => $this->targets->value,
             'placements' => array_map(static fn (ActionPlacement $placement): string => $placement->value, $this->placements),
-            'target_parameter' => $this->targetParameter, 'confirmation_key' => $this->confirmationKey];
+            'target_parameter' => $this->targetParameter, 'confirmation_key' => $this->confirmationKey,
+            ...($this->execution === null ? [] : ['execution' => $this->execution->toArray()])];
     }
 
     public static function fromArray(array $definition): self
@@ -59,7 +63,8 @@ final readonly class ActionDefinition
             path: $definition['path'], inputSchema: $definition['input_schema'], effect: ResourceActionEffect::from($definition['effect']),
             labelKey: $definition['label_key'], description: $definition['description'], targets: ActionTargets::from($definition['targets']),
             placements: array_map(ActionPlacement::from(...), $definition['placements']), targetParameter: $definition['target_parameter'],
-            confirmationKey: $definition['confirmation_key']);
+            confirmationKey: $definition['confirmation_key'],
+            execution: isset($definition['execution']) ? ActionExecutionContract::fromArray($definition['execution']) : null);
     }
 
     /**
@@ -79,6 +84,7 @@ final readonly class ActionDefinition
         public array $placements = [ActionPlacement::Agent],
         public string $targetParameter = 'id',
         public ?string $confirmationKey = null,
+        public ?ActionExecutionContract $execution = null,
     ) {
         if (! array_is_list($placements) || $placements === []) {
             throw new InvalidArgumentException('An action must declare its permitted placements.');

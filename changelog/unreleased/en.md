@@ -20,3 +20,11 @@ Adopt the matching Core initializer/discovery changes and its tenant migration `
 - Generated App routes use the public `Nexia\Http\Middleware::APP_REQUEST` entry instead of importing host tenancy middleware. Core maps it to the existing web, tenancy, session, authentication and delegation chain; App installation and resource context checks remain in place. Adopt the matching SDK/Core release before generating these routes. Isolated runtime request authentication is a separate adapter requirement.
 
 - Isolated App catalogs now carry decision-result templates, including typed result fields and optional DMN seeds, through `PlatformDescriptorWire`. Adopt the matching sandbox runtime to expose these templates in Core authoring without installing App PHP in Core.
+
+## Standard Runtime declaration draft
+
+- Add versioned Runtime requirements, declaration capabilities, definition-only app/tenant settings and an explicit unavailable Action execution contract. Unsupported required capabilities and integrations are rejected; these declarations do not enable settings access, asynchronous work or state changes.
+- Add the shared dependency policy and registered collection-route inspection. Runtime packages and the operator test toolchain are separate allowlists; Apps cannot introduce production packages, executable autoload hooks or another App dependency.
+- Adopt the matching Core and sandbox-manager source together. The existing published SDK 0.7.0 does not contain these draft contracts; publish and adopt a new compatible SDK artifact before building the release Runtime.
+
+- Shared metadata reading validates the declaration shape without selecting a sandbox host. Sandbox entry points still reject unsupported Runtime versions, required capabilities and integrations before loading App PHP. Existing Composer metadata without `platform` keeps its parsing behavior; installing and booting production Apps remains a separate compatibility check.

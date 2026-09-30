@@ -68,6 +68,7 @@ final class ResourceDescriptor implements AppDescriptor
             'actions' => array_map(static fn ($action): array => [
                 'key' => $action->key, 'permission' => $action->permission,
                 'effect' => $action->effect->value, 'input_schema' => $action->inputSchema,
+                ...($action->execution === null ? [] : ['execution' => $action->execution->toArray()]),
             ], $this->actions),
             'events' => array_values(array_map(static fn ($event): array => [
                 'key' => $event->key, 'schema_version' => $event->schemaVersion,

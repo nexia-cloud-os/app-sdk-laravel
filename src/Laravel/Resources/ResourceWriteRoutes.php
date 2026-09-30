@@ -34,6 +34,15 @@ final class ResourceWriteRoutes
         return count($uris) === 1 ? ['method' => 'GET', 'uri' => array_key_first($uris)] : null;
     }
 
+    /** The registered canonical collection endpoint, with no guessed path. */
+    public static function listForModel(string $modelClass, array $byController): ?array
+    {
+        $controller = self::controllerFor($modelClass, $byController);
+        $uris = $controller === null ? [] : self::readUrisFor($byController[$controller], member: false);
+
+        return count($uris) === 1 ? ['method' => 'GET', 'uri' => array_key_first($uris)] : null;
+    }
+
     /**
      * The one controller that owns this Resource, or null when zero or
      * several do.
