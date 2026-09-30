@@ -18,6 +18,8 @@ final readonly class ShellResourceDescriptor
         public ?array $shapes = null,
         public ?string $componentPrefix = null,
         public array $overrides = [],
+        /** The create form reports its new Resource Reference through the Shell continuation. */
+        public bool $contextualCreate = false,
     ) {
         if ($this->path !== null && trim($this->path) === '') {
             throw new InvalidArgumentException('Shell resource path cannot be empty.');
@@ -49,6 +51,7 @@ final readonly class ShellResourceDescriptor
             shapes: $shapes === null ? null : array_values($shapes),
             componentPrefix: is_string($config['componentPrefix'] ?? null) ? $config['componentPrefix'] : null,
             overrides: $overrides,
+            contextualCreate: ($config['contextualCreate'] ?? false) === true,
         );
     }
 }

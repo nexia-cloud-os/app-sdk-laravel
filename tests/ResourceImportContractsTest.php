@@ -9,6 +9,7 @@ use Nexia\ResourceImport\Analysis\ImportAnalysisResult;
 use Nexia\ResourceImport\Analysis\ImportAnalysisSnapshot;
 use Nexia\ResourceImport\Analysis\ImportRowSpool;
 use Nexia\ResourceImport\Contracts\ImportRecipeProvider;
+use Nexia\ResourceImport\Contracts\ResourceImportPipeline;
 use Nexia\ResourceImport\DataMigrationStageIdentity;
 use Nexia\ResourceImport\Decision\ChoiceOption;
 use Nexia\ResourceImport\Decision\MultipleChoiceDecision;
@@ -17,7 +18,7 @@ use Nexia\ResourceImport\FillRuleProposal;
 use Nexia\ResourceImport\ImportContributionValidator;
 use Nexia\ResourceImport\ImportRecipeDefinition;
 use Nexia\ResourceImport\ImportSourceProfile;
-use Nexia\ResourceImport\Contracts\ResourceImportPipeline;
+use Nexia\ResourceImport\Plan\ImportPlan;
 use Nexia\ResourceImport\ResourceImportPipelineDefinition;
 use Nexia\ResourceImport\Workbook\Contracts\SafeWorkbookInspector;
 use Nexia\ResourceTransfer\TransferSchema;
@@ -66,6 +67,7 @@ function validPipelineDefinition(): ResourceImportPipelineDefinition
             labelKey: 'fixture.import.sources.ecount',
             columnAliases: ['transaction_key' => ['거래번호']],
         )],
+        templateExampleRows: [['transaction_key' => 'TX-001', 'amount' => 1200, 'currency' => 'KRW']],
         dataMigrationStage: new DataMigrationStageIdentity(
             stageKey: 'fixture.loan_transactions',
             providerKey: 'ecount',
@@ -94,6 +96,17 @@ function importContractMustFail(callable $callback, string $message): void
 ImportContributionValidator::portfolio(
     [validRecipeDefinition()],
     [validPipelineDefinition()],
+);
+assert(validPipelineDefinition()->templateExampleRows[0]['transaction_key'] === 'TX-001');
+
+importContractMustFail(
+    fn () => ImportContributionValidator::pipeline(new ResourceImportPipelineDefinition(
+        resourceKey: 'fixture.bad_template_example',
+        schema: TransferSchema::make()->field('name'),
+        handlerClass: ResourceImportContractsPipeline::class,
+        templateExampleRows: [['unknown' => 'value']],
+    )),
+    'invalid template example value',
 );
 
 $spool = ImportRowSpool::create();
@@ -138,6 +151,9 @@ $multipleChoice = new MultipleChoiceDecision(
 );
 assert($multipleChoice->toArray()['type'] === MultipleChoiceDecision::TYPE);
 assert($multipleChoice->toArray()['default_values'] === ['2']);
+
+$referenceIssue = ['issue' => ['kind' => 'reference_not_found', 'reference_kind' => 'leave_type', 'value' => 'Annual'], 'count' => 42];
+assert((new ImportPlan(referenceIssues: [$referenceIssue]))->toArray()['reference_issues'] === [$referenceIssue]);
 
 importContractMustFail(
     fn () => ImportContributionValidator::pipeline(new ResourceImportPipelineDefinition(
