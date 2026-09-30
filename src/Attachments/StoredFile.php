@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Nexia\Attachments;
 
-/** Host file metadata returned without exposing the host Eloquent model. */
+/** Host file metadata. Disk/path are empty across an isolated runtime; use AuthorizedFileReader for bytes. */
 final readonly class StoredFile
 {
     public function __construct(

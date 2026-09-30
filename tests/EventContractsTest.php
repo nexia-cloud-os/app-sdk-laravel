@@ -306,3 +306,6 @@ if ($identityUuid !== $envelope->identityUuid()
 }
 
 fwrite(STDOUT, "Event contracts passed.\n");
+
+assert((new EventConsumerRegistration('sample.outcome', EventRecoveryMode::Replay))->actorSource === \Nexia\Events\EventActorSource::Envelope);
+assert((new EventConsumerRegistration('sample.outcome', EventRecoveryMode::Replay, actorSource: \Nexia\Events\EventActorSource::SignatureRequester))->actorSource->value === 'signature_requester');

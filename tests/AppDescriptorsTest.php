@@ -76,6 +76,7 @@ $publicEvent = new ResourceLifecycleEventDescriptor(
     labelKey: 'sample.events.submitted',
     payloadSchema: $labelledPayload,
     publicForComposition: true,
+    caseCorrelationSubjects: [$subject],
 );
 $resource = new ResourceDescriptor(
     key: 'sample.expense_report',
@@ -99,6 +100,9 @@ $publicContract = $resource->integrationContract();
 assert($publicContract['key'] === 'sample.expense_report');
 assert($publicContract['events'] === []);
 assert((new ResourceDescriptor(key: 'sample.public_events', version: '1', lifecycleEvents: [$publicEvent]))->integrationContract()['events'][0]['key'] === 'submitted');
+$eventContract = (new ResourceDescriptor(key: 'sample.public_events', version: '1', lifecycleEvents: [$publicEvent]))->integrationContract()['events'][0];
+assert($eventContract['label_key'] === $publicEvent->labelKey);
+assert($eventContract['case_correlation_subjects'] === [get_object_vars($subject)]);
 assert($publicContract['actions'][0]['permission'] === 'sample.expense_report.submit');
 assert(! array_key_exists('path', $publicContract['actions'][0]));
 assert(! array_key_exists('mutation', $publicContract));

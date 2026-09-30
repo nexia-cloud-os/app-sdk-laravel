@@ -13,11 +13,14 @@ use Nexia\Approval\Domain\Enums\ApprovalDocumentEditorMode;
 final class PlatformDescriptorWire
 {
     public const TYPES = [
+        'slot_widget' => SlotWidgetDescriptor::class,
+        'official_seal_use' => OfficialSealUseDescriptor::class,
         'process_work' => ProcessWorkActionDescriptor::class,
         'process_form' => ProcessUserTaskFormDescriptor::class,
         'signature_data' => SignatureDocumentDataSourceDescriptor::class,
         'process_start' => ProcessStartBindingDescriptor::class,
         'process_template' => ProcessTemplateDescriptor::class,
+        'decision_template' => DecisionResultTemplateDescriptor::class,
         'approval_binding' => ApprovalFormBindingDescriptor::class,
         'approval_document' => ApprovalDocumentSchema::class,
         'approval_template' => ApprovalBusinessTemplatePresetDescriptor::class,
@@ -33,7 +36,11 @@ final class PlatformDescriptorWire
             return ['type' => $type, 'data' => $descriptor->toArray()];
         }
         $data = get_object_vars($descriptor);
-        if (! $descriptor instanceof ProcessTemplateDescriptor && ! $descriptor instanceof ProcessUserTaskFormDescriptor) unset($data['key']);
+        if (! $descriptor instanceof ProcessTemplateDescriptor && ! $descriptor instanceof ProcessUserTaskFormDescriptor
+            && ! $descriptor instanceof DecisionResultTemplateDescriptor && ! $descriptor instanceof SlotWidgetDescriptor) unset($data['key']);
+        if ($descriptor instanceof DecisionResultTemplateDescriptor) {
+            $data['fields'] = array_map(get_object_vars(...), $descriptor->fields);
+        }
         if ($descriptor instanceof ProcessWorkActionDescriptor) $data['approvalTask'] = $descriptor->approvalTask === null ? null : get_object_vars($descriptor->approvalTask);
         $data['status'] = $descriptor->status->value;
         if ($descriptor instanceof ApprovalBusinessTemplatePresetDescriptor) {
@@ -57,6 +64,9 @@ final class PlatformDescriptorWire
         } elseif ($wire['type'] === 'signature_data') {
             $descriptor = SignatureDocumentDataSourceDescriptor::fromArray($data);
         } else {
+            if ($wire['type'] === 'decision_template') {
+                $data['fields'] = array_map(static fn (array $field) => new DecisionResultFieldDescriptor(...$field), $data['fields']);
+            }
             if ($wire['type'] === 'process_work' && isset($data['approvalTask'])) $data['approvalTask'] = new ProcessApprovalTaskConfiguration(...$data['approvalTask']);
             $data['status'] = DescriptorStatus::from($data['status']);
             if ($wire['type'] === 'approval_template') {
@@ -68,9 +78,17 @@ final class PlatformDescriptorWire
             $class = self::TYPES[$wire['type']];
             $descriptor = new $class(...$data);
         }
-        if ($descriptor->appKey !== $appKey || ! str_starts_with($descriptor->descriptorKey(), $appKey.'.')
+        if ((! $descriptor instanceof DecisionResultTemplateDescriptor && ! $descriptor instanceof SlotWidgetDescriptor && $descriptor->appKey !== $appKey)
+            || ! str_starts_with($descriptor->descriptorKey(), $appKey.'.')
             || self::encode($descriptor) != $wire) {
             throw new InvalidArgumentException('Platform descriptor ownership or canonical shape differs.');
+        }
+        if ($descriptor instanceof SlotWidgetDescriptor && (
+            ! preg_match('/\A[A-Za-z][A-Za-z0-9_.]{0,190}\z/D', $descriptor->component)
+            || ! preg_match('/\A[a-z][a-z0-9_.-]{0,190}\z/D', $descriptor->slot)
+            || $descriptor->slotApiVersion < 1 || $descriptor->slotApiVersion > 100
+            || ($descriptor->familyKey !== null && ! str_starts_with($descriptor->familyKey, $appKey.'.')))) {
+            throw new InvalidArgumentException('Invalid slot widget declaration.');
         }
         return $descriptor;
     }

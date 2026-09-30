@@ -72,6 +72,8 @@ final class ResourceDescriptor implements AppDescriptor
             'events' => array_values(array_map(static fn ($event): array => [
                 'key' => $event->key, 'schema_version' => $event->schemaVersion,
                 'stability' => $event->stability, 'payload_schema' => (object) $event->payloadSchema,
+                'label_key' => $event->labelKey, 'description_key' => $event->descriptionKey,
+                'case_correlation_subjects' => array_map(get_object_vars(...), $event->caseCorrelationSubjects),
             ], array_filter($this->lifecycleEvents, static fn ($event): bool => $event->publicForComposition))),
         ];
     }

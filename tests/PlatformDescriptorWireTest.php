@@ -11,6 +11,11 @@ use Nexia\AppDescriptors\ApprovalRoutePolicyPresetDescriptor;
 use Nexia\Approval\Domain\ApprovalRoutePolicyStep;
 
 foreach ([
+    new \Nexia\AppDescriptors\SlotWidgetDescriptor('sample.record.submit', '1.0', 'approval.composer.business_form', 'sample.record.submit', 1),
+    new \Nexia\AppDescriptors\SlotWidgetDescriptor('sample.self.profile', '1.0', 'profile.self.overview', 'SampleProfile', 2, permission: 'sample.profile.read', familyKey: 'sample.self'),
+    new \Nexia\AppDescriptors\DecisionResultTemplateDescriptor('sample.decision', '1.0', 'sample.decision.label',
+        [new \Nexia\AppDescriptors\DecisionResultFieldDescriptor('approved', 'sample.approved', 'boolean', 'plain')]),
+    new \Nexia\AppDescriptors\OfficialSealUseDescriptor('sample', 'sample.document.issued', ['sample.document.issue']),
     new ProcessStartBindingDescriptor('sample', 'start', 'sample.process', 'process', 'sample.record', 'sample.record.start', 'sample.start'),
     new \Nexia\AppDescriptors\ProcessWorkActionDescriptor('serviceTask', 'sample', 'finish', 'sample.finish', 'sample.finish'),
     new \Nexia\AppDescriptors\ProcessUserTaskFormDescriptor('sample.form', 'sample', 'sample.form.title',
@@ -35,3 +40,10 @@ foreach ([
     }
 }
 echo "Platform descriptor boundary passed.\n";
+
+foreach ([['foreign.issue'], [], ['sample.issue', 'sample.issue'], ['sample.issue*'], [null]] as $permissions) {
+    $rejected = false;
+    try { new \Nexia\AppDescriptors\OfficialSealUseDescriptor('sample', 'sample.document.issued', $permissions); }
+    catch (InvalidArgumentException) { $rejected = true; }
+    assert($rejected);
+}

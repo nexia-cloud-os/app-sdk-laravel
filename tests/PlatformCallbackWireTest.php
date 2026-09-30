@@ -75,3 +75,20 @@ try {
     throw new LogicException('Unknown callback accepted.');
 } catch (InvalidArgumentException) {}
 echo "Closed callback DTO roundtrips passed.\n";
+
+foreach ([new \Nexia\SelfService\SelfWorkContextQuery($actor, null),
+    new \Nexia\SelfService\SelfServiceActionQuery($actor, null, $ref)] as $query) {
+    $method = $query instanceof \Nexia\SelfService\SelfWorkContextQuery ? 'self.contexts' : 'self.actions';
+    $wire = PlatformCallbackWire::input($query);
+    assert(PlatformCallbackWire::input(PlatformCallbackWire::restoreInput($method, $wire, $actor, null)) === $wire);
+    $wire['actor']['public_id'] = 'foreign';
+    try { PlatformCallbackWire::restoreInput($method, $wire, $actor, null); throw new LogicException('Foreign self actor accepted.'); }
+    catch (InvalidArgumentException) {}
+}
+$context = new \Nexia\SelfService\SelfWorkContextOption($ref, $entity, 'Self context');
+$action = new \Nexia\SelfService\SelfServiceActionItem('sample.next', 'onboarding', 'Complete details', 'Waiting for you',
+    \Nexia\SelfService\SelfServiceActionStage::ActionRequired,
+    new \Nexia\SelfService\SelfServiceReturnTarget('employment', workContext: $ref));
+assert(PlatformCallbackWire::result([$context])[0]['legalEntity'] === $entity->publicId());
+assert(PlatformCallbackWire::result([$action])[0]['returnTarget']['workContext'] === $ref->toArray());
+assert(PlatformCallbackWire::restoreResult('self.contexts', PlatformCallbackWire::result([$context]))[0]['resource'] === $ref->toArray());

@@ -6,8 +6,6 @@ namespace Nexia\Laravel\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Nexia\Laravel\Models\Contracts\HostReferenceResolver;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
 
 /**
  * Shared backend model base for Nexia Eloquent models.
@@ -27,10 +25,8 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @see docs/reference/RESOURCE-SCAFFOLDING.md
  * @see docs/doctrine/11-RESOURCE-SCAFFOLDING.md
  */
-abstract class NexiaModel extends Model implements HasMedia
+abstract class NexiaModel extends Model
 {
-    use InteractsWithMedia;
-
     private static ?HostReferenceResolver $hostReferenceResolver = null;
 
     /** Configure the host-owned scalar reference resolver in the Laravel adapter. */

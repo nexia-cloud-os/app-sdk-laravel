@@ -2,6 +2,8 @@
 status: draft
 ---
 
+- 격리 런타임의 `StoredFile.disk`·`path`는 빈 문자열임을 명시합니다. 권한 있는 원본 읽기는 `AuthorizedFileReader`, 실행 중인 런타임의 로컬 글꼴은 `PdfFontProvider`를 사용하세요. Core 저장 경로를 앱 파일 시스템 API로 사용하지 않습니다.
+- 앱의 정확한 문서 생성 용도와 기존 권한 키를 선언하는 `OfficialSealUseDescriptor`를 추가합니다. `AppDescriptorContribution`으로 제공하면 대응 Core가 현재 권한을 검사하고 호출 사용자에 귀속된 직인 사용을 기록합니다. 선언 자체는 권한을 부여하지 않습니다. 사용 전 SDK·Core 콜백·격리 런타임을 함께 적용하세요.
 `ResourceDescriptor::integrationContract()`가 설치 앱과 격리 앱의 공통 연동 명세를 제공합니다. 내부 전용·제거된 리소스는 `null`을 반환하고 공개 조합용 이벤트만 포함합니다. 구현 경로를 노출하거나 조회·변경 권한을 부여하지 않습니다. 선택한 개발 앱의 명세를 조회하려면 대응하는 Core·샌드박스 런타임 변경을 함께 적용하세요.
 
 ## 추가
@@ -17,3 +19,5 @@ status: draft
 ## 앱 요청 미들웨어
 
 - 생성된 앱 라우트는 호스트의 테넌트 미들웨어를 직접 가져오는 대신 공개 `Nexia\Http\Middleware::APP_REQUEST` 진입부를 사용합니다. Core는 기존 웹·테넌트·세션·인증·위임 검사에 연결하며 앱 설치·리소스 문맥 검사는 유지합니다. 이 라우트를 생성하기 전에 대응하는 SDK/Core 릴리스를 함께 적용해야 합니다. 분리 런타임의 요청 인증은 별도 어댑터 연결이 필요합니다.
+
+- 격리 앱 카탈로그가 `PlatformDescriptorWire`를 통해 결과 필드와 선택적 DMN 초기 규칙을 포함한 의사결정 결과 템플릿을 전달합니다. 대응 샌드박스 런타임을 함께 적용하면 Core에 앱 PHP를 설치하지 않고 작성 화면에서 템플릿을 사용할 수 있습니다.

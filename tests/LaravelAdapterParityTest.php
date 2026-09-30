@@ -22,7 +22,25 @@ assert(in_array(LogsActivity::class, $traits, true));
 assert($fixture->getActivitylogOptions() instanceof LogOptions);
 assert(in_array(Searchable::class, $traits, true));
 assert(method_exists(LaravelAdapterParityFixture::class, 'search'));
-assert($fixture instanceof HasMedia);
-assert(method_exists(LaravelAdapterParityFixture::class, 'media'));
+assert(! $fixture instanceof HasMedia);
+assert(! method_exists(LaravelAdapterParityFixture::class, 'media'));
+
+$database = new Illuminate\Database\Capsule\Manager;
+$database->addConnection(['driver' => 'sqlite', 'database' => ':memory:']);
+$database->setEventDispatcher(new Illuminate\Events\Dispatcher(new Illuminate\Container\Container));
+$database->setAsGlobal();
+$database->bootEloquent();
+$database->schema()->create('app_rows', function (Illuminate\Database\Schema\Blueprint $table): void {
+    $table->id();
+});
+$row = new class extends Nexia\Laravel\Models\NexiaModel {
+    protected $table = 'app_rows';
+
+    public $timestamps = false;
+};
+$row->save();
+assert($row->delete());
+assert($database->table('app_rows')->count() === 0);
+assert(! $database->schema()->hasTable('media'));
 
 echo "Laravel adapter behavior parity passed.\n";

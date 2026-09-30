@@ -20,6 +20,28 @@ final class TransferSchema
         return new self;
     }
 
+    /** Restore an export-only public schema through the same authoring rules. */
+    public static function fromExportArray(array $data): self
+    {
+        if (array_keys($data) !== ['columns'] || ! is_array($data['columns']) || ! array_is_list($data['columns'])
+            || count($data['columns']) > 1000) throw new InvalidArgumentException('Invalid export schema.');
+        $schema = self::make();
+        foreach ($data['columns'] as $column) {
+            if (! is_array($column)) throw new InvalidArgumentException('Invalid export column.');
+            $schema = $schema->exportOnly(
+                key: $column['key'], label: $column['label'], type: $column['type'],
+                permission: $column['export_permission'] ?? null,
+                sensitive: $column['export_sensitive'] ?? false,
+                requiresPurpose: $column['export_requires_purpose'] ?? false,
+                requiresFreshAuthentication: $column['export_requires_fresh_authentication'] ?? false,
+            );
+        }
+        if (\Nexia\Support\CanonicalPayloadFingerprint::sha256($schema->toArray()) !== \Nexia\Support\CanonicalPayloadFingerprint::sha256($data)) {
+            throw new InvalidArgumentException('Noncanonical export schema.');
+        }
+        return $schema;
+    }
+
     public function field(
         string $key,
         ?string $label = null,

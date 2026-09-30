@@ -9,7 +9,8 @@ use Spatie\MediaLibrary\HasMedia;
 
 require dirname(__DIR__).'/vendor/autoload.php';
 
-if (! is_subclass_of(RequiresMediaOwnerViewAuthorization::class, HasMedia::class)
+if (! interface_exists(RequiresMediaOwnerViewAuthorization::class)
+    || is_subclass_of(RequiresMediaOwnerViewAuthorization::class, HasMedia::class)
     || ! method_exists(DefinesMediaUploadAbilities::class, 'mediaUploadAbilities')
     || ! method_exists(DefinesMediaViewAbilities::class, 'mediaViewAbilities')
 ) {

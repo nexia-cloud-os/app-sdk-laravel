@@ -91,3 +91,15 @@ if ($transferModel::TRANSFER_SCOPE_TENANT !== ResourceTransferDefinition::SCOPE_
 }
 
 fwrite(STDOUT, "Resource Transfer contracts are valid.\n");
+
+$exportSchema = TransferSchema::make()->exportOnly('value', permission: 'fixture.export.execute',
+    sensitive: true, requiresPurpose: true, requiresFreshAuthentication: true);
+assert(TransferSchema::fromExportArray($exportSchema->toArray())->hash() === $exportSchema->hash());
+foreach (['importable' => true, 'export_sensitive' => '1'] as $key => $value) {
+    $invalid = $exportSchema->toArray(); $invalid['columns'][0][$key] = $value;
+    try { TransferSchema::fromExportArray($invalid); throw new RuntimeException('Invalid export schema accepted.'); }
+    catch (InvalidArgumentException|TypeError) {}
+}
+assert($labelledExportSource instanceof ResourceTransferDefinition);
+assert(! $labelledExportSource->supportsImport());
+assert(! str_contains(json_encode($labelledExportSource->toArray()), stdClass::class));

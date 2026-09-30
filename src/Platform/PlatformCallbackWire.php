@@ -15,6 +15,7 @@ use Nexia\Process\{ProcessWorkActionInvocation, ProcessWorkActionResult, Process
 use Nexia\ResourceReference\ResourceRef;
 use Nexia\Signature\{SignatureDocumentDataQuery, SignatureDocumentDataPurpose, SignatureDocumentDataResult, SignatureDocumentDataStatus, SignatureDocumentDataCandidate, SignatureDocumentDataResolvedItem, SignatureDocumentDataDiagnostic, SignatureDocumentDataDiagnosticCode};
 use Nexia\Tenancy\Contracts\TenantIdentity;
+use Nexia\SelfService\{SelfWorkContextQuery, SelfServiceActionQuery, SelfWorkContextOption, SelfServiceActionItem};
 
 /** Closed DTO wire for authenticated host-to-owner calls, never a PHP class selector. */
 final class PlatformCallbackWire
@@ -58,7 +59,7 @@ final class PlatformCallbackWire
             'code' => $entity->code(), 'party_public_id' => $entity->partyPublicId(), 'active' => $entity->isActiveOrganization()];
     }
 
-    public static function input(ProcessWorkActionInvocation|ProcessUserTaskSubmissionInvocation|ResolverContext|SignatureDocumentDataQuery $value): array
+    public static function input(ProcessWorkActionInvocation|ProcessUserTaskSubmissionInvocation|ResolverContext|SignatureDocumentDataQuery|SelfWorkContextQuery|SelfServiceActionQuery $value): array
     {
         $data = get_object_vars($value);
         foreach ($data as $key => $item) {
@@ -76,14 +77,20 @@ final class PlatformCallbackWire
         return $data;
     }
 
-    public static function restoreInput(string $method, array $data, Actor $actor, LegalEntity $entity, ?Actor $subjectActor = null, ?TenantIdentity $tenant = null): ProcessWorkActionInvocation|ProcessUserTaskSubmissionInvocation|ResolverContext|SignatureDocumentDataQuery
+    public static function restoreInput(string $method, array $data, Actor $actor, ?LegalEntity $entity, ?Actor $subjectActor = null, ?TenantIdentity $tenant = null): ProcessWorkActionInvocation|ProcessUserTaskSubmissionInvocation|ResolverContext|SignatureDocumentDataQuery|SelfWorkContextQuery|SelfServiceActionQuery
     {
         $actorKey = $method === 'approval.resolve' ? 'submitter' : 'actor';
-        if (($data[$actorKey]['public_id'] ?? null) !== $actor->publicId() || ($data['legalEntity']['public_id'] ?? null) !== $entity->publicId()) {
+        if (($data[$actorKey]['public_id'] ?? null) !== $actor->publicId() || ($data['legalEntity']['public_id'] ?? null) !== $entity?->publicId()) {
             throw new InvalidArgumentException('Callback identity differs.');
         }
         $data[$actorKey] = $actor;
         $data['legalEntity'] = $entity;
+        if ($method === 'self.contexts') return new SelfWorkContextQuery(...$data);
+        if ($method === 'self.actions') {
+            if (isset($data['workContext'])) $data['workContext'] = ResourceRef::fromArray($data['workContext']);
+            return new SelfServiceActionQuery(...$data);
+        }
+        if ($entity === null) throw new InvalidArgumentException('Callback requires a legal entity.');
         foreach (['resourceRef', 'originResourceRef', 'subjectResourceRef', 'explicitSourceRef'] as $key) {
             if (isset($data[$key])) $data[$key] = ResourceRef::fromArray($data[$key]);
         }
@@ -120,8 +127,16 @@ final class PlatformCallbackWire
     }
 
     /** Signature values are only for the authenticated protected-data transport. Never log this payload. */
-    public static function result(ProcessWorkActionResult|ProcessUserTaskSubmissionResult|ResolvedApprovalLine|SignatureDocumentDataResult $result): array
+    public static function result(ProcessWorkActionResult|ProcessUserTaskSubmissionResult|ResolvedApprovalLine|SignatureDocumentDataResult|array $result): array
     {
+        if (is_array($result)) return array_map(static function (SelfWorkContextOption|SelfServiceActionItem $item): array {
+            $row = get_object_vars($item);
+            if ($item instanceof SelfWorkContextOption) {
+                return [...$row, 'resource' => $item->resource->toArray(), 'legalEntity' => $item->legalEntity->publicId()];
+            }
+            return [...$row, 'stage' => $item->stage->value, 'dueAt' => $item->dueAt?->format(DATE_ATOM),
+                'returnTarget' => [...get_object_vars($item->returnTarget), 'workContext' => $item->returnTarget->workContext?->toArray()]];
+        }, $result);
         if ($result instanceof ProcessWorkActionResult) return ['output' => $result->output, 'suspension' => $result->suspension?->toArray()];
         if ($result instanceof ProcessUserTaskSubmissionResult) return ['output' => $result->output];
         if ($result instanceof ResolvedApprovalLine) return ['line' => $result->isResolved() ? ApprovalLineDefinition::fromStages($result->stages())->toSnapshot() : null,
@@ -134,8 +149,9 @@ final class PlatformCallbackWire
             'diagnostics' => array_map(static fn ($diagnostic) => $diagnostic->toArray(), $result->diagnostics())];
     }
 
-    public static function restoreResult(string $method, array $data): ProcessWorkActionResult|ProcessUserTaskSubmissionResult|ResolvedApprovalLine|SignatureDocumentDataResult
+    public static function restoreResult(string $method, array $data): ProcessWorkActionResult|ProcessUserTaskSubmissionResult|ResolvedApprovalLine|SignatureDocumentDataResult|array
     {
+        if (in_array($method, ['self.contexts', 'self.actions'], true)) return $data;
         if ($method === 'process.user_task') return new ProcessUserTaskSubmissionResult(...$data);
         if ($method === 'process.work') {
             $s = $data['suspension'];

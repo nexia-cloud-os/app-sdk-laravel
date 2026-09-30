@@ -13,6 +13,7 @@ use Nexia\Laravel\Models\Contracts\SearchResourceIdentityResolver;
 use Nexia\Laravel\Models\NexiaEntityModel;
 use Nexia\Laravel\Models\NexiaModel;
 use Nexia\Laravel\Models\ScoutSearchResolverRegistry;
+use Nexia\Laravel\Attachments\Contracts\RequiresMediaOwnerViewAuthorization;
 use Spatie\MediaLibrary\HasMedia;
 
 final class PublicUuidFixture extends Model
@@ -30,7 +31,7 @@ final class DisplayLabelFixture extends Model
     }
 }
 
-final class MediaOwnerFixture extends NexiaModel {}
+final class MediaOwnerFixture extends NexiaModel implements RequiresMediaOwnerViewAuthorization {}
 
 $public = new PublicUuidFixture;
 assert($public->uniqueIds() === ['public_id']);
@@ -41,8 +42,9 @@ assert(in_array('display_label', $labelled->getAppends(), true));
 assert($labelled->display_label === 'Canonical label');
 assert(is_subclass_of(NexiaModel::class, Model::class));
 assert(is_subclass_of(NexiaEntityModel::class, NexiaModel::class));
-assert((new MediaOwnerFixture) instanceof HasMedia);
-assert(method_exists(MediaOwnerFixture::class, 'media'));
+assert((new MediaOwnerFixture) instanceof RequiresMediaOwnerViewAuthorization);
+assert(! (new MediaOwnerFixture) instanceof HasMedia);
+assert(! method_exists(MediaOwnerFixture::class, 'media'));
 
 $identityResolver = new class implements SearchResourceIdentityResolver
 {
