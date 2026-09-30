@@ -14,8 +14,7 @@
         "symfony/html-sanitizer": "^8.0"
     },
     "conflict": {
-        "amuzcorp/nexia-app-sdk": "*",
-        "amuzcorp/nexia-app-sdk-laravel": "*"
+        "amuzcorp/nexia-app-sdk": "*"
     },
     "autoload": {
         "psr-4": {
@@ -112,5 +111,8 @@
     "prefer-stable": true,
     "support": {
         "issues": "https://github.com/nexia-cloud-os/developer-support/issues"
+    },
+    "replace": {
+        "amuzcorp/nexia-app-sdk-laravel": "self.version"
     }
 }

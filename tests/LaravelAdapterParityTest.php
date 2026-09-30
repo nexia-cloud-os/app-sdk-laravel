@@ -22,8 +22,13 @@ assert(in_array(LogsActivity::class, $traits, true));
 assert($fixture->getActivitylogOptions() instanceof LogOptions);
 assert(in_array(Searchable::class, $traits, true));
 assert(method_exists(LaravelAdapterParityFixture::class, 'search'));
-assert(! $fixture instanceof HasMedia);
-assert(! method_exists(LaravelAdapterParityFixture::class, 'media'));
+assert($fixture instanceof HasMedia);
+try {
+    $fixture->media();
+    throw new RuntimeException('An isolated adapter exposed a local media relation.');
+} catch (LogicException $exception) {
+    assert(str_contains($exception->getMessage(), 'Local media is unavailable'));
+}
 
 $database = new Illuminate\Database\Capsule\Manager;
 $database->addConnection(['driver' => 'sqlite', 'database' => ':memory:']);

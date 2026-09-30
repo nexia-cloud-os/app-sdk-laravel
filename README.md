@@ -141,3 +141,13 @@ Isolated App reports feed complete, owner-authorized public Resource projections
 ## 격리 앱의 실행 범위
 
 격리 앱 리포트는 소유 앱이 권한 검사한 완전한 공개 Resource 데이터를 기존 Composition SQL 계획기에 연결합니다. 그룹·조건부 집계, 정렬, 기간 비교와 명시적 참조 관계는 기존 엔진을 재사용합니다. 앱 모델과 DB 연결은 런타임에 유지합니다. 각 Resource 조회는 읽기 전용 repeatable-read 트랜잭션이며 서로 다른 리소스가 하나의 분산 스냅샷이라는 뜻은 아닙니다. Resource당 10,000건·1 MiB와 공통 실행 시간 제한을 적용합니다. 필드 누락·중복 식별자·불완전한 페이지·권한 회수·한도 초과는 실패로 처리합니다. 대규모 분석은 소유 앱이 공개한 리포팅 projection을 사용합니다. 결과 제한은 기존대로 행 100개·집계 구간 500개이며 Native 조회는 현재 선택한 법인·운영 단위 한 개의 문맥을 사용합니다.
+
+## Shared host compatibility
+
+Composer Apps retain the `HasMedia` and owner-authorization interfaces. A host
+that owns local media storage must call `NexiaModel::enableLocalMedia()` in its
+provider registration before any model boots. Isolated App hosts must leave it
+disabled: local media relations fail closed and model deletion does not query a
+local media table. Use existing attachment host contracts in isolated Apps.
+The new package replaces the legacy Composer name at `self.version` only;
+this does not widen App version constraints or upgrade an existing release lock.

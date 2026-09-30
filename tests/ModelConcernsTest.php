@@ -43,8 +43,40 @@ assert($labelled->display_label === 'Canonical label');
 assert(is_subclass_of(NexiaModel::class, Model::class));
 assert(is_subclass_of(NexiaEntityModel::class, NexiaModel::class));
 assert((new MediaOwnerFixture) instanceof RequiresMediaOwnerViewAuthorization);
-assert(! (new MediaOwnerFixture) instanceof HasMedia);
-assert(! method_exists(MediaOwnerFixture::class, 'media'));
+assert((new MediaOwnerFixture) instanceof HasMedia);
+assert(method_exists(MediaOwnerFixture::class, 'media'));
+try {
+    (new MediaOwnerFixture)->media();
+    throw new RuntimeException('An isolated model exposed a local media relation.');
+} catch (LogicException $exception) {
+    assert(str_contains($exception->getMessage(), 'Local media is unavailable'));
+}
+
+Model::setEventDispatcher(new \Illuminate\Events\Dispatcher);
+class MediaDeletionFixture extends NexiaModel
+{
+    public int $mediaDeletes = 0;
+
+    public function deleteAllMedia(): self
+    {
+        $this->mediaDeletes++;
+        return $this;
+    }
+
+    public function dispatchDeleting(): void
+    {
+        $this->fireModelEvent('deleting');
+    }
+}
+class LocalMediaDeletionFixture extends MediaDeletionFixture {}
+$isolated = new MediaDeletionFixture;
+$isolated->dispatchDeleting();
+assert($isolated->mediaDeletes === 0);
+NexiaModel::enableLocalMedia();
+$local = new LocalMediaDeletionFixture;
+$local->dispatchDeleting();
+assert($local->mediaDeletes === 1);
+Model::unsetEventDispatcher();
 
 $identityResolver = new class implements SearchResourceIdentityResolver
 {
