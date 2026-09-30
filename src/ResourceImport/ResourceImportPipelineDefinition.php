@@ -69,6 +69,7 @@ final class ResourceImportPipelineDefinition
      *                                              proof before commit
      * @param  DataMigrationStageIdentity|null  $dataMigrationStage  server-owned
      *                                                                 Setup evidence identity recorded only after this pipeline applies
+     * @param  list<array<string, scalar|null>>  $templateExampleRows  optional sample values keyed by importable schema column
      */
     public function __construct(
         public readonly string $resourceKey,
@@ -89,5 +90,6 @@ final class ResourceImportPipelineDefinition
         public readonly bool $requiresDecisionBoundPreview = false,
         /** Record successful executions as evidence for this declared migration stage. */
         public readonly ?DataMigrationStageIdentity $dataMigrationStage = null,
+        public readonly array $templateExampleRows = [],
     ) {}
 }

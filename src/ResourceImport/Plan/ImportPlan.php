@@ -39,12 +39,15 @@ final readonly class ImportPlan
      *                                           no input for these, only an explanation
      * @param  array<string, string|int>  $blockingIssueParams  keyed by the issue
      *                                                          key they belong to
+     * @param  list<array{issue: array<string, mixed>, count: int}>  $referenceIssues
+     *                                                                                 distinct unresolved references across the complete batch
      */
     public function __construct(
         public array $sections = [],
         public array $decisions = [],
         public array $blockingIssueKeys = [],
         public array $blockingIssueParams = [],
+        public array $referenceIssues = [],
     ) {}
 
     /**
@@ -84,6 +87,7 @@ final readonly class ImportPlan
             ),
             'blocking_issue_keys' => $this->blockingIssueKeys,
             'blocking_issue_params' => $this->blockingIssueParams,
+            'reference_issues' => $this->referenceIssues,
         ];
     }
 }

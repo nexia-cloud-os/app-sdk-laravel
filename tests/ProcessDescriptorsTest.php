@@ -132,7 +132,31 @@ if ($decision->status !== DescriptorStatus::Active
 
 fwrite(STDOUT, "Process descriptor contracts are valid.\n");
 
+$anchoredProcess = new ProcessTemplateDescriptor(
+    key: 'sample.anchored',
+    version: '1.0',
+    appKey: 'sample',
+    labelKey: 'sample.process.anchored',
+    category: ProcessTemplateDescriptor::CATEGORY_APP,
+    structure: ['definitions' => []],
+    dependencies: [['kind' => 'resource', 'key' => 'sample.expense_report']],
+    startResourceKey: 'sample.expense_report',
+);
+if ($anchoredProcess->startResourceKey !== 'sample.expense_report' || $process->startResourceKey !== null) {
+    throw new RuntimeException('Process start resource contract was not preserved.');
+}
+
 $invalidCases = [
+    ...array_map(static fn (string $resourceKey): Closure => static fn () => new ProcessTemplateDescriptor(
+        key: 'sample.invalid-start-resource',
+        version: '1.0',
+        appKey: 'sample',
+        labelKey: 'sample.process.invalid_start_resource',
+        category: ProcessTemplateDescriptor::CATEGORY_APP,
+        structure: ['definitions' => []],
+        dependencies: [['kind' => 'resource', 'key' => 'sample.expense_report']],
+        startResourceKey: $resourceKey,
+    ), ['', 'sample.other_record']),
     static fn () => new DecisionResultFieldDescriptor('', 'sample.empty', 'string', 'plain'),
     static fn () => new DecisionResultTemplateDescriptor(
         key: 'sample.invalid-policy',
