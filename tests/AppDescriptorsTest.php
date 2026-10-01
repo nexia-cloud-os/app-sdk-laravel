@@ -76,6 +76,7 @@ $publicEvent = new ResourceLifecycleEventDescriptor(
     labelKey: 'sample.events.submitted',
     payloadSchema: $labelledPayload,
     publicForComposition: true,
+    caseCorrelationSubjects: [$subject],
 );
 $resource = new ResourceDescriptor(
     key: 'sample.expense_report',
@@ -93,6 +94,25 @@ $resource = new ResourceDescriptor(
         createInputSchema: ['type' => 'object', 'properties' => ['title' => ['type' => 'string']]],
     ),
 );
+
+assert($resource->isPublicForIntegration());
+$publicContract = $resource->integrationContract();
+assert($publicContract['key'] === 'sample.expense_report');
+assert($publicContract['events'] === []);
+assert((new ResourceDescriptor(key: 'sample.public_events', version: '1', lifecycleEvents: [$publicEvent]))->integrationContract()['events'][0]['key'] === 'submitted');
+$eventContract = (new ResourceDescriptor(key: 'sample.public_events', version: '1', lifecycleEvents: [$publicEvent]))->integrationContract()['events'][0];
+assert($eventContract['label_key'] === $publicEvent->labelKey);
+assert($eventContract['case_correlation_subjects'] === [get_object_vars($subject)]);
+assert($publicContract['actions'][0]['permission'] === 'sample.expense_report.submit');
+assert(! array_key_exists('path', $publicContract['actions'][0]));
+assert(! array_key_exists('mutation', $publicContract));
+assert((new ResourceDescriptor(key: 'sample.hidden', version: '1', publicForIntegration: false))->integrationContract() === null);
+assert((new ResourceDescriptor(key: 'sample.removed', version: '1', status: DescriptorStatus::Removed))->integrationContract() === null);
+assert((new ResourceDescriptor(key: 'sample.internal_events', version: '1', lifecycleEvents: [new ResourceLifecycleEventDescriptor(key: 'internal', labelKey: 'internal')]))->integrationContract()['events'] === []);
+
+assert(! (new ResourceDescriptor(key: 'sample.internal', version: '1', publicForBuilder: false))->isPublicForIntegration());
+assert(! (new ResourceDescriptor(key: 'sample.builder', version: '1', publicForIntegration: false))->isPublicForIntegration());
+assert((new ResourceDescriptor(key: 'sample.integration', version: '1', publicForBuilder: false, publicForIntegration: true))->isPublicForIntegration());
 
 $descriptors = new class implements AppDescriptorContribution
 {

@@ -1,9 +1,10 @@
 {
-    "name": "amuzcorp/nexia-app-sdk-laravel",
+    "name": "nexia/sdk-laravel",
     "description": "Contracts for Nexia App Packages",
     "type": "library",
     "license": "proprietary",
     "require": {
+        "composer/semver": "^3.4",
         "php": "^8.4",
         "illuminate/database": "^12.0",
         "illuminate/http": "^12.0",
@@ -28,10 +29,13 @@
     },
     "scripts": {
         "test": [
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/StandardRuntimeContractsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/ResourceWriteRoutesTest.php",
             "@php bin/check-retired-symbols.php src tests",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/AgentContractsTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/AppDefinitionTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/AppPackageMetadataReaderTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/AppNavigationTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/AttachmentContractsTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/ApprovalDomainEnumsTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/ApprovalDocumentBodyTest.php",
@@ -40,6 +44,8 @@
             "@php -d zend.assertions=1 -d assert.exception=1 tests/ApprovalRoutePolicyStepTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/DescriptorStatusTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/DashboardContractsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/ReportContractsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/ActionContractsTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/DataMigrationContractsTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/FixtureContractsTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/GuidanceContractsTest.php",
@@ -107,5 +113,8 @@
     "prefer-stable": true,
     "support": {
         "issues": "https://github.com/nexia-cloud-os/developer-support/issues"
+    },
+    "replace": {
+        "amuzcorp/nexia-app-sdk-laravel": "self.version"
     }
 }

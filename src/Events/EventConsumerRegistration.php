@@ -14,6 +14,7 @@ final readonly class EventConsumerRegistration
         public EventRecoveryMode $recoveryMode,
         public int $supportedSchemaVersion = 1,
         public EventSubscriptionMode $subscriptionMode = EventSubscriptionMode::Exact,
+        public EventActorSource $actorSource = EventActorSource::Envelope,
     ) {
         if (mb_strlen($consumerKey) > 160
             || preg_match('/\A[a-z][a-z0-9-]*\.[a-z][a-z0-9._-]*\z/D', $consumerKey) !== 1) {

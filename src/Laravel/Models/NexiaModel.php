@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Nexia\Laravel\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Nexia\Laravel\Models\Contracts\HostReferenceResolver;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Nexia\Laravel\Models\Contracts\HostReferenceResolver;
 
 /**
  * Shared backend model base for Nexia Eloquent models.
@@ -29,7 +30,34 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  */
 abstract class NexiaModel extends Model implements HasMedia
 {
-    use InteractsWithMedia;
+    use InteractsWithMedia {
+        bootInteractsWithMedia as private bootLocalMedia;
+        media as private localMediaRelation;
+    }
+
+    private static bool $localMediaEnabled = false;
+
+    /** Core opts in before model boot; isolated App hosts use attachment contracts. */
+    public static function enableLocalMedia(): void
+    {
+        self::$localMediaEnabled = true;
+    }
+
+    public static function bootInteractsWithMedia(): void
+    {
+        if (self::$localMediaEnabled) {
+            static::bootLocalMedia();
+        }
+    }
+
+    public function media(): MorphMany
+    {
+        if (! self::$localMediaEnabled) {
+            throw new \LogicException('Local media is unavailable; use the host attachment contracts.');
+        }
+
+        return $this->localMediaRelation();
+    }
 
     private static ?HostReferenceResolver $hostReferenceResolver = null;
 

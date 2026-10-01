@@ -21,8 +21,9 @@ final class ScoutSearchResolverRegistry
 
     private static ?ScoutSearchEngineResolver $engineResolver = null;
 
+    /** Database-only hosts may omit the shared external search identity. */
     public static function configure(
-        SearchResourceIdentityResolver $identityResolver,
+        ?SearchResourceIdentityResolver $identityResolver,
         ScoutSearchEngineResolver $engineResolver,
     ): void {
         self::$identityResolver = $identityResolver;

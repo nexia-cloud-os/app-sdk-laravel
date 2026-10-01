@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Nexia\AppDescriptors;
 
+use Nexia\Actions\ActionDefinition;
+
 use Nexia\ResourceReference\PartySelectionConstraint;
 use Nexia\ResourceReference\ResourceRef;
 
@@ -79,10 +81,10 @@ final class ResourceDescriptorContract
     {
         $seen = [];
         foreach ($resource->actions as $actionIndex => $action) {
-            if (! $action instanceof ResourceActionDescriptor) {
+            if (! $action instanceof ActionDefinition) {
                 throw DescriptorValidationException::contribution(
                     $contributor,
-                    "resource [{$resource->key}] must contain only ResourceActionDescriptor instances.",
+                    "resource [{$resource->key}] must contain only ActionDefinition instances.",
                     "{$resourceIndex}.actions.{$actionIndex}",
                 );
             }
