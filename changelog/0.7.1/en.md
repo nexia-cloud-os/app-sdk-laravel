@@ -1,5 +1,9 @@
 ---
-status: draft
+status: published
+version: 0.7.1
+date: 2026-10-01
+title: Shared Composer and sandbox SDK
+description: Shared Composer and sandbox SDK
 ---
 
 - Clarify that `StoredFile.disk` and `path` are empty in isolated runtimes. Use `AuthorizedFileReader` for authorized bytes and `PdfFontProvider` for a font local to the active runtime; a Core storage path is not an App filesystem API.
@@ -21,9 +25,13 @@ Adopt the matching Core initializer/discovery changes and its tenant migration `
 
 - Isolated App catalogs now carry decision-result templates, including typed result fields and optional DMN seeds, through `PlatformDescriptorWire`. Adopt the matching sandbox runtime to expose these templates in Core authoring without installing App PHP in Core.
 
-## Standard Runtime declaration draft
+## Standard Runtime declarations
 
 - Add versioned Runtime requirements, declaration capabilities, definition-only app/tenant settings and an explicit unavailable Action execution contract. Unsupported required capabilities and integrations are rejected; these declarations do not enable settings access, asynchronous work or state changes.
+
+## Composer compatibility
+
+The canonical PHP package is `nexia/sdk-laravel`; it replaces `amuzcorp/nexia-app-sdk-laravel` at the same version. Update the root requirement to the canonical name; compatible App requirements remain valid. This does not widen App constraints or update existing locks automatically. `NexiaModel` retains media interfaces for released Apps: Composer hosts explicitly enable local media, while isolated runtimes keep it disabled. Adopt the matching Core and sandbox-manager adapters before using new runtime capabilities.
 - Add the shared dependency policy and registered collection-route inspection. Runtime packages and the operator test toolchain are separate allowlists; Apps cannot introduce production packages, executable autoload hooks or another App dependency.
 - Adopt the matching Core and sandbox-manager source together. The existing published SDK 0.7.0 does not contain these draft contracts; publish and adopt a new compatible SDK artifact before building the release Runtime.
 
