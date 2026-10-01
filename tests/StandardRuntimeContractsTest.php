@@ -49,12 +49,26 @@ $rejects(fn () => RuntimeRequirements::validate([...$requirements, 'contracts' =
 $rejects(fn () => RuntimeRequirements::validate([...$requirements, 'integrations' => [
     ['app' => 'other', 'kind' => 'event', 'key' => 'other.changed', 'version' => '1.0', 'required' => true],
 ]], 'sample'));
-$app = ['require' => ['nexia/sdk-laravel' => '^0.7.0'], 'autoload' => ['psr-4' => ['Nexia\\Apps\\Example\\Sample\\' => 'src/']]];
-$lock = ['packages' => [['name' => 'nexia/sdk-laravel', 'version' => '0.7.0']],
+$app = ['require' => ['nexia-cloud-os/sdk-laravel' => '^0.7.0'], 'autoload' => ['psr-4' => ['Nexia\\Apps\\Example\\Sample\\' => 'src/']]];
+$lock = ['packages' => [['name' => 'nexia-cloud-os/sdk-laravel', 'version' => '0.7.0']],
     'packages-dev' => [['name' => 'pestphp/pest', 'version' => '4.7.8']]];
 RuntimeDependencyPolicy::validate($app, $lock);
+$renamedLock = $lock;
+$renamedLock['packages'][0]['replace'] = ['nexia/sdk-laravel' => 'self.version', 'amuzcorp/nexia-app-sdk-laravel' => 'self.version'];
+foreach (array_keys($renamedLock['packages'][0]['replace']) as $oldName) {
+    $legacyApp = [...$app, 'require' => [$oldName => '^0.7.0']];
+    RuntimeDependencyPolicy::validate($legacyApp, $renamedLock);
+    $rejects(fn () => RuntimeDependencyPolicy::validate([...$legacyApp, 'require' => [$oldName => '^0.6.0']], $renamedLock));
+    $rejects(fn () => RuntimeDependencyPolicy::validate($legacyApp, $lock));
+    $untrustedLock = $renamedLock;
+    $untrustedLock['packages'][0]['name'] = 'example/fake-sdk';
+    $rejects(fn () => RuntimeDependencyPolicy::validate($legacyApp, $untrustedLock));
+    $wildcardLock = $renamedLock;
+    $wildcardLock['packages'][0]['replace'][$oldName] = '*';
+    $rejects(fn () => RuntimeDependencyPolicy::validate($legacyApp, $wildcardLock));
+}
 $rejects(fn () => RuntimeDependencyPolicy::validate([...$app, 'require' => [...$app['require'], 'example/unapproved' => '*']], $lock));
-$rejects(fn () => RuntimeDependencyPolicy::validate([...$app, 'require' => ['nexia/sdk-laravel' => '^0.6.0']], $lock));
+$rejects(fn () => RuntimeDependencyPolicy::validate([...$app, 'require' => ['nexia-cloud-os/sdk-laravel' => '^0.6.0']], $lock));
 $rejects(fn () => RuntimeDependencyPolicy::validate([...$app, 'require' => [...$app['require'], 'pestphp/pest' => '^4.0']], $lock));
 RuntimeDependencyPolicy::validate([...$app, 'require-dev' => ['pestphp/pest' => '^4.0']], $lock, true);
 $rejects(fn () => RuntimeDependencyPolicy::validate([...$app, 'require-dev' => ['example/unapproved' => '*']], $lock, true));

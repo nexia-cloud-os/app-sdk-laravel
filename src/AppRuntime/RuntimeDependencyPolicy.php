@@ -14,6 +14,7 @@ final class RuntimeDependencyPolicy
     {
         $production = array_column($lock['packages'] ?? [], null, 'name');
         $development = array_column($lock['packages-dev'] ?? [], null, 'name');
+        $sdkNames = ['nexia-cloud-os/sdk-laravel', 'nexia/sdk-laravel', 'amuzcorp/nexia-app-sdk-laravel'];
         foreach (['require', 'require-dev'] as $field) {
             if ($field === 'require-dev' && ! $tests) {
                 continue;
@@ -34,8 +35,15 @@ final class RuntimeDependencyPolicy
                     $version = extension_loaded($extension) ? (phpversion($extension) ?: '0') : null;
                 } else {
                     $package = $production[$name] ?? ($field === 'require-dev' ? ($development[$name] ?? null) : null);
+                    // Only the canonical SDK may satisfy its previous names, at its own version.
+                    if ($package === null && in_array($name, array_slice($sdkNames, 1), true)) {
+                        $sdk = $production[$sdkNames[0]] ?? null;
+                        if (($sdk['replace'][$name] ?? null) === 'self.version') {
+                            $package = $sdk;
+                        }
+                    }
                     $version = $package['version'] ?? null;
-                    if ($package === null || str_starts_with($name, 'amuzcorp/nexia-app-')) {
+                    if ($package === null || (str_starts_with($name, 'amuzcorp/nexia-app-') && ! in_array($name, $sdkNames, true))) {
                         throw new InvalidArgumentException('Dependency is not in the approved '.($field === 'require' ? 'production Runtime' : 'test toolchain').'.');
                     }
                     foreach (array_keys($package['autoload']['psr-4'] ?? []) as $namespace) {
@@ -54,8 +62,8 @@ final class RuntimeDependencyPolicy
                 }
             }
         }
-        if (! isset($app['require']['nexia/sdk-laravel'])) {
-            throw new InvalidArgumentException('Apps must require the public nexia/sdk-laravel package.');
+        if (array_intersect($sdkNames, array_keys($app['require'] ?? [])) === []) {
+            throw new InvalidArgumentException('Apps must require the public nexia-cloud-os/sdk-laravel package.');
         }
         foreach (['replace', 'provide', 'repositories'] as $field) {
             if (! empty($app[$field])) {

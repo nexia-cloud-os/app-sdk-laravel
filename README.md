@@ -1,6 +1,6 @@
 # Nexia App SDK for Laravel
 
-`nexia/sdk-laravel` provides the `Nexia\*` PHP contracts,
+`nexia-cloud-os/sdk-laravel` provides the `Nexia\*` PHP contracts,
 Laravel adapters, and focused conformance helpers used by Nexia App Packages.
 
 Install this package through the Nexia Composer repository configured by the
