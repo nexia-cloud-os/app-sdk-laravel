@@ -6,7 +6,7 @@ namespace Nexia\Laravel\Database\Facades;
 
 use Illuminate\Database\Schema\Builder;
 use LogicException;
-use Nexia\Laravel\Database\Contracts\AppDatabaseConnections;
+use Nexia\Laravel\Database\AppDatabaseConnectionsResolver;
 
 /** Base for a package-local `Support\\Schema` facade with an immutable App key. */
 abstract class AppSchema
@@ -17,7 +17,7 @@ abstract class AppSchema
             throw new LogicException('App schema facades cannot select another connection.');
         }
 
-        return app(AppDatabaseConnections::class)->connection(static::appKey())->getSchemaBuilder();
+        return AppDatabaseConnectionsResolver::resolve()->connection(static::appKey())->getSchemaBuilder();
     }
 
     public static function __callStatic(string $method, array $arguments): mixed

@@ -51,6 +51,9 @@ Illuminate\Container\Container::getInstance()->instance(
         }
     },
 );
+Nexia\Laravel\Database\AppDatabaseConnectionsResolver::configure(
+    static fn (): Nexia\Laravel\Database\Contracts\AppDatabaseConnections => Illuminate\Container\Container::getInstance()->make(Nexia\Laravel\Database\Contracts\AppDatabaseConnections::class),
+);
 $database->schema()->create('app_rows', function (Illuminate\Database\Schema\Blueprint $table): void {
     $table->id();
 });

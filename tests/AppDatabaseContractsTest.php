@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Container\Container;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Eloquent\Model;
+use Nexia\Laravel\Database\AppDatabaseConnectionsResolver;
 use Nexia\Laravel\Database\Contracts\AppDatabaseConnections;
 use Nexia\Laravel\Database\Facades\AppDatabase;
 use Nexia\Laravel\Models\Concerns\UsesAppDatabaseConnection;
@@ -54,7 +55,13 @@ $container->instance(AppDatabaseConnections::class, new class($connection) imple
         return 'app_fixture';
     }
 });
-Container::setInstance($container);
+try {
+    AppDatabaseContractFixture::connection();
+    throw new RuntimeException('Unconfigured host database access was allowed.');
+} catch (LogicException $exception) {
+    assert(str_contains($exception->getMessage(), 'not been configured'));
+}
+AppDatabaseConnectionsResolver::configure(static fn (): AppDatabaseConnections => $container->make(AppDatabaseConnections::class));
 
 assert(AppDatabaseContractFixture::connection() === $connection);
 assert((new AppDatabaseContractFixtureModel)->getConnectionName() === 'app_fixture');
@@ -67,5 +74,9 @@ try {
     throw new RuntimeException('An App facade selected a foreign connection.');
 } catch (LogicException) {
 }
+
+$original = $container->make(AppDatabaseConnections::class);
+$container->instance(AppDatabaseConnections::class, clone $original);
+assert(AppDatabaseConnectionsResolver::resolve() !== $original);
 
 echo "App database connection contracts are valid.\n";
