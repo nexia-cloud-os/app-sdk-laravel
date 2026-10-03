@@ -32,6 +32,7 @@
             "@php -d zend.assertions=1 -d assert.exception=1 tests/StandardRuntimeContractsTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/ResourceWriteRoutesTest.php",
             "@php bin/check-retired-symbols.php src tests",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/RetiredSymbolsTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/AgentContractsTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/AppDefinitionTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/AppPackageMetadataReaderTest.php",

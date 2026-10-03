@@ -53,6 +53,16 @@ foreach (array_unique($files) as $file) {
         continue;
     }
 
+    $phpCode = $contents;
+    if ($extension === 'php') {
+        $phpCode = '';
+        foreach (token_get_all($contents) as $token) {
+            $phpCode .= is_array($token)
+                ? (in_array($token[0], [T_COMMENT, T_DOC_COMMENT, T_CONSTANT_ENCAPSED_STRING, T_ENCAPSED_AND_WHITESPACE, T_INLINE_HTML], true) ? ' ' : $token[1])
+                : $token;
+        }
+    }
+
     $symbols = $extension === 'php' ? ($manifest['php'] ?? []) : ($manifest['frontend'] ?? []);
     foreach ($symbols as $symbol) {
         if (! is_string($symbol) || $symbol === '') {
@@ -65,7 +75,7 @@ foreach (array_unique($files) as $file) {
         foreach (array_unique($needles) as $needle) {
             $matches = $needle === $symbol
                 ? str_contains($contents, $needle)
-                : preg_match('/(?<![A-Za-z0-9_])'.preg_quote($needle, '/').'(?![A-Za-z0-9_])/', $contents) === 1;
+                : preg_match('/(?<![A-Za-z0-9_])'.preg_quote($needle, '/').'(?![A-Za-z0-9_])/', $phpCode) === 1;
             if ($matches) {
                 $violations[] = $file.': retired SDK symbol '.$symbol;
                 break;
