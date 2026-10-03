@@ -43,9 +43,9 @@ vanished, the operation needs review even if App data already committed. Preserv
 the pending result and inspect saved data; do not blindly create another request.
 Closing review retains saved data and does not report success or undo the write.
 
-This method does not hold Core locks for the App transaction, promise a shared
-rollback, or replace `requireByPublicIdForUpdate`. Organization-directory lock
-methods also remain unsupported; use the explicit organization conditions below.
+This method does not hold Core locks for the App transaction or promise a shared
+rollback. Use the explicit party and organization conditions; local-only directory
+lock methods are not part of the shared SDK.
 The draft contract needs coordinated SDK/Core/runtime adoption; package publication
 and the retained local user runtime are separate from source implementation.
 
@@ -149,5 +149,29 @@ that owns local media storage must call `NexiaModel::enableLocalMedia()` in its
 provider registration before any model boots. Isolated App hosts must leave it
 disabled: local media relations fail closed and model deletion does not query a
 local media table. Use existing attachment host contracts in isolated Apps.
-The new package replaces the legacy Composer name at `self.version` only;
-this does not widen App version constraints or upgrade an existing release lock.
+Apps require the canonical `nexia-cloud-os/sdk-laravel` package. Previous Composer
+package names are not aliases; dependency locks must use the canonical identity.
+
+### Scoped Backend settings
+
+Declare `SettingDefinition` entries through `SettingsContribution` and require
+`settings.read` in the Runtime requirements. Both Core Composer execution and the selected isolated Runtime implement
+`Nexia\Settings\Contracts\AppSettings`; the host determines the App, Tenant and
+environment. Core resolves the same declarations from the selected Composer App and preserves existing settings APIs. Reads require an authenticated actor and an active, host-selected App execution scope; they never infer another App from a caller-supplied key.
+
+```php
+$value = app(\Nexia\Settings\Contracts\AppSettings::class)
+    ->get('tenant', 'my-app.access-key');
+$result = $value->use(function (#[\SensitiveParameter] $key) {
+    // Pass the value only to the intended integration. Return a safe business result.
+});
+```
+
+Use `app` explicitly for a shared App setting. Identically named keys in the two
+scopes never fall back to each other. A missing required value blocks the lookup;
+there is no implicit activation-wide requirement. Values are read afresh on each
+call. Replacement/revocation affects subsequent lookups, including retries, but
+cannot recall an external request or plaintext already acquired by in-flight code.
+Do not retain `SettingValue` or captured plaintext in a shared cache, job payload,
+log, exception, frontend response or static property. JSON/debug metadata contains
+only `configured` and `version`; serialization is refused.

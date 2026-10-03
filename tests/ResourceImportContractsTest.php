@@ -9,6 +9,7 @@ use Nexia\ResourceImport\Analysis\ImportAnalysisResult;
 use Nexia\ResourceImport\Analysis\ImportAnalysisSnapshot;
 use Nexia\ResourceImport\Analysis\ImportRowSpool;
 use Nexia\ResourceImport\Contracts\ImportRecipeProvider;
+use Nexia\ResourceImport\Contracts\ImportFileCapabilityContribution;
 use Nexia\ResourceImport\Contracts\ResourceImportPipeline;
 use Nexia\ResourceImport\DataMigrationStageIdentity;
 use Nexia\ResourceImport\Decision\ChoiceOption;
@@ -16,6 +17,7 @@ use Nexia\ResourceImport\Decision\MultipleChoiceDecision;
 use Nexia\ResourceImport\Execution\Contracts\QueuedImportExecution;
 use Nexia\ResourceImport\FillRuleProposal;
 use Nexia\ResourceImport\ImportContributionValidator;
+use Nexia\ResourceImport\ImportFileCapability;
 use Nexia\ResourceImport\ImportRecipeDefinition;
 use Nexia\ResourceImport\ImportSourceProfile;
 use Nexia\ResourceImport\Plan\ImportPlan;
@@ -28,6 +30,23 @@ require __DIR__.'/register-source-autoload.php';
 abstract class ResourceImportContractsRecipe implements ImportRecipeProvider {}
 
 abstract class ResourceImportContractsPipeline implements ResourceImportPipeline {}
+
+$customImportCapability = new class implements ImportFileCapabilityContribution
+{
+    public static function importFileCapabilities(): array
+    {
+        return [new ImportFileCapability(
+            resourceKey: 'fixture.custom-register',
+            permissionKeys: ['fixture.custom-register.import'],
+            formats: ['csv'],
+        )];
+    }
+};
+assert($customImportCapability::importFileCapabilities()[0]->toArray() === [
+    'resource_key' => 'fixture.custom-register',
+    'permission_keys' => ['fixture.custom-register.import'],
+    'formats' => ['csv'],
+]);
 
 function validRecipeDefinition(): ImportRecipeDefinition
 {

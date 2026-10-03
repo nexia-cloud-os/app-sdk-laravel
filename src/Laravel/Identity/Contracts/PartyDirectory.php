@@ -18,8 +18,6 @@ interface PartyDirectory
 
     public function requireByPublicId(string $publicId): Party;
 
-    public function requireByPublicIdForUpdate(string $publicId): Party;
-
     public function exists(string $publicId): bool;
 
     /**

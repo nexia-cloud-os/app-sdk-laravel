@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Nexia\Actions\ActionDefinition;
+
 use Nexia\AppDescriptors\AppDescriptorSet;
 use Nexia\AppDescriptors\ApprovalBusinessTemplatePresetDescriptor;
 use Nexia\AppDescriptors\ApprovalDocumentSchema;
@@ -26,7 +28,6 @@ use Nexia\AppDescriptors\ProcessUserTaskFormDescriptor;
 use Nexia\AppDescriptors\ProcessWorkActionDescriptor;
 use Nexia\AppDescriptors\PublicEventPayloadSchema;
 use Nexia\AppDescriptors\ReportingViewDescriptor;
-use Nexia\AppDescriptors\ResourceActionDescriptor;
 use Nexia\AppDescriptors\ResourceActionEffect;
 use Nexia\AppDescriptors\ResourceDescriptor;
 use Nexia\AppDescriptors\ResourceDescriptorContract;
@@ -82,7 +83,7 @@ $resource = new ResourceDescriptor(
     key: 'sample.expense_report',
     version: '1.0',
     lifecycleEvents: [$event],
-    actions: [new ResourceActionDescriptor(
+    actions: [new ActionDefinition(
         key: 'approval.submit',
         permission: 'sample.expense_report.submit',
         method: 'POST',

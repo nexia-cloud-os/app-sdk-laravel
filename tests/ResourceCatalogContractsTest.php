@@ -30,6 +30,7 @@ if (! $catalog instanceof ResourceCatalogContribution
     || $catalog::resourceModelClass() !== Model::class
     || ! $catalog::shellResource() instanceof ShellResourceDescriptor
     || $catalog::shellResource()->path !== null
+    || $catalog::shellResource()->shapes !== ['list', 'record']
 ) {
     throw new RuntimeException('Resource Catalog contracts changed unexpectedly.');
 }
@@ -69,7 +70,7 @@ assert(! $appWidgets instanceof ResourceCatalogContribution);
 assert(! method_exists($appWidgets, 'resourceModelClass'));
 
 assert(ShellResourceDescriptor::fromArray(['shapes' => ['list', 'record']])->shapes === ['list', 'record']);
-foreach ([['record', 'show'], ['record', 'form'], ['record', 'record'], ['unknown'], ['named' => 'record'], [42]] as $invalidShapes) {
+foreach ([['show'], ['form'], ['record', 'record'], ['unknown'], ['named' => 'record'], [42]] as $invalidShapes) {
     $rejected = false;
     try {
         new ShellResourceDescriptor(shapes: $invalidShapes);

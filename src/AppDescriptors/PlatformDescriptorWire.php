@@ -14,6 +14,7 @@ final class PlatformDescriptorWire
 {
     public const TYPES = [
         'slot_widget' => SlotWidgetDescriptor::class,
+        'performance_measurement' => PerformanceMeasurementSourceDescriptor::class,
         'official_seal_use' => OfficialSealUseDescriptor::class,
         'process_work' => ProcessWorkActionDescriptor::class,
         'process_form' => ProcessUserTaskFormDescriptor::class,
@@ -42,6 +43,10 @@ final class PlatformDescriptorWire
             $data['fields'] = array_map(get_object_vars(...), $descriptor->fields);
         }
         if ($descriptor instanceof ProcessWorkActionDescriptor) $data['approvalTask'] = $descriptor->approvalTask === null ? null : get_object_vars($descriptor->approvalTask);
+        if ($descriptor instanceof PerformanceMeasurementSourceDescriptor) {
+            $data['measurements'] = array_map(static fn ($measurement) => [...get_object_vars($measurement),
+                'valueType' => $measurement->valueType->value, 'timeSemantics' => $measurement->timeSemantics->value], $descriptor->measurements);
+        }
         $data['status'] = $descriptor->status->value;
         if ($descriptor instanceof ApprovalBusinessTemplatePresetDescriptor) {
             $data['documentEditorMode'] = $descriptor->documentEditorMode->value;
@@ -68,6 +73,13 @@ final class PlatformDescriptorWire
                 $data['fields'] = array_map(static fn (array $field) => new DecisionResultFieldDescriptor(...$field), $data['fields']);
             }
             if ($wire['type'] === 'process_work' && isset($data['approvalTask'])) $data['approvalTask'] = new ProcessApprovalTaskConfiguration(...$data['approvalTask']);
+            if ($wire['type'] === 'performance_measurement') {
+                $data['measurements'] = array_map(static function (array $measurement) {
+                    $measurement['valueType'] = PerformanceMeasurementValueType::from($measurement['valueType']);
+                    $measurement['timeSemantics'] = PerformanceMeasurementTimeSemantics::from($measurement['timeSemantics']);
+                    return new PerformanceMeasurementDefinition(...$measurement);
+                }, $data['measurements']);
+            }
             $data['status'] = DescriptorStatus::from($data['status']);
             if ($wire['type'] === 'approval_template') {
                 $data['documentEditorMode'] = ApprovalDocumentEditorMode::from($data['documentEditorMode']);
@@ -78,13 +90,13 @@ final class PlatformDescriptorWire
             $class = self::TYPES[$wire['type']];
             $descriptor = new $class(...$data);
         }
-        if ((! $descriptor instanceof DecisionResultTemplateDescriptor && ! $descriptor instanceof SlotWidgetDescriptor && $descriptor->appKey !== $appKey)
+        if ((! $descriptor instanceof DecisionResultTemplateDescriptor && ! $descriptor instanceof SlotWidgetDescriptor && ! $descriptor instanceof PerformanceMeasurementSourceDescriptor && $descriptor->appKey !== $appKey)
             || ! str_starts_with($descriptor->descriptorKey(), $appKey.'.')
             || self::encode($descriptor) != $wire) {
             throw new InvalidArgumentException('Platform descriptor ownership or canonical shape differs.');
         }
         if ($descriptor instanceof SlotWidgetDescriptor && (
-            ! preg_match('/\A[A-Za-z][A-Za-z0-9_.]{0,190}\z/D', $descriptor->component)
+            ! preg_match('/\A[A-Za-z][A-Za-z0-9_.-]{0,190}\z/D', $descriptor->component)
             || ! preg_match('/\A[a-z][a-z0-9_.-]{0,190}\z/D', $descriptor->slot)
             || $descriptor->slotApiVersion < 1 || $descriptor->slotApiVersion > 100
             || ($descriptor->familyKey !== null && ! str_starts_with($descriptor->familyKey, $appKey.'.')))) {

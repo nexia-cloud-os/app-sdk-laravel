@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Nexia\Actions\ActionExecutionContract;
+use Nexia\AppRuntime\CatalogValidationException;
 use Nexia\AppRuntime\RuntimeDependencyPolicy;
 use Nexia\AppRuntime\RuntimeRequirements;
 use Nexia\Settings\SettingDefinition;
@@ -12,7 +13,7 @@ require dirname(__DIR__).'/vendor/autoload.php';
 $rejects = static function (Closure $operation): void {
     try {
         $operation();
-    } catch (InvalidArgumentException|TypeError) {
+    } catch (CatalogValidationException|InvalidArgumentException|TypeError) {
         return;
     }
     throw new RuntimeException('Unsupported declaration was accepted.');
@@ -57,7 +58,7 @@ $renamedLock = $lock;
 $renamedLock['packages'][0]['replace'] = ['nexia/sdk-laravel' => 'self.version', 'amuzcorp/nexia-app-sdk-laravel' => 'self.version'];
 foreach (array_keys($renamedLock['packages'][0]['replace']) as $oldName) {
     $legacyApp = [...$app, 'require' => [$oldName => '^0.7.0']];
-    RuntimeDependencyPolicy::validate($legacyApp, $renamedLock);
+    $rejects(fn () => RuntimeDependencyPolicy::validate($legacyApp, $renamedLock));
     $rejects(fn () => RuntimeDependencyPolicy::validate([...$legacyApp, 'require' => [$oldName => '^0.6.0']], $renamedLock));
     $rejects(fn () => RuntimeDependencyPolicy::validate($legacyApp, $lock));
     $untrustedLock = $renamedLock;
@@ -83,7 +84,18 @@ $rejects(fn () => SettingDefinition::validateCatalog([[...$secret->toArray(), 'v
 assert(! str_contains(json_encode($secret->toArray(), JSON_THROW_ON_ERROR), 'SENTINEL'));
 $action = new ActionExecutionContract;
 assert(ActionExecutionContract::fromArray($action->toArray())->toArray() === $action->toArray());
-$rejects(fn () => new ActionExecutionContract(available: true));
+$synchronous = new ActionExecutionContract(available: true);
+assert(ActionExecutionContract::fromArray($synchronous->toArray())->toArray() === $synchronous->toArray());
+$rejects(fn () => new ActionExecutionContract(available: true, mode: 'async'));
+$rejects(fn () => new ActionExecutionContract(available: true, concurrency: 'none'));
+$rejects(fn () => new ActionExecutionContract(available: true, replay: 'none'));
+$definition = static fn (?array $schema) => new \Nexia\Actions\ActionDefinition(
+    key: 'complete', permission: 'sample.note.update', method: 'POST', path: '/api/sample/notes/{note}/complete',
+    inputSchema: $schema, targetParameter: 'note', execution: $synchronous,
+);
+$rejects(fn () => $definition(null));
+$rejects(fn () => $definition(['type' => 'object', 'properties' => ['record_version' => ['type' => 'integer', 'minimum' => 1]]]));
+$versioned = $definition(['type' => 'object', 'properties' => ['record_version' => ['type' => 'integer', 'minimum' => 1]], 'required' => ['record_version']]);
 $catalog = ['app_key' => 'sample', 'requirements' => $requirements,
     'permissions' => [['key' => 'sample.note.update', 'lifecycle' => 'active']],
     'resources' => [['key' => 'sample.note']],
@@ -92,6 +104,25 @@ $catalog = ['app_key' => 'sample', 'requirements' => $requirements,
     ]]],
     'route_bindings' => [['key' => 'sample.note.complete', 'operation' => 'action', 'method' => 'POST', 'path' => '/api/sample/notes/{note}/complete']]];
 \Nexia\AppRuntime\StandardCatalogPolicy::validate($catalog);
+$executable = [...$catalog, 'actions' => [[...$catalog['actions'][0], 'definition' => $versioned->toArray()]]];
+\Nexia\AppRuntime\StandardCatalogPolicy::validate($executable);
+try {
+    \Nexia\AppRuntime\StandardCatalogPolicy::validate([...$executable, 'requirements' => [
+        ...$requirements, 'required_capabilities' => ['resource.catalog', 'action.catalog'],
+    ]]);
+    throw new RuntimeException('Executable Action without host capability was accepted.');
+} catch (\Nexia\AppRuntime\CatalogValidationException) {
+}
+\Nexia\AppRuntime\StandardCatalogPolicy::validate([...$catalog, 'contracts' => [[
+    'key' => 'sample.note', 'version' => '1.1', 'actions' => [],
+    'events' => [['key' => 'sample.note.changed', 'schema_version' => 2]],
+]], 'standalone_events' => [['key' => 'sample.note.published', 'schema_version' => 2]]]);
+foreach ([
+    ['contracts' => [['key' => 'sample.note', 'version' => '', 'actions' => [], 'events' => []]]],
+    ['standalone_events' => [['key' => 'sample.note.published', 'schema_version' => 0]]],
+] as $unsupported) {
+    $rejects(fn () => \Nexia\AppRuntime\StandardCatalogPolicy::validate([...$catalog, ...$unsupported]));
+}
 foreach ([['route_bindings' => []], ['permissions' => []], ['resources' => []],
     ['route_bindings' => [$catalog['route_bindings'][0], $catalog['route_bindings'][0]]]] as $invalid) {
     try {
@@ -101,3 +132,17 @@ foreach ([['route_bindings' => []], ['permissions' => []], ['resources' => []],
     }
 }
 echo "Standard Runtime declaration and dependency policies passed.\n";
+
+$batchSchema = ['type' => 'object', 'properties' => [
+    'ids' => ['type' => 'array', 'items' => ['type' => 'string']],
+    'record_versions' => ['type' => 'object', 'additionalProperties' => ['type' => 'integer', 'minimum' => 1]],
+], 'required' => ['ids', 'record_versions']];
+foreach (['atomic', 'partial'] as $policy) {
+    $batch = new \Nexia\Actions\ActionDefinition('complete_many', 'sample.note.update', 'POST', '/api/sample/notes/complete',
+        inputSchema: $batchSchema, targets: \Nexia\Actions\ActionTargets::Many, targetParameter: 'ids',
+        execution: new ActionExecutionContract(available: true, batchPolicy: $policy));
+    assert(\Nexia\Actions\ActionDefinition::fromArray($batch->toArray())->toArray() === $batch->toArray());
+}
+$rejects(fn () => new \Nexia\Actions\ActionDefinition('complete_many', 'sample.note.update', 'POST', '/api/sample/notes/complete',
+    inputSchema: $batchSchema, targets: \Nexia\Actions\ActionTargets::Many, targetParameter: 'ids', execution: $synchronous));
+$rejects(fn () => new ActionExecutionContract(available: true, batchPolicy: 'implicit'));

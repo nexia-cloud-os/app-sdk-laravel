@@ -15,8 +15,10 @@ interface OrganizationWritePreconditions
      * Identical registration is repeatable; changing predicates for the same target/date is rejected.
      * The combined Party/organization target limit is 100 per request.
      *
-     * Core rechecks selected predicates under locks at completion. A conflict needs review and
-     * may retain committed App data. Returning confirms registration, not final save success.
+     * Core rechecks selected predicates under locks at completion. A shared Composer transaction
+     * retains locks and rolls back a conflict before commit. Isolated connections may retain
+     * committed App data and require review. Never assume shared Core/App atomicity.
+     * Returning confirms registration, not final save success.
      * Unsupported contexts reject; this does not replace OrganizationDirectory lock methods.
      *
      * @param array{type: 'legal_entity', id: string, expected: array{active: bool}}|array{type: 'operating_unit', id: string, legal_entity_id: string, as_of: string, expected: array{affiliated?: bool, effective?: bool}} $condition

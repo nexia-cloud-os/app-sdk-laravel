@@ -37,6 +37,7 @@ final readonly class ResourceTransferExportSourceDefinition implements Contracts
     public function toArray(): array
     {
         return [
+            'execution' => 'source',
             'resource_key' => $this->resourceKey, 'label_key' => $this->labelKey,
             'owner_app_key' => explode('.', $this->resourceKey, 2)[0],
             'schema' => $this->schema->toArray(), 'schema_hash' => $this->schema->hash(),

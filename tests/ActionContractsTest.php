@@ -5,21 +5,19 @@ declare(strict_types=1);
 use Nexia\Actions\ActionDefinition;
 use Nexia\Actions\ActionPlacement;
 use Nexia\Actions\ActionTargets;
-use Nexia\AppDescriptors\ResourceActionDescriptor;
 
 require dirname(__DIR__).'/vendor/autoload.php';
 
-$legacy = new ResourceActionDescriptor('approve', 'sample.record.approve', 'POST', '/api/sample/{id}/approve');
-assert($legacy instanceof ActionDefinition);
-assert($legacy->placements === [ActionPlacement::Agent]);
+$recordAction = new ActionDefinition('approve', 'sample.record.approve', 'POST', '/api/sample/{id}/approve');
+assert($recordAction->placements === [ActionPlacement::Agent]);
 $global = new ActionDefinition('sample.refresh', 'sample.refresh', 'POST', '/api/sample/refresh', labelKey: 'sample.refresh.label', targets: ActionTargets::None, placements: [ActionPlacement::Dashboard]);
 assert($global->targets === ActionTargets::None);
 assert(ActionDefinition::fromArray($global->toArray())->toArray() === $global->toArray());
-assert(ActionDefinition::fromArray($legacy->toArray())->toArray() === $legacy->toArray());
-$tool = $legacy->agentTool('sample.record.approve');
+assert(ActionDefinition::fromArray($recordAction->toArray())->toArray() === $recordAction->toArray());
+$tool = $recordAction->agentTool('sample.record.approve');
 assert($tool->tier === \Nexia\Agent\AgentToolTier::Confirm);
 assert($tool->permissions === ['sample.record.approve']);
-assert($tool->path === $legacy->path);
+assert($tool->path === $recordAction->path);
 assert($tool->inputSchema['required'] === ['id']);
 $bulk = new ActionDefinition('approve', 'sample.record.approve', 'POST', '/api/sample/approve', targets: ActionTargets::Many, targetParameter: 'ids');
 assert($bulk->agentTool('sample.record.approve')->inputSchema['properties']['ids']['maxItems'] === 100);

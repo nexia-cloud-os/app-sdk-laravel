@@ -88,19 +88,7 @@ readonly class TransportResourceReferences implements ResourceReferences
     private function reference(array $snapshot): ResolvedResourceReference
     {
         try {
-            if (($snapshot['schema_version'] ?? null) !== 1 || array_key_exists('protected_values', $snapshot) || array_key_exists('protectedValues', $snapshot)) {
-                throw new RuntimeException;
-            }
-            $reference = $snapshot['reference'];
-            $result = new ResolvedResourceReference(
-                $reference['app_key'], $reference['resource_key'], $reference['resource_id'], $reference['display'], $reference['href'],
-                $snapshot['fields'], new DateTimeImmutable($snapshot['as_of']), $snapshot['revision'], $snapshot['status'],
-            );
-            if (! hash_equals($result->snapshot()['content_hash'], $snapshot['content_hash'])) {
-                throw new RuntimeException;
-            }
-
-            return $result;
+            return ResolvedResourceReference::fromSnapshot($snapshot);
         } catch (Throwable) {
             throw new RuntimeException('Invalid SDK resource snapshot.');
         }

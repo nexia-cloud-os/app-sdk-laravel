@@ -11,6 +11,6 @@ trait HasShellResource
 {
     public static function shellResource(): ShellResourceDescriptor
     {
-        return new ShellResourceDescriptor;
+        return new ShellResourceDescriptor(shapes: ['list', 'record']);
     }
 }

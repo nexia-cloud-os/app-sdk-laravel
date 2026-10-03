@@ -11,6 +11,10 @@ use Nexia\AppDescriptors\ApprovalRoutePolicyPresetDescriptor;
 use Nexia\Approval\Domain\ApprovalRoutePolicyStep;
 
 foreach ([
+    new \Nexia\AppDescriptors\PerformanceMeasurementSourceDescriptor('sample.record', '1', [
+        new \Nexia\AppDescriptors\PerformanceMeasurementDefinition('count', '1', 'sample.count', 'count',
+            \Nexia\AppDescriptors\PerformanceMeasurementValueType::Integer, \Nexia\AppDescriptors\PerformanceMeasurementTimeSemantics::Period),
+    ]),
     new \Nexia\AppDescriptors\SlotWidgetDescriptor('sample.record.submit', '1.0', 'approval.composer.business_form', 'sample.record.submit', 1),
     new \Nexia\AppDescriptors\SlotWidgetDescriptor('sample.self.profile', '1.0', 'profile.self.overview', 'SampleProfile', 2, permission: 'sample.profile.read', familyKey: 'sample.self'),
     new \Nexia\AppDescriptors\DecisionResultTemplateDescriptor('sample.decision', '1.0', 'sample.decision.label',
@@ -45,5 +49,16 @@ foreach ([['foreign.issue'], [], ['sample.issue', 'sample.issue'], ['sample.issu
     $rejected = false;
     try { new \Nexia\AppDescriptors\OfficialSealUseDescriptor('sample', 'sample.document.issued', $permissions); }
     catch (InvalidArgumentException) { $rejected = true; }
+    assert($rejected);
+}
+
+$hyphenated = new \Nexia\AppDescriptors\SlotWidgetDescriptor('sample-app.record.submit', '1.0', 'approval.composer.business_form', 'sample-app.record.submit', 2);
+$wire = PlatformDescriptorWire::encode($hyphenated);
+assert(PlatformDescriptorWire::decode($wire, 'sample-app')->component === 'sample-app.record.submit');
+foreach (['../record', 'Some\\Class', 'https://example.invalid/component', '<script>'] as $component) {
+    $invalid = $wire;
+    $invalid['data']['component'] = $component;
+    $rejected = false;
+    try { PlatformDescriptorWire::decode($invalid, 'sample-app'); } catch (InvalidArgumentException) { $rejected = true; }
     assert($rejected);
 }

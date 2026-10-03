@@ -81,6 +81,8 @@
             "@php -d zend.assertions=1 -d assert.exception=1 tests/ResourceCatalogContractsTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/ResourceCompositionContractsTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/ResourceImportContractsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/AppWorkContractsTest.php",
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/ExternalDatabaseWriterContractsTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/ResourceModuleContractsTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/ResourceReferenceTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/SelfServiceContractsTest.php",
@@ -105,17 +107,13 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-main": "0.7.x-dev",
-            "dev-develop": "0.7.x-dev"
+            "dev-main": "0.8.x-dev",
+            "dev-develop": "0.8.x-dev"
         }
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "support": {
         "issues": "https://github.com/nexia-cloud-os/developer-support/issues"
-    },
-    "replace": {
-        "nexia/sdk-laravel": "self.version",
-        "amuzcorp/nexia-app-sdk-laravel": "self.version"
     }
 }

@@ -35,6 +35,22 @@ $database->addConnection(['driver' => 'sqlite', 'database' => ':memory:']);
 $database->setEventDispatcher(new Illuminate\Events\Dispatcher(new Illuminate\Container\Container));
 $database->setAsGlobal();
 $database->bootEloquent();
+Illuminate\Container\Container::getInstance()->instance(
+    Nexia\Laravel\Database\Contracts\AppDatabaseConnections::class,
+    new class($database) implements Nexia\Laravel\Database\Contracts\AppDatabaseConnections {
+        public function __construct(private Illuminate\Database\Capsule\Manager $database) {}
+
+        public function connection(string $appKey): Illuminate\Database\Connection
+        {
+            return $this->database->getConnection();
+        }
+
+        public function modelConnectionName(string $modelClass): ?string
+        {
+            return 'default';
+        }
+    },
+);
 $database->schema()->create('app_rows', function (Illuminate\Database\Schema\Blueprint $table): void {
     $table->id();
 });

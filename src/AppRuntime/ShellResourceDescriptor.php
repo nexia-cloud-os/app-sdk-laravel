@@ -10,7 +10,7 @@ use InvalidArgumentException;
 final readonly class ShellResourceDescriptor
 {
     /**
-     * @param list<string>|null $shapes
+     * @param list<'list'|'record'> $shapes
      * @param array<string, string|array{component: string, mode: 'list'|'show'|'create'|'edit', permissionAction?: string}> $overrides
      * String overrides are standalone pages. Structured overrides explicitly
      * retain the owning Resource identity; mode supplies the default permission
@@ -18,7 +18,7 @@ final readonly class ShellResourceDescriptor
      */
     public function __construct(
         public ?string $path = null,
-        public ?array $shapes = null,
+        public array $shapes = ['list', 'record'],
         public ?string $componentPrefix = null,
         public array $overrides = [],
         /** The create form reports its new Resource Reference through the Shell continuation. */
@@ -30,14 +30,10 @@ final readonly class ShellResourceDescriptor
         if ($this->componentPrefix !== null && trim($this->componentPrefix) === '') {
             throw new InvalidArgumentException('Shell resource component prefix cannot be empty.');
         }
-        if ($shapes !== null && (! array_is_list($shapes)
-            || array_filter($shapes, static fn ($shape) => ! is_string($shape) || ! in_array($shape, ['list', 'show', 'form', 'record'], true)) !== []
-            || count(array_unique($shapes)) !== count($shapes))) {
+        if (! array_is_list($shapes)
+            || array_filter($shapes, static fn ($shape) => ! is_string($shape) || ! in_array($shape, ['list', 'record'], true)) !== []
+            || count(array_unique($shapes)) !== count($shapes)) {
             throw new InvalidArgumentException('Shell resource shapes must be distinct supported names.');
-        }
-        if ($shapes !== null && in_array('record', $shapes, true)
-            && array_intersect($shapes, ['show', 'form']) !== []) {
-            throw new InvalidArgumentException('Use record or separate show/form shapes, not both.');
         }
         foreach ($overrides as $tail => $override) {
             if (! is_string($tail)) {
@@ -65,8 +61,8 @@ final readonly class ShellResourceDescriptor
     /** @param array<string, mixed> $config */
     public static function fromArray(array $config): self
     {
-        $shapes = $config['shapes'] ?? null;
-        if ($shapes !== null && (! is_array($shapes) || ! array_is_list($shapes) || array_filter($shapes, 'is_string') !== $shapes)) {
+        $shapes = $config['shapes'] ?? ['list', 'record'];
+        if (! is_array($shapes) || ! array_is_list($shapes) || array_filter($shapes, 'is_string') !== $shapes) {
             throw new InvalidArgumentException('Shell resource shapes must be a list of strings.');
         }
         $overrides = $config['overrides'] ?? [];
@@ -75,7 +71,7 @@ final readonly class ShellResourceDescriptor
         }
         return new self(
             path: is_string($config['path'] ?? null) ? $config['path'] : null,
-            shapes: $shapes === null ? null : array_values($shapes),
+            shapes: array_values($shapes),
             componentPrefix: is_string($config['componentPrefix'] ?? null) ? $config['componentPrefix'] : null,
             overrides: $overrides,
             contextualCreate: ($config['contextualCreate'] ?? false) === true,

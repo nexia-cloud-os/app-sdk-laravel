@@ -44,6 +44,27 @@ final readonly class ResolvedResourceReference
         $this->protectedValues = new SensitiveParameterValue($protectedValues);
     }
 
+    /** Restore the public snapshot, rejecting protected values and altered content. */
+    public static function fromSnapshot(array $snapshot): self
+    {
+        try {
+            if (($snapshot['schema_version'] ?? null) !== 1 || array_key_exists('protected_values', $snapshot) || array_key_exists('protectedValues', $snapshot)) {
+                throw new InvalidArgumentException;
+            }
+            $reference = $snapshot['reference'];
+            $result = new self(
+                $reference['app_key'], $reference['resource_key'], $reference['resource_id'], $reference['display'], $reference['href'],
+                $snapshot['fields'], new DateTimeImmutable($snapshot['as_of']), $snapshot['revision'], $snapshot['status'],
+            );
+            if (! hash_equals($result->snapshot()['content_hash'], $snapshot['content_hash'])) {
+                throw new InvalidArgumentException;
+            }
+            return $result;
+        } catch (\Throwable) {
+            throw new InvalidArgumentException('Invalid SDK resource snapshot.');
+        }
+    }
+
     /** @return array{app_key: string, resource_key: string, resource_id: string, display: string, href: string|null} */
     public function reference(): array
     {

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Nexia\Laravel\ResourceTransfer\Concerns\ExportImportable;
 use Nexia\ResourceTransfer\Contracts\ResourceTransferDefinition;
 use Nexia\ResourceTransfer\ResourceTransferExportSourceDefinition;
+use Nexia\ResourceTransfer\ResourceTransferModelDefinition;
 use Nexia\ResourceTransfer\TransferSchema;
 
 require dirname(__DIR__).'/vendor/autoload.php';
@@ -103,3 +104,37 @@ foreach (['importable' => true, 'export_sensitive' => '1'] as $key => $value) {
 assert($labelledExportSource instanceof ResourceTransferDefinition);
 assert(! $labelledExportSource->supportsImport());
 assert(! str_contains(json_encode($labelledExportSource->toArray()), stdClass::class));
+
+$modelDefinition = new ResourceTransferModelDefinition(
+    'fixture.card',
+    TransferSchema::make()->key('external_id')->field('name'),
+    ResourceTransferDefinition::SCOPE_TENANT,
+    ['fixture.card.read', 'fixture.card.create'],
+    ['fixture.card.read'],
+    'fixture.card.list.title',
+);
+$modelWire = $modelDefinition->toArray();
+assert($modelDefinition instanceof ResourceTransferDefinition);
+assert($modelDefinition->supportsImport());
+assert($modelWire['execution'] === 'model');
+assert($modelWire['permissions']['model'] === ['fixture.card.read', 'fixture.card.create']);
+assert(TransferSchema::fromArray($modelWire['schema'])->hash() === $modelDefinition->schema->hash());
+foreach ([['required' => 'yes'], ['unknown' => true]] as $change) {
+    $invalid = $modelWire['schema'];
+    $invalid['columns'][0] = [...$invalid['columns'][0], ...$change];
+    try { TransferSchema::fromArray($invalid); throw new RuntimeException('Invalid model transfer schema accepted.'); }
+    catch (InvalidArgumentException|TypeError) {}
+}
+try {
+    new ResourceTransferModelDefinition(
+        'fixture.card', TransferSchema::make()->field('name'), ResourceTransferDefinition::SCOPE_TENANT,
+        ['fixture.card.read'], ['fixture.card.read'], 'fixture.card.list.title',
+    );
+    throw new RuntimeException('Importable model transfer accepted without create authority.');
+} catch (InvalidArgumentException) {}
+$exportOnlyModel = new ResourceTransferModelDefinition(
+    'fixture.read_only_card', TransferSchema::make()->exportOnly('name'), ResourceTransferDefinition::SCOPE_TENANT,
+    ['fixture.read_only_card.read'], ['fixture.read_only_card.read'], 'fixture.read_only_card.list.title',
+);
+assert(! $exportOnlyModel->supportsImport());
+assert($exportOnlyModel->toArray()['import_formats'] === [] && $exportOnlyModel->toArray()['row_limits']['import'] === 0);

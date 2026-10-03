@@ -22,8 +22,6 @@ interface OrganizationDirectory
 
     public function requireLegalEntityByKey(int|string $key): LegalEntity;
 
-    public function lockLegalEntityByKey(int|string $key): LegalEntity;
-
     public function legalEntityPublicIdByKey(int|string $key): ?string;
 
     public function legalEntityKeyByPublicId(string $publicId, bool $activeOnly = false): ?int;
@@ -36,8 +34,6 @@ interface OrganizationDirectory
     public function findOperatingUnit(string $publicId): ?OperatingUnit;
 
     public function operatingUnit(string $publicId, int|string $legalEntityKey): OperatingUnit;
-
-    public function lockOperatingUnit(string $publicId, int|string $legalEntityKey): ?OperatingUnit;
 
     public function operatingUnitKeyForLegalEntityPublicId(
         int|string $legalEntityKey,

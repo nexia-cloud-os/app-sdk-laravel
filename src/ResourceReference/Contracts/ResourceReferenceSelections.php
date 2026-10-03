@@ -11,7 +11,11 @@ use Nexia\ResourceReference\ResourceReferenceSelectionResult;
 /** Core-governed browser and write resolution for declared Resource fields. */
 interface ResourceReferenceSelections
 {
-    /** Party write resolution requires a caller-owned database transaction. */
+    /**
+     * Write resolution requires a caller-owned database transaction. Composer retains Party
+     * merge/row locks in that transaction. Isolated execution records a completion condition;
+     * a later conflict may retain App data and require review, never a shared rollback.
+     */
     public function resolve(
         string $resourceId,
         ResourceReferenceSelectionContext $context,

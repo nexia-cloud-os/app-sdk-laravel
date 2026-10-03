@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Nexia\Laravel\Models\Concerns\UsesAppDatabaseConnection;
 use Nexia\Laravel\Models\Contracts\HostReferenceResolver;
 
 /**
@@ -30,6 +31,7 @@ use Nexia\Laravel\Models\Contracts\HostReferenceResolver;
  */
 abstract class NexiaModel extends Model implements HasMedia
 {
+    use UsesAppDatabaseConnection;
     use InteractsWithMedia {
         bootInteractsWithMedia as private bootLocalMedia;
         media as private localMediaRelation;

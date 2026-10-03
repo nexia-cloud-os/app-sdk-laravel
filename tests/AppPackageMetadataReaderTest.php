@@ -23,9 +23,8 @@ $writeComposer = static function (mixed $composer) use ($packagePath): void {
 };
 
 try {
-    $writeComposer([
-        'name' => 'amuzcorp/nexia-sample-addon',
-        'extra' => ['nexia' => ['app' => [
+    $writeComposer(['name' => 'example/sample']);
+    $manifest = ['schema_version' => '2', 'runtime' => 'laravel', 'app' => [
             'manifest' => 'Tests\\Fixtures\\SampleAddon\\SampleAddonAppManifest',
             'app_family' => 'sample',
             'app_icon' => 'box',
@@ -35,12 +34,12 @@ try {
             'app_key' => 'sample-addon',
             'app_table_prefix' => 'sample_addon',
             'prerequisite_apps' => ['sample-base'],
-        ]]],
-    ]);
+        ]];
+    file_put_contents($packagePath.'/nexia.json', json_encode($manifest, JSON_THROW_ON_ERROR));
 
     $definition = (new AppPackageMetadataReader)->read($packagePath);
     if ($definition->appKey !== 'sample-addon' || $definition->prerequisiteApps !== ['sample-base']) {
-        throw new RuntimeException('Canonical Composer App metadata was not read correctly.');
+        throw new RuntimeException('Canonical nexia.json App metadata was not read correctly.');
     }
 
     $native = ['schema_version' => '2', 'runtime' => 'laravel', 'app' => $definition->toArray()];
@@ -94,9 +93,15 @@ try {
             throw new RuntimeException('Invalid or duplicate manifest silently fell back to Composer.');
         }
     }
-    file_put_contents($packagePath.'/nexia.json', json_encode(['schema_version' => '1', 'app' => ['id' => 'dev.sample']]));
-    if ((new AppPackageMetadataReader)->read($packagePath)->appKey !== $definition->appKey) {
-        throw new RuntimeException('Legacy browser-preview coexistence was broken.');
+    $writeComposer(['name' => 'example/sample']);
+    foreach ([null, ['schema_version' => '1', 'app' => ['id' => 'dev.sample']]] as $oldManifest) {
+        $rejected = false;
+        try {
+            $reader->declarationFromJson('{"name":"example/sample"}', $oldManifest === null ? null : json_encode($oldManifest, JSON_THROW_ON_ERROR));
+        } catch (RuntimeException) {
+            $rejected = true;
+        }
+        assert($rejected, 'Missing and legacy manifests must be rejected.');
     }
     unlink($packagePath.'/nexia.json');
     symlink($packagePath.'/composer.json', $packagePath.'/nexia.json');
@@ -132,36 +137,24 @@ try {
     }
     unlink($packagePath.'/nexia.json');
 
-    $invalidCases = [
-        [['name' => 'amuzcorp/nexia-invalid'], 'extra.nexia.app'],
-        ['"not-an-object"', 'must contain a JSON object'],
-        [['extra' => ['nexia' => ['app' => [
-            'manifest' => 'Example\\ExampleAppManifest',
-            'app_family' => 'example',
-            'app_icon' => 'box',
-            'launcher_order' => 10,
-            'overview_navigation_id' => 'example',
-            'app_name' => 'Example',
-            'app_key' => 'example',
-            'app_table_prefix' => 'example',
-        ]]]], 'prerequisite_apps'],
-    ];
-
-    foreach ($invalidCases as [$composer, $message]) {
-        $writeComposer($composer);
-
-        try {
-            (new AppPackageMetadataReader)->read($packagePath);
-        } catch (RuntimeException $exception) {
-            if (str_contains($exception->getMessage(), $message)) {
-                continue;
-            }
-
-            throw $exception;
-        }
-
-        throw new RuntimeException("Invalid Composer App metadata was accepted; expected [{$message}].");
+    $writeComposer('"not-an-object"');
+    try {
+        $reader->read($packagePath);
+        throw new LogicException('Non-object Composer metadata was accepted.');
+    } catch (RuntimeException $exception) {
+        assert(str_contains($exception->getMessage(), 'must contain a JSON object'));
     }
+    $writeComposer(['name' => 'example/sample']);
+    $incomplete = $native;
+    unset($incomplete['app']['prerequisite_apps']);
+    file_put_contents($packagePath.'/nexia.json', json_encode($incomplete, JSON_THROW_ON_ERROR));
+    try {
+        $reader->read($packagePath);
+        throw new LogicException('Incomplete App metadata was accepted.');
+    } catch (RuntimeException $exception) {
+        assert(str_contains($exception->getMessage(), 'prerequisite_apps'));
+    }
+
 } finally {
     if (is_file($packagePath.'/nexia.json') || is_link($packagePath.'/nexia.json')) {
         unlink($packagePath.'/nexia.json');

@@ -131,5 +131,22 @@ final readonly class ActionDefinition
         if ($description !== null && trim($description) === '') {
             throw new InvalidArgumentException('Resource action description cannot be empty.');
         }
+        if ($execution?->available) {
+            $single = $targets === ActionTargets::One
+                && ($inputSchema['properties']['record_version']['type'] ?? null) === 'integer'
+                && ($inputSchema['properties']['record_version']['minimum'] ?? null) === 1
+                && in_array('record_version', $inputSchema['required'] ?? [], true);
+            $many = $targets === ActionTargets::Many && $execution->batchPolicy !== null
+                && ($inputSchema['properties'][$targetParameter]['type'] ?? null) === 'array'
+                && ($inputSchema['properties'][$targetParameter]['items']['type'] ?? null) === 'string'
+                && ($inputSchema['properties']['record_versions']['type'] ?? null) === 'object'
+                && ($inputSchema['properties']['record_versions']['additionalProperties']['type'] ?? null) === 'integer'
+                && ($inputSchema['properties']['record_versions']['additionalProperties']['minimum'] ?? null) === 1
+                && in_array($targetParameter, $inputSchema['required'] ?? [], true)
+                && in_array('record_versions', $inputSchema['required'] ?? [], true);
+            if ($method !== 'POST' || $effect !== ResourceActionEffect::Mutate || (! $single && ! $many)) {
+                throw new InvalidArgumentException('Versioned execution requires a POST mutation with target versions and an explicit policy for multiple targets.');
+            }
+        }
     }
 }

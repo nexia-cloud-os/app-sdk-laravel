@@ -13,8 +13,8 @@ final class RuntimeRequirements
 
     public const CONTRACTS = ['catalog' => 1, 'resource' => 1, 'action' => 1, 'settings' => 1, 'event' => 1];
 
-    // Declaration support does not promise HTTP, settings, Job or Event execution.
-    public const CAPABILITIES = ['resource.catalog', 'action.catalog', 'settings.catalog', 'event.catalog'];
+    // Execution support is opt-in and distinct from discovery and settings/Event declarations.
+    public const CAPABILITIES = ['resource.catalog', 'action.catalog', 'settings.catalog', 'event.catalog', 'action.sync', 'settings.read'];
 
     /** Enforce the selected sandbox host's support, before loading App PHP. */
     public static function validate(array $value, string $appKey): array

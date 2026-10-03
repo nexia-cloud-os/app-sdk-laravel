@@ -16,6 +16,7 @@
         "Nexia\\AppDescriptors\\ProcessUserTaskFormContribution",
         "Nexia\\AppDescriptors\\ProcessWorkActionContribution",
         "Nexia\\AppDescriptors\\ReportingViewContribution",
+        "Nexia\\AppDescriptors\\ResourceActionDescriptor",
         "Nexia\\AppDescriptors\\ResourceContribution",
         "Nexia\\AppDescriptors\\ResourceContributionContract",
         "Nexia\\AppDescriptors\\SignatureTemplateBindingContribution",

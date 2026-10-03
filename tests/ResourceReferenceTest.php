@@ -61,6 +61,14 @@ $resolved = new ResolvedResourceReference(
     revision: 3,
     state: 'active',
 );
+assert(ResolvedResourceReference::fromSnapshot($resolved->snapshot())->snapshot() === $resolved->snapshot());
+foreach ([['content_hash' => str_repeat('0', 64)], ['protected_values' => ['secret' => 'never']], ['schema_version' => 2]] as $invalid) {
+    try {
+        ResolvedResourceReference::fromSnapshot([...$resolved->snapshot(), ...$invalid]);
+        throw new RuntimeException('Invalid snapshot accepted.');
+    } catch (InvalidArgumentException) {
+    }
+}
 $secret = 'protected-calendar-secret';
 $protectedResolved = new ResolvedResourceReference(
     appKey: 'sample-owner',

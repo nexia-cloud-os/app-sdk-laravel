@@ -209,7 +209,7 @@ foreach ([
     PersonLoginInvitations::class => ['status', 'invite'],
     PersonPartyProvisioner::class => ['ensureForDirectorySubject'],
     PersonProfileHistory::class => ['pageForAuthorizedHr'],
-    PartyDirectory::class => ['findByPublicId', 'findCanonicalByPublicId', 'requireByPublicId', 'requireByPublicIdForUpdate', 'exists', 'findByPublicIds', 'orderByDisplayLabel'],
+    PartyDirectory::class => ['findByPublicId', 'findCanonicalByPublicId', 'requireByPublicId', 'exists', 'findByPublicIds', 'orderByDisplayLabel'],
     PartyRelationshipDirectory::class => ['findVisibleByPublicId'],
     ProcessRuntime::class => ['hasPublishedEventStart', 'findInstance', 'correlateReceiveTask', 'deliverMessage'],
     RecentAuthentication::class => ['isFresh'],

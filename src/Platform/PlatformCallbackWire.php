@@ -79,7 +79,7 @@ final class PlatformCallbackWire
 
     public static function restoreInput(string $method, array $data, Actor $actor, ?LegalEntity $entity, ?Actor $subjectActor = null, ?TenantIdentity $tenant = null): ProcessWorkActionInvocation|ProcessUserTaskSubmissionInvocation|ResolverContext|SignatureDocumentDataQuery|SelfWorkContextQuery|SelfServiceActionQuery
     {
-        $actorKey = $method === 'approval.resolve' ? 'submitter' : 'actor';
+        $actorKey = in_array($method, ['approval.resolve', 'approval.subject'], true) ? 'submitter' : 'actor';
         if (($data[$actorKey]['public_id'] ?? null) !== $actor->publicId() || ($data['legalEntity']['public_id'] ?? null) !== $entity?->publicId()) {
             throw new InvalidArgumentException('Callback identity differs.');
         }
@@ -97,7 +97,7 @@ final class PlatformCallbackWire
         foreach (['resourceInputs', 'derivedSubjectAnchors', 'selectedResourceRefs'] as $key) {
             if (isset($data[$key])) $data[$key] = self::references($data[$key], true);
         }
-        if ($method === 'approval.resolve') {
+        if (in_array($method, ['approval.resolve', 'approval.subject'], true)) {
             $data['subjectActor'] = $subjectActor;
             return new ResolverContext(...$data);
         }
@@ -151,6 +151,12 @@ final class PlatformCallbackWire
 
     public static function restoreResult(string $method, array $data): ProcessWorkActionResult|ProcessUserTaskSubmissionResult|ResolvedApprovalLine|SignatureDocumentDataResult|array
     {
+        if ($method === 'approval.subject') {
+            if (array_keys($data) !== ['actor_key'] || ($data['actor_key'] !== null && (! is_int($data['actor_key']) || $data['actor_key'] <= 0))) {
+                throw new InvalidArgumentException('Invalid subject actor result.');
+            }
+            return $data;
+        }
         if (in_array($method, ['self.contexts', 'self.actions'], true)) return $data;
         if ($method === 'process.user_task') return new ProcessUserTaskSubmissionResult(...$data);
         if ($method === 'process.work') {

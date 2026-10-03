@@ -42,6 +42,65 @@ final class TransferSchema
         return $schema;
     }
 
+    /** Restore a cataloged model transfer schema without exposing its model class. */
+    public static function fromArray(array $data): self
+    {
+        if (array_keys($data) !== ['columns'] || ! is_array($data['columns']) || ! array_is_list($data['columns'])
+            || count($data['columns']) > 1000) {
+            throw new InvalidArgumentException('Invalid transfer schema.');
+        }
+
+        $schema = self::make();
+        foreach ($data['columns'] as $column) {
+            if (! is_array($column)
+                || ! is_string($column['key'] ?? null)
+                || ! is_string($column['label'] ?? null)
+                || ! is_string($column['type'] ?? null)
+                || ! is_bool($column['required'] ?? null)
+                || ! is_bool($column['importable'] ?? null)
+                || ! is_bool($column['exportable'] ?? null)
+                || ! is_bool($column['unique_import_key'] ?? null)) {
+                throw new InvalidArgumentException('Invalid transfer column.');
+            }
+            $allowed = ['key', 'label', 'type', 'required', 'importable', 'exportable', 'unique_import_key',
+                'export_permission', 'export_sensitive', 'export_requires_purpose',
+                'export_requires_fresh_authentication', 'reference', 'template_header'];
+            if (array_diff(array_keys($column), $allowed) !== []) {
+                throw new InvalidArgumentException('Invalid transfer column keys.');
+            }
+            $reference = $column['reference'] ?? null;
+            if ($reference !== null && (! is_array($reference) || array_keys($reference) !== ['resource', 'match_by', 'identifier']
+                || array_filter($reference, 'is_string') !== $reference)) {
+                throw new InvalidArgumentException('Invalid transfer reference.');
+            }
+            foreach (['export_sensitive', 'export_requires_purpose', 'export_requires_fresh_authentication'] as $key) {
+                if (isset($column[$key]) && $column[$key] !== true) {
+                    throw new InvalidArgumentException('Invalid transfer export flag.');
+                }
+            }
+            if (isset($column['export_permission']) && ! is_string($column['export_permission'])) {
+                throw new InvalidArgumentException('Invalid transfer export permission.');
+            }
+            if (isset($column['template_header']) && ! is_string($column['template_header'])) {
+                throw new InvalidArgumentException('Invalid transfer template header.');
+            }
+
+            $schema = $schema->add(
+                $column['key'], $column['label'], $column['type'], $column['required'],
+                $column['importable'], $column['exportable'], $column['unique_import_key'],
+                $column['export_permission'] ?? null, $column['export_sensitive'] ?? false,
+                $column['export_requires_purpose'] ?? false, $column['export_requires_fresh_authentication'] ?? false,
+                $reference, $column['template_header'] ?? null,
+            );
+        }
+        if (\Nexia\Support\CanonicalPayloadFingerprint::sha256($schema->toArray())
+            !== \Nexia\Support\CanonicalPayloadFingerprint::sha256($data)) {
+            throw new InvalidArgumentException('Noncanonical transfer schema.');
+        }
+
+        return $schema;
+    }
+
     public function field(
         string $key,
         ?string $label = null,

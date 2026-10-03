@@ -46,6 +46,7 @@ $tenant = new class implements \Nexia\Tenancy\Contracts\TenantIdentity {
 foreach ([
     ['process.work', new \Nexia\Process\ProcessWorkActionInvocation('sample', 'finish', '1', 'process', 1, 'once', $entity, $actor, $ref, [], resourceInputs: ['one' => $ref, 'many' => [$ref]])],
     ['process.user_task', new \Nexia\Process\ProcessUserTaskSubmissionInvocation('sample', 'submit', 'sample.form', '1', 'process', 1, 'task', 'once', $entity, $actor, $ref, [])],
+    ['approval.subject', new \Nexia\Approval\Resolver\ResolverContext($actor, $entity, $ref, subjectActor: $actor)],
     ['approval.resolve', new \Nexia\Approval\Resolver\ResolverContext($actor, $entity, $ref, subjectActor: $actor)],
     ['signature.data', new \Nexia\Signature\SignatureDocumentDataQuery($tenant, $entity, $actor,
         \Nexia\Signature\SignatureDocumentDataPurpose::SignatureRequestPreparation, 'sample', 'sample.document', 1, $ref,
@@ -92,3 +93,13 @@ $action = new \Nexia\SelfService\SelfServiceActionItem('sample.next', 'onboardin
 assert(PlatformCallbackWire::result([$context])[0]['legalEntity'] === $entity->publicId());
 assert(PlatformCallbackWire::result([$action])[0]['returnTarget']['workContext'] === $ref->toArray());
 assert(PlatformCallbackWire::restoreResult('self.contexts', PlatformCallbackWire::result([$context]))[0]['resource'] === $ref->toArray());
+
+foreach ([['actor_key' => 1], ['actor_key' => null]] as $result) {
+    assert(PlatformCallbackWire::restoreResult('approval.subject', $result) === $result);
+}
+foreach ([[], ['actor_key' => 0], ['actor_key' => '1'], ['actor_key' => 1, 'extra' => true]] as $result) {
+    try {
+        PlatformCallbackWire::restoreResult('approval.subject', $result);
+        throw new LogicException('Invalid subject actor result accepted.');
+    } catch (InvalidArgumentException) {}
+}

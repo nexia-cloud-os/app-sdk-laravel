@@ -13,6 +13,16 @@ final class StandardCatalogPolicy
             return; // Existing Catalog v1 producers retain their current compatibility path.
         }
         RuntimeRequirements::validate($catalog['requirements'], $catalog['app_key']);
+        if (isset($catalog['work'])) {
+            if (! is_array($catalog['work'])) {
+                throw new CatalogValidationException('catalog_reference_invalid');
+            }
+            try {
+                \Nexia\AsyncWork\AppWorkCatalog::validateWire($catalog['work'], $catalog['app_key']);
+            } catch (\InvalidArgumentException) {
+                throw new CatalogValidationException('catalog_reference_invalid');
+            }
+        }
         $permissions = array_column($catalog['permissions'], null, 'key');
         $resources = array_column($catalog['resources'], null, 'key');
         $bindings = [];
@@ -24,7 +34,7 @@ final class StandardCatalogPolicy
             $bindings[$identity] = $binding;
         }
         foreach ($catalog['contracts'] ?? [] as $resource) {
-            if (($resource['version'] ?? null) !== '1.0') {
+            if (! is_string($resource['version'] ?? null) || $resource['version'] === '' || strlen($resource['version']) > 80) {
                 throw new CatalogValidationException('catalog_contract_unsupported');
             }
             foreach ($resource['actions'] ?? [] as $action) {
@@ -33,18 +43,27 @@ final class StandardCatalogPolicy
                 }
             }
             foreach ($resource['events'] ?? [] as $event) {
-                if (($event['schema_version'] ?? null) !== 1) {
+                if (! is_int($event['schema_version'] ?? null) || $event['schema_version'] < 1) {
                     throw new CatalogValidationException('catalog_contract_unsupported');
                 }
             }
         }
         foreach ($catalog['standalone_events'] ?? [] as $event) {
-            if (($event['schema_version'] ?? null) !== 1) {
+            if (! is_int($event['schema_version'] ?? null) || $event['schema_version'] < 1) {
                 throw new CatalogValidationException('catalog_contract_unsupported');
             }
         }
         foreach ($catalog['actions'] ?? [] as $entry) {
             $action = $entry['definition'];
+            if (isset($action['execution'])) {
+                $execution = \Nexia\Actions\ActionExecutionContract::fromArray($action['execution']);
+                if ($execution->available) {
+                    \Nexia\Actions\ActionDefinition::fromArray($action);
+                    if (! in_array('action.sync', $catalog['requirements']['required_capabilities'], true)) {
+                        throw new CatalogValidationException('catalog_contract_unsupported');
+                    }
+                }
+            }
             $binding = $bindings[$entry['key'].':action'] ?? null;
             if (! isset($permissions[$action['permission']])
                 || ($permissions[$action['permission']]['lifecycle'] ?? null) !== 'active'
