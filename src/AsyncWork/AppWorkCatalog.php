@@ -79,7 +79,8 @@ final class AppWorkCatalog
         }
         $schedules = [];
         foreach ($catalog['schedules'] as $schedule) {
-            if (! is_array($schedule) || array_keys($schedule) !== ['key', 'work_key', 'cron', 'payload']
+            if (! is_array($schedule) || count($schedule) !== 4
+                || array_diff(array_keys($schedule), ['key', 'work_key', 'cron', 'payload']) !== []
                 || ! is_string($schedule['key']) || ! str_starts_with($schedule['key'], $prefix)
                 || ! is_string($schedule['work_key']) || ! isset($work[$schedule['work_key']])
                 || ! is_string($schedule['cron']) || ! is_array($schedule['payload']) || isset($schedules[$schedule['key']])

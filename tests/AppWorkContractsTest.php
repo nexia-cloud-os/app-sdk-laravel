@@ -54,6 +54,17 @@ $dispatcher = new AppWorkContractsDispatcher;
 $dispatcher->dispatch('fixture.reconcile', ['cursor' => null], 'fixture:cursor:root');
 assert($dispatcher->dispatched === [['key' => 'fixture.reconcile', 'payload' => ['cursor' => null], 'idempotency_key' => 'fixture:cursor:root']]);
 AppWorkCatalog::validateWire($catalog, 'fixture');
+$stored = $catalog;
+ksort($stored['schedules'][0]);
+AppWorkCatalog::validateWire($stored, 'fixture');
+foreach (['key', 'work_key', 'cron', 'payload'] as $field) {
+    $missing = $stored;
+    unset($missing['schedules'][0][$field]);
+    appWorkContractMustFail(fn () => AppWorkCatalog::validateWire($missing, 'fixture'), 'catalog is invalid');
+}
+$unexpected = $stored;
+$unexpected['schedules'][0]['handler'] = 'UntrustedHandler';
+appWorkContractMustFail(fn () => AppWorkCatalog::validateWire($unexpected, 'fixture'), 'catalog is invalid');
 AppWorkCatalog::validateWire(['work' => [['key' => 'fixture.legacy']], 'schedules' => []], 'fixture');
 
 appWorkContractMustFail(
