@@ -37,6 +37,10 @@ final class PlatformDescriptorWire
             return ['type' => $type, 'data' => $descriptor->toArray()];
         }
         $data = get_object_vars($descriptor);
+        // Keep existing non-copy binding envelopes canonical across SDK upgrades.
+        if ($descriptor instanceof ApprovalFormBindingDescriptor && ! $descriptor->supportsDocumentCopy) {
+            unset($data['supportsDocumentCopy']);
+        }
         if (! $descriptor instanceof ProcessTemplateDescriptor && ! $descriptor instanceof ProcessUserTaskFormDescriptor
             && ! $descriptor instanceof DecisionResultTemplateDescriptor && ! $descriptor instanceof SlotWidgetDescriptor) unset($data['key']);
         if ($descriptor instanceof DecisionResultTemplateDescriptor) {

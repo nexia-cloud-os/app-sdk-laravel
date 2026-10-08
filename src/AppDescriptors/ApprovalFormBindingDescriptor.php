@@ -56,6 +56,9 @@ final class ApprovalFormBindingDescriptor implements AppDescriptor
         // Some bindings include mandatory work and configurable conditions; only
         // their contributed contexts are editable, never a blanket bypass.
         public readonly bool $requirementPolicyContextsOnly = false,
+        // Opt in only when the create widget can authorize and import a source
+        // resource into an independent App draft, never reuse the source handle.
+        public readonly bool $supportsDocumentCopy = false,
     ) {
         if (trim($appKey) === '') {
             throw new \InvalidArgumentException('ApprovalFormBindingDescriptor app_key must be a non-empty string.');

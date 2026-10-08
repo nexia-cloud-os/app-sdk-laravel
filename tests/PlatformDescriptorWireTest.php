@@ -11,6 +11,8 @@ use Nexia\AppDescriptors\ApprovalRoutePolicyPresetDescriptor;
 use Nexia\Approval\Domain\ApprovalRoutePolicyStep;
 
 foreach ([
+    new \Nexia\AppDescriptors\ApprovalFormBindingDescriptor('sample', 'record', 'submit', 'sample.submit', ['create'], 'sample.submit', 'sample.record'),
+    new \Nexia\AppDescriptors\ApprovalFormBindingDescriptor('sample', 'record', 'submit', 'sample.submit', ['create'], 'sample.submit', 'sample.record', supportsDocumentCopy: true),
     new \Nexia\AppDescriptors\PerformanceMeasurementSourceDescriptor('sample.record', '1', [
         new \Nexia\AppDescriptors\PerformanceMeasurementDefinition('count', '1', 'sample.count', 'count',
             \Nexia\AppDescriptors\PerformanceMeasurementValueType::Integer, \Nexia\AppDescriptors\PerformanceMeasurementTimeSemantics::Period),
