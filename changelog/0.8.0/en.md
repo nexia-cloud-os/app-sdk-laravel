@@ -15,5 +15,3 @@ description: Native v2 Apps, isolated data contracts and host-governed actions.
 ## Contracts
 - Add App-scoped database connections, external-writer provisioning, asynchronous work and schedule catalogs, versioned synchronous actions, and scoped Backend settings.
 - Preserve validated reference snapshots, import-file capabilities and transfer schema/model declarations across runtime boundaries. Hyphenated App widget identifiers and signed approval/subject contracts work through the shared catalog.
-
-Publish this PHP artifact independently of React 0.8.0, then adopt the verified artifacts and rebuilt Apps in Core's committed locks. A source checkout or local alias is not a published release.

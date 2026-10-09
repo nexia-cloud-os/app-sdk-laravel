@@ -11,7 +11,6 @@ description: 현재 Composition 계약과 업무 알림 및 자동승인 계약�
 - SDK 배포 경로를 비공개 Composer 소스용 GitHub(`nexia-cloud-os/app-sdk-laravel`)와 `@amuzcorp/nexia-app-sdk-react`용 공개 npmjs로 옮깁니다. 기존 `0.5.0` artifact의 버전과 내용은 유지합니다. 사용 환경의 registry·저장소 설정을 갱신하세요. npm 다운로드에는 토큰이 필요 없고 비공개 Composer 소스에는 GitHub 접근 권한이 필요합니다.
 
 - Resource Composition은 이제 단일 현대식 `schema_version: 1` wire 계약을 사용합니다. graph `relationships`, `population`, typed `where` predicate와 현대식 result 필드를 필수로 하며, 행 결과에는 `row_source`도 필요합니다.
-- React SDK의 `packages/react`에서 `pnpm run build:watch`로 소스 변경을 감시할 수 있습니다. 변경된 소스를 공개 `dist` export에 반영하고, 타입 오류를 표시하며 수정 후 다시 빌드합니다. Core는 로컬 SDK 소스를 선택했을 때 이 감시를 Vite와 함께 실행할 수 있습니다. 배포 패키지명과 공개 export는 유지합니다.
 - `ResourceReferenceResolutionContext`에 범위가 제한된 소유자 정의 선택기 필터와 정렬을 전달할 수 있습니다. 리소스 제공자는 이를 페이지네이션 전에 처리할 수 있으며, 새 인자는 선택 사항이므로 기존 생성 코드는 호환됩니다.
 
 ## 제거

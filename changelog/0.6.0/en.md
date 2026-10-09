@@ -11,7 +11,6 @@ description: Release the current composition contract, notifications, and automa
 - SDK distribution moves to GitHub (`nexia-cloud-os/app-sdk-laravel`) for private Composer source and public npmjs for `@amuzcorp/nexia-app-sdk-react`. Existing `0.5.0` artifacts retain their versions and content. Consumers update registry/repository configuration; npm downloads need no token, while private Composer source still requires GitHub access.
 
 - Resource Composition now has one modern `schema_version: 1` wire contract. It requires graph `relationships`, `population`, typed `where` predicates, and the modern result fields; row results additionally require `row_source`.
-- React SDK source development supports `pnpm run build:watch` from `packages/react`. It updates the public `dist` exports as source changes, reports type errors, and resumes after corrections. Core can run this watcher with Vite when the local SDK source is selected. Published package names and exports are unchanged.
 - `ResourceReferenceResolutionContext` accepts bounded, owner-defined selector filters and sorting so a resource provider can apply them before pagination. Existing constructors remain compatible because the new arguments are optional.
 
 ## Removed
