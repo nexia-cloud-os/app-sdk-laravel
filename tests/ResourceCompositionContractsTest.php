@@ -10,6 +10,36 @@ use Nexia\ResourceComposition\CompositionSpecValidationException;
 
 require dirname(__DIR__).'/vendor/autoload.php';
 
+$declared = [
+    'public_id' => ['type' => 'uuid'],
+    'status' => ['type' => 'string', 'enum' => ['active'], 'enum_labels' => ['active' => 'status.active']],
+    'amount' => ['type' => 'decimal', 'nullable' => true, 'composition' => ['selectable' => true, 'aggregations' => ['sum', 'invalid'], 'required_dimensions' => ['currency']]],
+    'worker_public_id' => ['type' => 'resource_reference', 'composition' => ['relationship_binding' => true]],
+    'department_public_id' => ['type' => 'resource_reference', 'accepted_resource_keys' => ['trial.department']],
+    'polymorphic_public_id' => ['type' => 'resource_reference', 'accepted_resource_keys' => ['trial.person', 'trial.organization']],
+    'derived_reference' => ['type' => 'resource_reference', 'derived' => true, 'accepted_resource_keys' => ['trial.department']],
+    'secret_token' => ['type' => 'string', 'composition' => ['selectable' => true]],
+    'worker_id' => ['type' => 'integer', 'composition' => ['selectable' => true]],
+    'virtual' => ['type' => 'string', 'composition' => ['selectable' => true]],
+    'derived' => ['type' => 'string', 'derived' => true, 'composition' => ['selectable' => true]],
+    'private_value' => ['type' => 'string'],
+];
+$resolved = array_fill_keys(array_keys($declared), ['field_source' => 'descriptor', 'queryable' => true]);
+$resolved['virtual']['queryable'] = false;
+$normalized = Nexia\ResourceComposition\DescriptorCompositionFields::build($declared, $resolved, ['status' => 'status.label'],
+    static fn (string $key): ?string => ['status.active' => 'Active'][$key] ?? null);
+$byKey = array_column($normalized, null, 'key');
+assert(array_keys($byKey) === ['public_id', 'status', 'amount', 'worker_public_id', 'department_public_id']);
+assert($byKey['public_id']['selectable'] === true);
+assert($byKey['status']['selectable'] === false && $byKey['status']['operators'] === ['eq', 'in']);
+assert($byKey['status']['enum_labels'] === ['active' => 'Active'] && $byKey['status']['label'] === 'status.label');
+assert($byKey['amount']['nullable'] === true && $byKey['amount']['aggregations'] === ['sum']);
+assert($byKey['amount']['required_dimensions'] === ['currency']);
+assert($byKey['worker_public_id']['selectable'] === false && $byKey['worker_public_id']['relationship_binding'] === true);
+assert($byKey['department_public_id']['selectable'] === false && $byKey['department_public_id']['operators'] === []);
+assert($byKey['department_public_id']['relationship_binding'] === true && $byKey['department_public_id']['reference_resource_key'] === 'trial.department');
+assert($byKey['department_public_id']['label'] === 'department_public_id');
+
 $query = new Builder(new Illuminate\Database\Query\Builder(new Connection(null)));
 $fields = [
     'amount' => ['alias' => 'amount', 'type' => 'decimal', 'aggregations' => ['sum', 'avg'], 'unit' => 'currency', 'required_dimensions' => ['currency']],
