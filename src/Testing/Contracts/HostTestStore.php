@@ -17,6 +17,9 @@ interface HostTestStore
     public function syncRolesToLegalEntity(LegalEntity $legalEntity): void;
 
     /** @param array<string, mixed> $attributes */
+    public function createBpmnDocument(array $attributes): HostTestRecord;
+
+    /** @param array<string, mixed> $attributes Includes bpmn_document_id and bpmn_process_id. */
     public function createProcessDefinition(array $attributes): HostTestRecord;
 
     /** @param array<string, mixed> $attributes */

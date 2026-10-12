@@ -8,7 +8,7 @@ use Nexia\AppDescriptors\Contracts\AppDescriptor;
 
 /**
  * App-neutral binding from a stable App business intent to an executable
- * Process definition key. Apps never receive or persist Core database ids.
+ * process in an authored document. Apps never receive or persist Core database ids.
  */
 final class ProcessStartBindingDescriptor implements AppDescriptor
 {
@@ -17,7 +17,7 @@ final class ProcessStartBindingDescriptor implements AppDescriptor
     public function __construct(
         public readonly string $appKey,
         public readonly string $bindingKey,
-        public readonly string $definitionKey,
+        public readonly string $documentKey,
         public readonly string $processId,
         public readonly string $resourceKey,
         public readonly string $startPermissionKey,
@@ -28,7 +28,7 @@ final class ProcessStartBindingDescriptor implements AppDescriptor
         foreach ([
             'app_key' => $appKey,
             'binding_key' => $bindingKey,
-            'definition_key' => $definitionKey,
+            'document_key' => $documentKey,
             'process_id' => $processId,
             'resource_key' => $resourceKey,
             'start_permission_key' => $startPermissionKey,
@@ -43,8 +43,8 @@ final class ProcessStartBindingDescriptor implements AppDescriptor
         if (! str_starts_with($resourceKey, $appKey.'.')) {
             throw new \InvalidArgumentException('Process start binding resource_key must be owned by app_key.');
         }
-        if (! str_starts_with($definitionKey, $appKey.'.')) {
-            throw new \InvalidArgumentException('Process start binding definition_key must be owned by app_key.');
+        if (! str_starts_with($documentKey, $appKey.'.')) {
+            throw new \InvalidArgumentException('Process start binding document_key must be owned by app_key.');
         }
         if (! str_starts_with($startPermissionKey, $appKey.'.')) {
             throw new \InvalidArgumentException('Process start binding start_permission_key must be owned by app_key.');

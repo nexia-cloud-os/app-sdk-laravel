@@ -53,7 +53,7 @@ $coreProcess = new ProcessTemplateDescriptor(
 $startBinding = new ProcessStartBindingDescriptor(
     appKey: 'sample',
     bindingKey: 'expense-report',
-    definitionKey: 'sample.expense-report',
+    documentKey: 'sample.expense-report',
     processId: 'expense_report_process',
     resourceKey: 'sample.expense_report',
     startPermissionKey: 'sample.expense_report.submit',

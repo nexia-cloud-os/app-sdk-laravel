@@ -217,7 +217,7 @@ foreach ([
     ResourceSummaries::class => ['resolve', 'summarize'],
     ApprovalTestHost::class => ['createCase', 'caseCount', 'publishBusinessTemplate', 'approve'],
     ContributionTestHost::class => ['permissionDefinitions', 'rolePresets', 'pageElements', 'agentManifest'],
-    HostTestStore::class => ['createProcessDefinition', 'createProcessInstance', 'createProcessToken', 'createFile'],
+    HostTestStore::class => ['createBpmnDocument', 'createProcessDefinition', 'createProcessInstance', 'createProcessToken', 'createFile'],
     ImportPlanProvider::class => ['planFor'],
     MutationPublisher::class => ['resourceChanged', 'actionSucceeded'],
     LegalEntityMemberSelfAccessContribution::class => ['legalEntityMemberSelfAccessKeys'],

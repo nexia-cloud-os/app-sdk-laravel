@@ -47,6 +47,32 @@ foreach ([
 }
 echo "Platform descriptor boundary passed.\n";
 
+// The catalog uses the same document locator as the PHP descriptor.
+$storedProcessStart = [
+    'type' => 'process_start',
+    'data' => [
+        'appKey' => 'sample',
+        'bindingKey' => 'start',
+        'documentKey' => 'sample.process',
+        'processId' => 'process',
+        'resourceKey' => 'sample.record',
+        'startPermissionKey' => 'sample.record.start',
+        'labelKey' => 'sample.start',
+        'version' => '1.0',
+        'status' => 'active',
+    ],
+];
+$decodedStart = PlatformDescriptorWire::decode($storedProcessStart, 'sample');
+assert($decodedStart instanceof ProcessStartBindingDescriptor);
+assert($decodedStart->documentKey === 'sample.process');
+assert(json_encode(PlatformDescriptorWire::encode($decodedStart)) === json_encode($storedProcessStart));
+
+$ambiguousStart = $storedProcessStart;
+$ambiguousStart['data']['definitionKey'] = 'sample.different';
+$rejected = false;
+try { PlatformDescriptorWire::decode($ambiguousStart, 'sample'); } catch (Throwable) { $rejected = true; }
+assert($rejected);
+
 foreach ([['foreign.issue'], [], ['sample.issue', 'sample.issue'], ['sample.issue*'], [null]] as $permissions) {
     $rejected = false;
     try { new \Nexia\AppDescriptors\OfficialSealUseDescriptor('sample', 'sample.document.issued', $permissions); }
