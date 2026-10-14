@@ -175,3 +175,30 @@ cannot recall an external request or plaintext already acquired by in-flight cod
 Do not retain `SettingValue` or captured plaintext in a shared cache, job payload,
 log, exception, frontend response or static property. JSON/debug metadata contains
 only `configured` and `version`; serialization is refused.
+
+### External HTTP and MCP operations
+
+Resolve `Nexia\Integrations\Contracts\ExternalIntegrations` to execute a registered
+operation shared with your App. Core retains the endpoint and credentials; Apps
+pass an operation public ID, validated business input, and a stable idempotency key.
+The current actor must have permission to use the connection. Matching Core and
+container runtime support must be adopted with this SDK contract.
+
+Call `submit()` after your App transaction commits, preferably from durable App
+work. Declare `integration.submit` and `integration.result` in that work handler's
+`platform_callbacks`. Submission inside an App transaction is rejected because an
+App rollback cannot undo a Core receipt or external effect.
+
+```php
+$integrations = app(\Nexia\Integrations\Contracts\ExternalIntegrations::class);
+$id = $integrations->submit($actor, $operationId, ['order' => $orderReference], $requestKey);
+$result = $integrations->result($actor, $id);
+```
+
+Submission returns an execution ID, not external success. Results can be `queued`,
+`running`, `retrying` (signed webhooks), `succeeded`, `failed`, `cancelled`, or `unknown`; only the original App
+and actor with current connection access can retrieve them. Identical submissions
+reuse the same execution. Reusing the key with changed input is rejected.
+`unknown` means the external effect may have occurred: reconcile with the provider
+before explicitly starting another request. Revocation prevents subsequent use;
+it cannot recall a request already sent. Do not log returned business data.
