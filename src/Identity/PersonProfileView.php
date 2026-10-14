@@ -17,5 +17,6 @@ final readonly class PersonProfileView
         public ?string $contactPhone,
         public ?array $address,
         public string $version,
+        public ?string $birthDate = null,
     ) {}
 }
