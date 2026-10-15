@@ -288,3 +288,31 @@ importContractMustFail(
 );
 
 fwrite(STDOUT, "Resource Import contracts are valid.\n");
+
+
+$wire = \Nexia\ResourceImport\ImportPipelineWire::definition(validPipelineDefinition());
+assert(! array_key_exists('handlerClass', $wire));
+assert(\Nexia\ResourceImport\ImportPipelineWire::definition(
+    \Nexia\ResourceImport\ImportPipelineWire::restoreDefinition($wire, ResourceImportContractsPipeline::class),
+) === $wire);
+foreach (['handlerClass', 'unknown'] as $field) {
+    importContractMustFail(fn () => \Nexia\ResourceImport\ImportPipelineWire::restoreDefinition(
+        [...$wire, $field => 'foreign.handler'], ResourceImportContractsPipeline::class,
+    ), 'Invalid pipeline wire fields.');
+}
+$missing = $wire;
+unset($missing['schema']);
+importContractMustFail(fn () => \Nexia\ResourceImport\ImportPipelineWire::restoreDefinition(
+    $missing, ResourceImportContractsPipeline::class,
+), 'Invalid pipeline wire fields.');
+$state = new \Nexia\ResourceImport\ImportBatchState(
+    batchId: 'batch-1', stage: \Nexia\ResourceImport\ImportStage::Received, applyEligible: false,
+    rowCount: 1, normalizedRows: [['key' => '001']],
+);
+$stateWire = \Nexia\ResourceImport\ImportPipelineWire::state($state);
+assert(\Nexia\ResourceImport\ImportPipelineWire::state(
+    \Nexia\ResourceImport\ImportPipelineWire::restoreState($stateWire),
+) === $stateWire);
+importContractMustFail(fn () => \Nexia\ResourceImport\ImportPipelineWire::restoreState(
+    [...$stateWire, 'rowCount' => -1],
+), 'Invalid pipeline result counts.');
