@@ -15,8 +15,7 @@ interface OrganizationWritePreconditions
      * Identical registration is repeatable; changing predicates for the same target/date is rejected.
      * The combined Party/organization target limit is 100 per request.
      *
-     * Core rechecks selected predicates under locks at completion. A shared Composer transaction
-     * retains locks and rolls back a conflict before commit. Isolated connections may retain
+     * Core rechecks selected predicates under locks at completion. Isolated connections may retain
      * committed App data and require review. Never assume shared Core/App atomicity.
      * Returning confirms registration, not final save success.
      * Unsupported contexts reject; this does not replace OrganizationDirectory lock methods.

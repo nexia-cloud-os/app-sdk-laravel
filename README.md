@@ -144,9 +144,9 @@ Isolated App reports feed complete, owner-authorized public Resource projections
 
 ## Shared host compatibility
 
-Composer Apps retain the `HasMedia` and owner-authorization interfaces. A host
-that owns local media storage must call `NexiaModel::enableLocalMedia()` in its
-provider registration before any model boots. Isolated App hosts must leave it
+Core-owned models retain the `HasMedia` and owner-authorization interfaces. Core
+registers local media storage by calling `NexiaModel::enableLocalMedia()` in its
+provider registration before any model boots. App runtimes must leave it
 disabled: local media relations fail closed and model deletion does not query a
 local media table. Use existing attachment host contracts in isolated Apps.
 Apps require the canonical `nexia-cloud-os/sdk-laravel` package. Previous Composer
@@ -155,9 +155,10 @@ package names are not aliases; dependency locks must use the canonical identity.
 ### Scoped Backend settings
 
 Declare `SettingDefinition` entries through `SettingsContribution` and require
-`settings.read` in the Runtime requirements. Both Core Composer execution and the selected isolated Runtime implement
+`settings.read` in the Runtime requirements. The selected isolated Runtime implements
 `Nexia\Settings\Contracts\AppSettings`; the host determines the App, Tenant and
-environment. Core resolves the same declarations from the selected Composer App and preserves existing settings APIs. Reads require an authenticated actor and an active, host-selected App execution scope; they never infer another App from a caller-supplied key.
+environment. Core reads declarations from the accepted runtime catalog and
+preserves the existing settings APIs. Reads require an authenticated actor and an active, host-selected App execution scope; they never infer another App from a caller-supplied key.
 
 ```php
 $value = app(\Nexia\Settings\Contracts\AppSettings::class)

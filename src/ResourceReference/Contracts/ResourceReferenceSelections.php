@@ -12,8 +12,7 @@ use Nexia\ResourceReference\ResourceReferenceSelectionResult;
 interface ResourceReferenceSelections
 {
     /**
-     * Write resolution requires a caller-owned database transaction. Composer retains Party
-     * merge/row locks in that transaction. Isolated execution records a completion condition;
+     * Write resolution records a completion condition for the selected App execution;
      * a later conflict may retain App data and require review, never a shared rollback.
      */
     public function resolve(

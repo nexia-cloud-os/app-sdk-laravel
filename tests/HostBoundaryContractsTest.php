@@ -35,7 +35,6 @@ use Nexia\Laravel\Access\Contracts\TenantPermissionSnapshotAuthorizer;
 use Nexia\Laravel\Identity\Contracts\PartyDirectory;
 use Nexia\Laravel\Models\Contracts\HostReferenceResolver;
 use Nexia\ResourceReference\Contracts\ReferenceAvailability;
-use Nexia\Laravel\Testing\Contracts\HostTestModelStore;
 use Nexia\Mutation\Contracts\MutationPublisher;
 use Nexia\Navigation\Contracts\NavigationDestinations;
 use Nexia\Organization\Contracts\LegalEntity;
@@ -62,7 +61,6 @@ use Nexia\Signature\SignatureBulkBindingReauthorizationResult;
 use Nexia\Tenancy\Contracts\TenantSettings;
 use Nexia\Testing\Contracts\ApprovalTestHost;
 use Nexia\Testing\Contracts\ContributionTestHost;
-use Nexia\Testing\Contracts\HostTestStore;
 
 require dirname(__DIR__).'/vendor/autoload.php';
 
@@ -163,8 +161,6 @@ foreach ([
     AssignmentGroups::class,
     ApprovalTestHost::class,
     ContributionTestHost::class,
-    HostTestStore::class,
-    HostTestModelStore::class,
     ImportPlanProvider::class,
     MutationPublisher::class,
     LegalEntityMemberSelfAccessContribution::class,
@@ -217,7 +213,6 @@ foreach ([
     ResourceSummaries::class => ['resolve', 'summarize'],
     ApprovalTestHost::class => ['createCase', 'caseCount', 'publishBusinessTemplate', 'approve'],
     ContributionTestHost::class => ['permissionDefinitions', 'rolePresets', 'pageElements', 'agentManifest'],
-    HostTestStore::class => ['createBpmnDocument', 'createProcessDefinition', 'createProcessInstance', 'createProcessToken', 'createFile'],
     ImportPlanProvider::class => ['planFor'],
     MutationPublisher::class => ['resourceChanged', 'actionSucceeded'],
     LegalEntityMemberSelfAccessContribution::class => ['legalEntityMemberSelfAccessKeys'],

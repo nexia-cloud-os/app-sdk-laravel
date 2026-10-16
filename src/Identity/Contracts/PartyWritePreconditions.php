@@ -13,8 +13,7 @@ interface PartyWritePreconditions
      * is repeatable; changing an existing target's conditions is rejected.
      *
      * Only selected predicates are checked now and under Core locks at final completion.
-     * With a shared Composer transaction, the host retains locks and rolls back a mismatch
-     * before commit. Across isolated connections, a later mismatch needs review and App
+     * Across isolated connections, a later mismatch needs review and App
      * data may already exist. Never assume shared locks or atomic Core/App rollback.
      * Returning confirms registration, not final save success.
      * Unsupported execution contexts must reject, never fall back to an ordinary lookup.
