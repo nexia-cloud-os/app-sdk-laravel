@@ -58,6 +58,21 @@ try {
     $reader = new AppPackageMetadataReader;
     assert($reader->declaration($packagePath) === $declaration);
     assert($reader->read($packagePath)->appKey === $definition->appKey);
+    $contract = '2026_10_18_000001_add_document_reference';
+    $phased = [...$declaration, 'tenant_migration_phases' => ['contract' => [$contract]]];
+    assert($reader->declarationFromJson('{"name":"example/sample"}', json_encode($phased, JSON_THROW_ON_ERROR)) === $phased);
+    assert(! array_key_exists('tenant_migration_phases', $reader->declarationFromJson('{"name":"example/sample"}', json_encode($declaration, JSON_THROW_ON_ERROR))));
+    foreach ([null, [], ['expand' => []], ['contract' => null], ['contract' => [$contract, $contract]],
+        ['contract' => ['../'.$contract]], ['contract' => [$contract.'.php']], ['contract' => [1]],
+        ['contract' => ['arbitrary']], ['contract' => [], 'unknown' => []]] as $phases) {
+        $rejected = false;
+        try {
+            $reader->declarationFromJson('{"name":"example/sample"}', json_encode([...$declaration, 'tenant_migration_phases' => $phases], JSON_THROW_ON_ERROR));
+        } catch (RuntimeException) {
+            $rejected = true;
+        }
+        assert($rejected, 'Malformed migration phases must be rejected.');
+    }
     foreach ([['core_version' => null], ['core_version' => ''], ['test_paths' => 'tests'],
         ['test_paths' => ['../tests']], ['test_paths' => ['/tests']], ['test_paths' => ['tests/../other']],
         ['test_paths' => ['tests\\other']], ['unknown' => true]] as $invalidFields) {

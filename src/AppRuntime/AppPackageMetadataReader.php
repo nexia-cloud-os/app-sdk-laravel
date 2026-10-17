@@ -101,8 +101,25 @@ final class AppPackageMetadataReader
         if (! is_array($metadata) || array_is_list($metadata)) {
             throw new RuntimeException('nexia.json must declare an app object.');
         }
-        if (array_diff(array_keys($manifest), ['schema_version', 'runtime', 'app', 'core_version', 'test_paths', 'navigation', 'platform']) !== []) {
+        if (array_diff(array_keys($manifest), ['schema_version', 'runtime', 'app', 'core_version', 'test_paths', 'navigation', 'platform', 'tenant_migration_phases']) !== []) {
             throw new RuntimeException('Unsupported nexia.json field.');
+        }
+        if (array_key_exists('tenant_migration_phases', $manifest)) {
+            $phases = $manifest['tenant_migration_phases'];
+            if (! is_array($phases) || array_keys($phases) !== ['contract']
+                || ! is_array($phases['contract']) || ! array_is_list($phases['contract'])
+                || count($phases['contract']) > 1000) {
+                throw new RuntimeException('tenant_migration_phases must declare a bounded contract migration list.');
+            }
+            $seen = [];
+            foreach ($phases['contract'] as $migration) {
+                if (! is_string($migration) || strlen($migration) > 255
+                    || ! preg_match('/\A\d{4}_\d{2}_\d{2}_\d{6}_[a-z0-9_]+\z/D', $migration)
+                    || isset($seen[$migration])) {
+                    throw new RuntimeException('Contract migrations must be unique migration basenames without a path or .php extension.');
+                }
+                $seen[$migration] = true;
+            }
         }
         if (array_key_exists('platform', $manifest)) {
             if (! is_array($manifest['platform'])) {

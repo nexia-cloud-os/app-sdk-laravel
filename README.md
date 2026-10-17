@@ -203,3 +203,22 @@ reuse the same execution. Reusing the key with changed input is rejected.
 `unknown` means the external effect may have occurred: reconcile with the provider
 before explicitly starting another request. Revocation prevents subsequent use;
 it cannot recall a request already sent. Do not log returned business data.
+
+## Staged tenant migrations
+
+PHP SDK 0.10.1 accepts an optional `tenant_migration_phases.contract` list in
+`nexia.json`. List unique migration basenames without `.php`, for example:
+
+```json
+"tenant_migration_phases": {
+  "contract": ["2026_10_18_000001_add_document_reference"]
+}
+```
+
+Use this only with a host and runtime supporting staged migrations. Listed
+migrations run after the previous runtime has retired; all other migrations
+remain in the preparation phase. The new App must keep its ordinary screens
+working until the deferred tables or constraints are ready. The platform binds
+the declaration to the submitted migration files and checksums. This declaration
+does not authorize a developer to bypass retirement or replay uncertain writes.
+Apps without this field retain their existing migration behavior.
