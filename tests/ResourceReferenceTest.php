@@ -374,4 +374,82 @@ try {
     // Expected validation failure.
 }
 
+$calls = [];
+$transport = new \Nexia\ResourceReference\TransportResourceReferences(function (array $body) use (&$calls): array {
+    $calls[] = $body;
+
+    return [];
+});
+assert($transport->resolveMany('sample-owner.worker', [], $resolutionContext) === []);
+assert($calls === []);
+$ids = array_map(static fn (int $id): string => 'worker-'.$id, range(1, 50));
+$transport->resolveMany('sample-owner.worker', [...$ids, ...$ids], $resolutionContext);
+assert(count($calls) === 1 && $calls[0]['resource_ids'] === $ids);
+assert($calls[0]['context']['actor_public_id'] === $actor->publicId());
+assert($calls[0]['context']['purpose'] === $resolutionContext->purpose);
+$transport->resolveMany('sample-owner.worker', array_fill(0, 101, 'worker-one'), $resolutionContext);
+assert(count($calls) === 2 && $calls[1]['resource_ids'] === ['worker-one']);
+$transport->resolveMany('sample-owner.worker', array_map(static fn (int $id): string => 'worker-'.$id, range(1, 100)), $resolutionContext);
+assert(count($calls) === 3 && count($calls[2]['resource_ids']) === 100);
+foreach ([[1], [''], [str_repeat('x', 256)], [...$ids, ...$ids, '']] as $invalidIds) {
+    try {
+        $transport->resolveMany('sample-owner.worker', $invalidIds, $resolutionContext);
+        throw new RuntimeException('Invalid batch must fail before transport.');
+    } catch (InvalidArgumentException) {
+        assert(count($calls) === 3);
+    }
+}
+$chunks = [];
+$transport = new \Nexia\ResourceReference\TransportResourceReferences(static function (array $body) use (&$chunks, $resolutionContext): array {
+    $chunks[] = $body['resource_ids'];
+    $results = [];
+    foreach ($body['resource_ids'] as $id) {
+        if ($id !== 'missing') {
+            $results[$id] = (new ResolvedResourceReference('sample-owner', 'sample-owner.worker', $id, $id, null, [], $resolutionContext->asOf))->snapshot();
+        }
+    }
+
+    return $results;
+});
+$largeIds = array_map(static fn (int $id): string => (string) $id, range(1, 200));
+$large = $transport->resolveMany('sample-owner.worker', [...$largeIds, 'missing', '1'], $resolutionContext);
+assert(array_map('count', $chunks) === [100, 100, 1]);
+assert(count($large) === 200 && $large[101]->resourceId === '101' && ! isset($large['missing']));
+$chunks = [];
+$large = $transport->resolveMany('sample-owner.worker', array_slice($largeIds, 0, 101), $resolutionContext);
+assert(array_map('count', $chunks) === [100, 1] && count($large) === 101);
+$chunks = [];
+$transport = new \Nexia\ResourceReference\TransportResourceReferences(static function (array $body) use (&$chunks): array {
+    $chunks[] = $body['resource_ids'];
+    if (count($chunks) === 2) {
+        throw new RuntimeException('Second batch unavailable.');
+    }
+
+    return [];
+});
+try {
+    $transport->resolveMany('sample-owner.worker', [...$largeIds, 'last'], $resolutionContext);
+    throw new LogicException('A failed batch must not return partial success.');
+} catch (RuntimeException $error) {
+    assert($error->getMessage() === 'Second batch unavailable.' && count($chunks) === 2);
+}
+$transport = new \Nexia\ResourceReference\TransportResourceReferences(static fn (): array => ['worker-01' => $resolved->snapshot()]);
+assert($transport->resolveMany('sample-owner.worker', ['worker-01', 'missing'], $resolutionContext)['worker-01']->resourceId === 'worker-01');
+
+$transport = new \Nexia\ResourceReference\TransportResourceReferences(static function (array $body, Closure $decode) use ($resolved) {
+    return $decode($resolved->snapshot());
+});
+assert($transport->resolve('sample-owner.worker', 'worker-01', $resolutionContext)->snapshot() === $resolved->snapshot());
+$public = ResolvedResourceReference::fromSnapshot($resolved->snapshot());
+$transport = new \Nexia\ResourceReference\TransportResourceReferences(static fn () => $public);
+assert($transport->resolve('sample-owner.worker', 'worker-01', $resolutionContext) === $public);
+$private = new ResolvedResourceReference('sample-owner', 'sample-owner.worker', 'worker-01', 'Worker', null, [], $resolutionContext->asOf, protectedValues: ['secret' => 'private']);
+$transport = new \Nexia\ResourceReference\TransportResourceReferences(static fn () => $private);
+try {
+    $transport->resolve('sample-owner.worker', 'worker-01', $resolutionContext);
+    throw new LogicException('Protected transport objects must fail.');
+} catch (RuntimeException $exception) {
+    assert($exception->getMessage() === 'Invalid SDK resource snapshot.');
+}
+
 fwrite(STDOUT, "Resource reference contract passed.\n");

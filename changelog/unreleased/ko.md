@@ -2,6 +2,7 @@
 status: draft
 ---
 
+
 - sandbox 카탈로그에서도 하이픈이 포함된 앱 식별자를 슬롯 위젯 component 키로 사용할 수 있습니다. Composer 등록과 동일하게 동작하며, 경로·URL·PHP 클래스명은 계속 거부합니다.
 - 결재 대상자 선언과 서명된 callback의 SDK 전송 계약을 추가하여 sandbox에서도 소유 앱이 결재 대상자를 결정할 수 있습니다.
 

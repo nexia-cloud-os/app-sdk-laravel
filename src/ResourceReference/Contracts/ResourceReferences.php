@@ -19,6 +19,11 @@ interface ResourceReferences
     ): ?ResolvedResourceReference;
 
     /**
+     * Resolve one resource and context at a time. The remote transport splits
+     * larger inputs into batches of at most 100 distinct IDs. Empty input needs no transport; duplicate IDs are sent once.
+     * Missing or unauthorized references are omitted. Provider-side SQL batching
+     * depends on ResourceReferenceBatchResolutionContribution.
+     *
      * @param  list<string>  $resourceIds
      * @return array<string, ResolvedResourceReference> References keyed by resource id.
      */

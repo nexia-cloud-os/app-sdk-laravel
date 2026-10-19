@@ -6,6 +6,7 @@ namespace Nexia\ResourceReference;
 
 use Closure;
 use DateTimeImmutable;
+use InvalidArgumentException;
 use Nexia\ResourceReference\Contracts\ResourceReferences;
 use RuntimeException;
 use Throwable;
@@ -13,6 +14,7 @@ use Throwable;
 /** Existing Resource Reference wire contract over a host-owned bounded transport. */
 readonly class TransportResourceReferences implements ResourceReferences
 {
+    /** The host may use the optional second callback to decode public snapshots once. */
     public function __construct(private Closure $send) {}
 
     public function resolve(string $resourceKey, string $resourceId, ResourceReferenceResolutionContext $context): ?ResolvedResourceReference
@@ -24,11 +26,24 @@ readonly class TransportResourceReferences implements ResourceReferences
 
     public function resolveMany(string $resourceKey, array $resourceIds, ResourceReferenceResolutionContext $context): array
     {
+        foreach ($resourceIds as $id) {
+            if (! is_string($id) || $id === '' || mb_strlen($id) > 255) {
+                throw new InvalidArgumentException('Reference IDs must be non-empty strings of at most 255 characters.');
+            }
+        }
+        $resourceIds = array_values(array_unique($resourceIds));
         if ($resourceIds === []) {
             return [];
         }
 
-        return array_map($this->reference(...), $this->request('resolveMany', $resourceKey, $context, ['resource_ids' => $resourceIds]));
+        $references = [];
+        foreach (array_chunk($resourceIds, 100) as $ids) {
+            foreach ($this->request('resolveMany', $resourceKey, $context, ['resource_ids' => $ids]) as $id => $snapshot) {
+                $references[$id] = $this->reference($snapshot);
+            }
+        }
+
+        return $references;
     }
 
     public function search(string $resourceKey, string $query, ResourceReferenceResolutionContext $context, int $limit = 25): array
@@ -85,9 +100,18 @@ readonly class TransportResourceReferences implements ResourceReferences
         );
     }
 
-    private function reference(array $snapshot): ResolvedResourceReference
+    private function reference(array|ResolvedResourceReference $snapshot): ResolvedResourceReference
     {
         try {
+            // Host transports may reuse an already validated public reference.
+            if ($snapshot instanceof ResolvedResourceReference) {
+                if ($snapshot->hasProtectedValues()) {
+                    throw new RuntimeException;
+                }
+
+                return $snapshot;
+            }
+
             return ResolvedResourceReference::fromSnapshot($snapshot);
         } catch (Throwable) {
             throw new RuntimeException('Invalid SDK resource snapshot.');
@@ -108,7 +132,7 @@ readonly class TransportResourceReferences implements ResourceReferences
                 'effective_through' => $context->effectiveThrough?->format(DATE_ATOM),
             ];
         }
-        return ($this->send)($body);
+        return ($this->send)($body, $this->reference(...));
     }
 
 }
