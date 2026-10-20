@@ -21,6 +21,7 @@ final readonly class SignatureBulkBindingExecutionContext
         public ResourceRef $frozenSubject,
         public string $frozenSemanticFingerprint,
         public SignatureBulkBindingExecutionPlan $frozenPlan,
+        public ?string $operationId = null,
     ) {
         if ($template->bindingKey !== $frozenPlan->bindingKey
             || $template->bindingVersion !== $frozenPlan->bindingVersion

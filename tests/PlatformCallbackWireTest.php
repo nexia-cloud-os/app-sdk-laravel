@@ -103,3 +103,39 @@ foreach ([[], ['actor_key' => 0], ['actor_key' => '1'], ['actor_key' => 1, 'extr
         throw new LogicException('Invalid subject actor result accepted.');
     } catch (InvalidArgumentException) {}
 }
+
+// Bulk plans keep protected values inside authenticated transport and bind the restored tenant/entity.
+$bulkTemplate = new \Nexia\Signature\SignatureBulkTemplateProvenance('01900000-0000-7000-8000-000000000001', 1, 'sample.template', str_repeat('a', 64), 'sample.binding', '1.0');
+$bulkPlan = new \Nexia\Signature\SignatureBulkBindingExecutionPlan(
+    $ref, 'sample.binding', '1.0', 1, 'sample.template', ['name' => 'Private synthetic value'],
+    ['signer' => [['display_name' => 'Synthetic']]],
+    [new \Nexia\Signature\SignatureBulkResolvedParticipantAssignment('signer', 1, \Nexia\Signature\SignatureBulkParticipantAssignmentSource::BindingResolved, '01900000-0000-7000-8000-000000000002')],
+    [new \Nexia\Signature\SignatureBulkParticipantSetting('signer', 1, \Nexia\Signature\SignatureInvitationChannel::Email, [\Nexia\Signature\SignatureAuthenticationMethod::EmailOtp])],
+    str_repeat('b', 64), ['name' => \Nexia\Signature\SignatureDataClassification::Restricted],
+);
+$execution = new \Nexia\Signature\SignatureBulkBindingExecutionContext($tenant, $entity, $actor, $bulkTemplate, $ref, str_repeat('b', 64), $bulkPlan, 'signature-bulk:01900000-0000-7000-8000-000000000003:01900000-0000-7000-8000-000000000004');
+foreach ([['signature.bulk.reauthorize', $execution], ['signature.bulk.lifecycle', new \Nexia\Signature\SignatureBulkBindingLifecycleContext($execution, $execution->operationId, 'reserve')]] as [$method, $context]) {
+    $wire = PlatformCallbackWire::input($context);
+    $restored = PlatformCallbackWire::restoreInput($method, $wire, $actor, $entity, tenant: $tenant);
+    assert(PlatformCallbackWire::input($restored) === $wire);
+    $tampered = $wire;
+    if ($method === 'signature.bulk.lifecycle') $tampered['execution']['tenant'] = 'foreign';
+    else $tampered['tenant'] = 'foreign';
+    try {
+        PlatformCallbackWire::restoreInput($method, $tampered, $actor, $entity, tenant: $tenant);
+        throw new LogicException('Foreign bulk tenant accepted.');
+    } catch (InvalidArgumentException) {}
+}
+assert(!str_contains(json_encode($bulkPlan->toArray(), JSON_THROW_ON_ERROR), 'Private synthetic value'));
+try {
+    new \Nexia\Signature\SignatureBulkBindingLifecycleContext($execution, $execution->operationId, 'accepted');
+    throw new LogicException('Incomplete receipt accepted.');
+} catch (InvalidArgumentException) {}
+echo "Bulk callback isolation and lifecycle wire passed.\n";
+
+foreach (['', ' leading', "control\nvalue", str_repeat('x', 192)] as $invalidOperation) {
+    try {
+        new \Nexia\Signature\SignatureBulkBindingLifecycleContext($execution, $invalidOperation, 'reserve');
+        throw new LogicException('Invalid operation identity accepted.');
+    } catch (InvalidArgumentException) {}
+}

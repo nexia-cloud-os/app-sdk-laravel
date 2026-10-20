@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace Nexia\Platform;
 
+use Nexia\Signature\SignatureBulkBindingPreviewContext;
+use Nexia\Signature\SignatureBulkBindingLifecycleContext;
+use Nexia\Signature\SignatureBulkBindingExecutionContext;
+use Nexia\Signature\SignatureBulkBindingPreviewResult;
+use Nexia\Signature\SignatureBulkBindingReauthorizationResult;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use Nexia\Approval\ApprovalWire;
@@ -59,8 +64,9 @@ final class PlatformCallbackWire
             'code' => $entity->code(), 'party_public_id' => $entity->partyPublicId(), 'active' => $entity->isActiveOrganization()];
     }
 
-    public static function input(ProcessWorkActionInvocation|ProcessUserTaskSubmissionInvocation|ResolverContext|SignatureDocumentDataQuery|SelfWorkContextQuery|SelfServiceActionQuery $value): array
+    public static function input(ProcessWorkActionInvocation|ProcessUserTaskSubmissionInvocation|ResolverContext|SignatureDocumentDataQuery|SignatureBulkBindingPreviewContext|SignatureBulkBindingExecutionContext|SignatureBulkBindingLifecycleContext|SelfWorkContextQuery|SelfServiceActionQuery $value): array
     {
+        if ($value instanceof SignatureBulkBindingPreviewContext || $value instanceof SignatureBulkBindingExecutionContext || $value instanceof SignatureBulkBindingLifecycleContext) return SignatureBulkCallbackWire::input($value);
         $data = get_object_vars($value);
         foreach ($data as $key => $item) {
             if ($item instanceof Actor) $data[$key] = self::actor($item);
@@ -77,8 +83,9 @@ final class PlatformCallbackWire
         return $data;
     }
 
-    public static function restoreInput(string $method, array $data, Actor $actor, ?LegalEntity $entity, ?Actor $subjectActor = null, ?TenantIdentity $tenant = null): ProcessWorkActionInvocation|ProcessUserTaskSubmissionInvocation|ResolverContext|SignatureDocumentDataQuery|SelfWorkContextQuery|SelfServiceActionQuery
+    public static function restoreInput(string $method, array $data, Actor $actor, ?LegalEntity $entity, ?Actor $subjectActor = null, ?TenantIdentity $tenant = null): ProcessWorkActionInvocation|ProcessUserTaskSubmissionInvocation|ResolverContext|SignatureDocumentDataQuery|SignatureBulkBindingPreviewContext|SignatureBulkBindingExecutionContext|SignatureBulkBindingLifecycleContext|SelfWorkContextQuery|SelfServiceActionQuery
     {
+        if (in_array($method, ['signature.bulk.preview', 'signature.bulk.reauthorize', 'signature.bulk.lifecycle'], true)) return SignatureBulkCallbackWire::restore($method, $data, $actor, $entity, $tenant);
         $actorKey = in_array($method, ['approval.resolve', 'approval.subject'], true) ? 'submitter' : 'actor';
         if (($data[$actorKey]['public_id'] ?? null) !== $actor->publicId() || ($data['legalEntity']['public_id'] ?? null) !== $entity?->publicId()) {
             throw new InvalidArgumentException('Callback identity differs.');
@@ -127,8 +134,10 @@ final class PlatformCallbackWire
     }
 
     /** Signature values are only for the authenticated protected-data transport. Never log this payload. */
-    public static function result(ProcessWorkActionResult|ProcessUserTaskSubmissionResult|ResolvedApprovalLine|SignatureDocumentDataResult|array $result): array
+    public static function result(ProcessWorkActionResult|ProcessUserTaskSubmissionResult|ResolvedApprovalLine|SignatureDocumentDataResult|SignatureBulkBindingPreviewResult|SignatureBulkBindingReauthorizationResult|array $result): array
     {
+        if ($result instanceof SignatureBulkBindingPreviewResult) return ['result' => $result->toArray(), 'protected_plan' => $result->plan?->protectedPayload()];
+        if ($result instanceof SignatureBulkBindingReauthorizationResult) return $result->toArray();
         if (is_array($result)) return array_map(static function (SelfWorkContextOption|SelfServiceActionItem $item): array {
             $row = get_object_vars($item);
             if ($item instanceof SelfWorkContextOption) {
@@ -149,7 +158,7 @@ final class PlatformCallbackWire
             'diagnostics' => array_map(static fn ($diagnostic) => $diagnostic->toArray(), $result->diagnostics())];
     }
 
-    public static function restoreResult(string $method, array $data): ProcessWorkActionResult|ProcessUserTaskSubmissionResult|ResolvedApprovalLine|SignatureDocumentDataResult|array
+    public static function restoreResult(string $method, array $data): ProcessWorkActionResult|ProcessUserTaskSubmissionResult|ResolvedApprovalLine|SignatureDocumentDataResult|SignatureBulkBindingPreviewResult|SignatureBulkBindingReauthorizationResult|array
     {
         if ($method === 'approval.subject') {
             if (array_keys($data) !== ['actor_key'] || ($data['actor_key'] !== null && (! is_int($data['actor_key']) || $data['actor_key'] <= 0))) {
@@ -167,6 +176,8 @@ final class PlatformCallbackWire
             return $data['line'] !== null ? ResolvedApprovalLine::resolved(ApprovalWire::line($data['line'])->stages())
                 : ResolvedApprovalLine::failed(array_map(static fn (array $error) => new ResolutionError(...[...$error, 'code' => ResolutionErrorCode::from($error['code'])]), $data['errors']));
         }
+        if ($method === 'signature.bulk.preview') return SignatureBulkBindingPreviewResult::fromArray($data['result'], $data['protected_plan']);
+        if (in_array($method, ['signature.bulk.reauthorize', 'signature.bulk.lifecycle'], true)) return SignatureBulkBindingReauthorizationResult::fromArray($data);
         if ($method !== 'signature.data') throw new InvalidArgumentException('Unsupported callback result.');
         return new SignatureDocumentDataResult(SignatureDocumentDataStatus::from($data['status']),
             array_map(static fn (array $c) => new SignatureDocumentDataCandidate(ResourceRef::fromArray($c['resource_ref']), $c['source_revision'], $c['content_hash'], $c['effective_at'] === null ? null : new DateTimeImmutable($c['effective_at'])), $data['candidates']),

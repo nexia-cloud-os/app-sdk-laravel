@@ -18,6 +18,7 @@ final class PlatformDescriptorWire
         'official_seal_use' => OfficialSealUseDescriptor::class,
         'process_work' => ProcessWorkActionDescriptor::class,
         'process_form' => ProcessUserTaskFormDescriptor::class,
+        'signature_bulk' => SignatureBulkBindingDescriptor::class,
         'signature_data' => SignatureDocumentDataSourceDescriptor::class,
         'process_start' => ProcessStartBindingDescriptor::class,
         'process_template' => ProcessTemplateDescriptor::class,
@@ -33,7 +34,7 @@ final class PlatformDescriptorWire
     {
         $type = array_search($descriptor::class, self::TYPES, true);
         if ($type === false) throw new InvalidArgumentException('Unsupported platform descriptor.');
-        if ($descriptor instanceof SignatureTemplateBindingDescriptor || $descriptor instanceof SignatureDocumentDataSourceDescriptor) {
+        if ($descriptor instanceof SignatureBulkBindingDescriptor || $descriptor instanceof SignatureTemplateBindingDescriptor || $descriptor instanceof SignatureDocumentDataSourceDescriptor) {
             return ['type' => $type, 'data' => $descriptor->toArray()];
         }
         $data = get_object_vars($descriptor);
@@ -70,6 +71,8 @@ final class PlatformDescriptorWire
         $data = $wire['data'];
         if ($wire['type'] === 'signature_template') {
             $descriptor = SignatureTemplateBindingDescriptor::fromArray($data);
+        } elseif ($wire['type'] === 'signature_bulk') {
+            $descriptor = SignatureBulkBindingDescriptor::fromArray($data);
         } elseif ($wire['type'] === 'signature_data') {
             $descriptor = SignatureDocumentDataSourceDescriptor::fromArray($data);
         } else {
