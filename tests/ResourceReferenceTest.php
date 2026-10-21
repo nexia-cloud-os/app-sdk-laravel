@@ -436,6 +436,34 @@ try {
 $transport = new \Nexia\ResourceReference\TransportResourceReferences(static fn (): array => ['worker-01' => $resolved->snapshot()]);
 assert($transport->resolveMany('sample-owner.worker', ['worker-01', 'missing'], $resolutionContext)['worker-01']->resourceId === 'worker-01');
 
+$groupCalls = [];
+$transport = new \Nexia\ResourceReference\TransportResourceReferences(static function (array $body) use (&$groupCalls): array {
+    $groupCalls[] = $body;
+    $results = [];
+    foreach ($body['groups'] as $key => $group) {
+        $results[$key]['worker-01'] = (new ResolvedResourceReference(
+            'sample-owner', 'sample-owner.worker', 'worker-01', 'Worker', null, [], new DateTimeImmutable($group['as_of']),
+        ))->snapshot();
+    }
+
+    return $results;
+});
+$grouped = $transport->resolveManyGrouped('sample-owner.worker', [
+    'first' => ['resource_ids' => ['worker-01'], 'as_of' => new DateTimeImmutable('2026-01-01'), 'filters' => ['region' => 'north']],
+    'second' => ['resource_ids' => ['worker-01'], 'as_of' => new DateTimeImmutable('2026-02-01'), 'filters' => ['region' => 'south']],
+], $resolutionContext);
+assert(count($groupCalls) === 1 && $groupCalls[0]['method'] === 'resolveManyGrouped');
+assert($groupCalls[0]['groups']['first']['filters']['region'] === 'north');
+assert($groupCalls[0]['groups']['second']['filters']['region'] === 'south');
+assert($grouped['first']['worker-01']->asOf->format('Y-m-d') === '2026-01-01');
+assert($grouped['second']['worker-01']->asOf->format('Y-m-d') === '2026-02-01');
+$groupCalls = [];
+$transport->resolveManyGrouped('sample-owner.worker', array_fill_keys(
+    array_map(static fn (int $day): string => 'day-'.$day, range(1, 32)),
+    ['resource_ids' => ['worker-01'], 'as_of' => new DateTimeImmutable('2026-01-01')],
+), $resolutionContext);
+assert(count($groupCalls) === 2 && count($groupCalls[0]['groups']) === 31 && count($groupCalls[1]['groups']) === 1);
+
 $transport = new \Nexia\ResourceReference\TransportResourceReferences(static function (array $body, Closure $decode) use ($resolved) {
     return $decode($resolved->snapshot());
 });

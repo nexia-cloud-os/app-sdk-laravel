@@ -7,12 +7,12 @@ namespace Nexia\ResourceReference;
 use Closure;
 use DateTimeImmutable;
 use InvalidArgumentException;
-use Nexia\ResourceReference\Contracts\ResourceReferences;
+use Nexia\ResourceReference\Contracts\GroupedResourceReferences;
 use RuntimeException;
 use Throwable;
 
 /** Existing Resource Reference wire contract over a host-owned bounded transport. */
-readonly class TransportResourceReferences implements ResourceReferences
+readonly class TransportResourceReferences implements GroupedResourceReferences
 {
     /** The host may use the optional second callback to decode public snapshots once. */
     public function __construct(private Closure $send) {}
@@ -44,6 +44,65 @@ readonly class TransportResourceReferences implements ResourceReferences
         }
 
         return $references;
+    }
+
+    public function resolveManyGrouped(string $resourceKey, array $groups, ResourceReferenceResolutionContext $context): array
+    {
+        $result = [];
+        $batch = [];
+        $count = 0;
+        $flush = function () use ($resourceKey, $context, &$batch, &$count, &$result): void {
+            if ($batch === []) {
+                return;
+            }
+            foreach ($this->request('resolveManyGrouped', $resourceKey, $context, ['groups' => $batch]) as $key => $items) {
+                if (! isset($batch[$key]) || ! is_array($items)) {
+                    throw new RuntimeException('Invalid grouped reference response.');
+                }
+                foreach ($items as $id => $snapshot) {
+                    if (! in_array((string) $id, $batch[$key]['resource_ids'], true)) {
+                        throw new RuntimeException('Unexpected grouped reference.');
+                    }
+                    $reference = $this->reference($snapshot);
+                    if ($reference->resourceKey !== $resourceKey || $reference->resourceId !== (string) $id
+                        || $reference->asOf->format('U.u') !== (new DateTimeImmutable($batch[$key]['as_of']))->format('U.u')) {
+                        throw new RuntimeException('Invalid grouped reference.');
+                    }
+                    $result[$key][$id] = $reference;
+                }
+            }
+            $batch = [];
+            $count = 0;
+        };
+        foreach ($groups as $key => $group) {
+            if (! is_string($key) || $key === '' || mb_strlen($key) > 80 || ! is_array($group)
+                || ! is_array($group['resource_ids'] ?? null)
+                || ! ($group['as_of'] ?? null) instanceof DateTimeImmutable
+                || (isset($group['effective_through']) && ! $group['effective_through'] instanceof DateTimeImmutable)) {
+                throw new InvalidArgumentException('Invalid grouped reference selector.');
+            }
+            $asOf = $group['as_of'];
+            $through = $group['effective_through'] ?? $asOf;
+            $filters = $group['filters'] ?? $context->filters;
+            new ResourceReferenceResolutionContext($context->legalEntity, $context->actor, $asOf, $context->purpose,
+                $context->operatingUnit, effectiveThrough: $through, filters: $filters);
+            foreach ($group['resource_ids'] as $id) {
+                if (! is_string($id) || $id === '' || mb_strlen($id) > 255) {
+                    throw new InvalidArgumentException('Reference IDs must be bounded strings.');
+                }
+            }
+            foreach (array_chunk(array_values(array_unique($group['resource_ids'])), 100) as $chunk) {
+                if (count($batch) >= 31 || $count + count($chunk) > 400 || isset($batch[$key])) {
+                    $flush();
+                }
+                $batch[$key] = ['resource_ids' => $chunk, 'as_of' => $asOf->format(DATE_ATOM),
+                    'effective_through' => $through->format(DATE_ATOM), 'filters' => $filters];
+                $count += count($chunk);
+            }
+        }
+        $flush();
+
+        return $result;
     }
 
     public function search(string $resourceKey, string $query, ResourceReferenceResolutionContext $context, int $limit = 25): array
