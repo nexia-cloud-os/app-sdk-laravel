@@ -18,6 +18,10 @@ interface ExternalIntegrations
      */
     public function submit(Actor $actor, string $operationId, array $input, string $idempotencyKey): string;
 
+    /** Submit an App-declared HTTP operation without storing a tenant-specific UUID in App code. */
+    public function submitDeclared(Actor $actor, string $definitionKey, string $operationName,
+        ?string $legalEntityPublicId, array $input, string $idempotencyKey): string;
+
     /**
      * Only the originating App and actor may read the result, subject to current connection authority.
      * Retrying is a pending webhook delivery; keep polling the same execution ID.

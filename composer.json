@@ -29,6 +29,7 @@
     },
     "scripts": {
         "test": [
+            "@php -d zend.assertions=1 -d assert.exception=1 tests/ExternalApiDefinitionTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/StandardRuntimeContractsTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/ResourceWriteRoutesTest.php",
             "@php bin/check-retired-symbols.php src tests",
