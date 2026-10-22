@@ -11,6 +11,8 @@ interface ResourceReferenceQuerySchemaContribution extends ResourceReferencePage
      * Filters accept bounded strings: OR within one field, AND across fields.
      * Sort accepts one field, prefixed with '-' for descending order.
      * Only advertise public projection fields the provider actually supports.
+     * Every key must exist in ResourceDescriptor::fieldSchema, including public_id
+     * and timestamps. This is not the model resourceListFields() allowlist.
      * This metadata never grants row or field access.
      *
      * @return array{filterable: list<string>, sortable: list<string>, searchable: list<string>}

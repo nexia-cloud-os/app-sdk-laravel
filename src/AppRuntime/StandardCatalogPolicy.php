@@ -9,6 +9,10 @@ final class StandardCatalogPolicy
 {
     public static function validate(array $catalog): void
     {
+        $issues = ResourceQueryDiagnostics::issues($catalog['contracts'] ?? []);
+        if ($issues !== []) {
+            throw new CatalogValidationException('catalog_reference_invalid', $issues);
+        }
         if (! isset($catalog['requirements'])) {
             return; // Existing Catalog v1 producers retain their current compatibility path.
         }

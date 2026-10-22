@@ -137,7 +137,6 @@ foreach ([['route_bindings' => []], ['permissions' => []], ['resources' => []],
     } catch (\Nexia\AppRuntime\CatalogValidationException) {
     }
 }
-echo "Standard Runtime declaration and dependency policies passed.\n";
 
 $batchSchema = ['type' => 'object', 'properties' => [
     'ids' => ['type' => 'array', 'items' => ['type' => 'string']],
@@ -152,3 +151,33 @@ foreach (['atomic', 'partial'] as $policy) {
 $rejects(fn () => new \Nexia\Actions\ActionDefinition('complete_many', 'sample.note.update', 'POST', '/api/sample/notes/complete',
     inputSchema: $batchSchema, targets: \Nexia\Actions\ActionTargets::Many, targetParameter: 'ids', execution: $synchronous));
 $rejects(fn () => new ActionExecutionContract(available: true, batchPolicy: 'implicit'));
+
+// Public reference conditions must be declared even for legacy catalogs without requirements.
+$queryContract = ['key' => 'sample.note', 'fields' => ['name' => ['type' => 'string']],
+    'query' => ['resolve' => true, 'paged' => true, 'filterable' => [],
+        'sortable' => ['public_id', 'created_at'], 'searchable' => ['name']]];
+$issues = \Nexia\AppRuntime\ResourceQueryDiagnostics::issues([$queryContract]);
+assert(array_column($issues, 'field') === ['contracts.sample.note.query.sortable.public_id', 'contracts.sample.note.query.sortable.created_at']);
+assert(array_unique(array_column($issues, 'rule')) === ['query_field_undeclared']);
+foreach ([['contracts' => [$queryContract]], [...$catalog, 'contracts' => [$queryContract]]] as $invalid) {
+    try {
+        \Nexia\AppRuntime\StandardCatalogPolicy::validate($invalid);
+        throw new RuntimeException('Undeclared public query fields were accepted.');
+    } catch (CatalogValidationException $error) {
+        assert($error->issues === $issues);
+    }
+}
+$queryContract['fields']['public_id'] = ['type' => 'string'];
+$queryContract['fields']['created_at'] = ['type' => 'string'];
+assert(\Nexia\AppRuntime\ResourceQueryDiagnostics::issues([$queryContract]) === []);
+$queryContract['query']['sortable'][] = 'public_id';
+assert(\Nexia\AppRuntime\ResourceQueryDiagnostics::issues([$queryContract])[0]['rule'] === 'query_duplicate');
+$queryContract['query']['paged'] = false;
+assert(in_array('query_requires_paged', array_column(\Nexia\AppRuntime\ResourceQueryDiagnostics::issues([$queryContract]), 'rule'), true));
+$queryContract['query']['paged'] = true;
+$queryContract['query']['resolve'] = false;
+assert(in_array('query_requires_resolve', array_column(\Nexia\AppRuntime\ResourceQueryDiagnostics::issues([$queryContract]), 'rule'), true));
+$queryContract['query']['sortable'] = ["unsafe\033[2J"];
+assert(! str_contains(json_encode(\Nexia\AppRuntime\ResourceQueryDiagnostics::issues([$queryContract])), 'unsafe'));
+
+echo "Standard Runtime declaration and dependency policies passed.\n";
