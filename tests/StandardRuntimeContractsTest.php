@@ -10,6 +10,12 @@ use Nexia\Settings\SettingDefinition;
 
 require dirname(__DIR__).'/vendor/autoload.php';
 
+$phpConstraint = json_decode(file_get_contents(dirname(__DIR__).'/composer.json'), true, 512, JSON_THROW_ON_ERROR)['require']['php'];
+foreach (['8.4.27' => false, '8.4.28' => false, '8.5.12' => true, '8.5.13' => true,
+    '8.4.26' => false, '8.5.0' => false, '8.5.11' => false, '9.0.0' => false] as $version => $allowed) {
+    assert(\Composer\Semver\Semver::satisfies($version, $phpConstraint) === $allowed);
+}
+
 $rejects = static function (Closure $operation): void {
     try {
         $operation();
