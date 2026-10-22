@@ -24,10 +24,15 @@ $declared = [
     'derived' => ['type' => 'string', 'derived' => true, 'composition' => ['selectable' => true]],
     'private_value' => ['type' => 'string'],
 ];
+// Union schemas are not scalar composition fields; ignore them without PHP warnings.
+$declared['nullable_union'] = ['type' => ['string', 'null'], 'composition' => ['selectable' => true]];
+$declared['mixed_union'] = ['type' => ['string', 'number'], 'composition' => ['selectable' => true]];
 $resolved = array_fill_keys(array_keys($declared), ['field_source' => 'descriptor', 'queryable' => true]);
 $resolved['virtual']['queryable'] = false;
+set_error_handler(static fn (int $level, string $message): never => throw new ErrorException($message, 0, $level));
 $normalized = Nexia\ResourceComposition\DescriptorCompositionFields::build($declared, $resolved, ['status' => 'status.label'],
     static fn (string $key): ?string => ['status.active' => 'Active'][$key] ?? null);
+restore_error_handler();
 $byKey = array_column($normalized, null, 'key');
 assert(array_keys($byKey) === ['public_id', 'status', 'amount', 'worker_public_id', 'department_public_id']);
 assert($byKey['public_id']['selectable'] === true);

@@ -139,7 +139,7 @@ final class DescriptorCompositionFields
             return false;
         }
 
-        return in_array((string) ($declared['type'] ?? 'string'), [
+        return in_array($declared['type'] ?? 'string', [
             'boolean',
             'date',
             'decimal',
