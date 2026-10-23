@@ -13,3 +13,8 @@ description: Route SDK problem reports to one public developer support tracker.
 ## Compatibility
 
 - PHP and React contracts are unchanged from 0.6.0. No application-code or migration changes are required.
+
+## Usage
+
+- [Nexia CLI](https://developers.nexia.to/docs/getting-started-cli)
+- [Public CLI documentation](https://github.com/nexia-cloud-os/cli/blob/main/README.md)

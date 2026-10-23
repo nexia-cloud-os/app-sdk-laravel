@@ -25,3 +25,8 @@ description: 현재 Composition 계약과 업무 알림 및 자동승인 계약�
 ## 업그레이드 필요
 
 Laravel·React 0.6.0 artifact는 Core 0.6.0과 함께 사용하세요. 이전 Composition payload는 자동 변환되지 않습니다. 영향을 받는 저장된 Composition을 조정된 업그레이드 절차에 따라 다시 생성하고, 파괴적인 초기화를 자동 실행하지 마세요. 채택 전에 소비 패키지의 호환성 범위를 검토하고 갱신하세요.
+
+## 사용 방법
+
+- [지원되는 리포트 쿼리 선택하기](https://developers.nexia.to/ko/docs/app-sdk-governed-reports)
+- [SDK 사용 시작하기](https://developers.nexia.to/ko/docs/app-sdk-overview)

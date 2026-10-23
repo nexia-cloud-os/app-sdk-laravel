@@ -14,3 +14,7 @@ description: 호스트를 통해 외부 HTTP·MCP 작업을 제출합니다.
 
 - 대응 Core와 격리 런타임이 필요합니다. App 트랜잭션 커밋 후 호출하고 비동기 App 작업에 `integration.submit`과 `integration.result`를 선언하세요.
 - 동일 요청에는 같은 멱등 키를 사용하세요. 결과가 `unknown`이면 새 요청을 시작하기 전에 외부 처리 상태를 확인하세요.
+
+## 사용 방법
+
+- [외부 동작 호출](https://developers.nexia.to/ko/docs/app-sdk-external-integrations)

@@ -13,3 +13,8 @@ description: SDK 문제를 하나의 공개 개발자 지원 저장소로 안내
 ## Compatibility
 
 - PHP·React 계약은 0.6.0과 같습니다. 앱 코드 수정이나 마이그레이션이 필요하지 않습니다.
+
+## 사용 방법
+
+- [Nexia CLI](https://developers.nexia.to/ko/docs/getting-started-cli)
+- [공개 CLI 문서](https://github.com/nexia-cloud-os/cli/blob/main/README.md)

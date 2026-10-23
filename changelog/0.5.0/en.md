@@ -20,3 +20,8 @@ description: Replace the combined SDK with separately published Laravel and Reac
 
 - Replace the retired combined SDK dependencies and imports with `amuzcorp/nexia-app-sdk-laravel` and `@amuzcorp/nexia-app-sdk-react` at `^0.5.0`.
 - Update PHP imports to the canonical contract namespaces. Do not retain legacy package dependencies, aliases, or namespace wrappers.
+
+## Usage
+
+- [Build an App screen](https://developers.nexia.to/docs/building-apps-build-a-frontend-surface)
+- [Start using the SDK](https://developers.nexia.to/docs/app-sdk-overview)

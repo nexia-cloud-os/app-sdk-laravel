@@ -20,3 +20,8 @@ description: 통합 SDK를 별도 배포 Laravel·React 패키지, canonical 계
 
 - 폐기된 통합 SDK 의존성과 import를 `amuzcorp/nexia-app-sdk-laravel`, `@amuzcorp/nexia-app-sdk-react`의 `^0.5.0`으로 교체하세요.
 - PHP import를 canonical contract namespace로 바꾸세요. legacy 패키지 의존성, alias, namespace wrapper를 유지하지 마세요.
+
+## 사용 방법
+
+- [App 화면 만들기](https://developers.nexia.to/ko/docs/building-apps-build-a-frontend-surface)
+- [SDK 사용 시작하기](https://developers.nexia.to/ko/docs/app-sdk-overview)

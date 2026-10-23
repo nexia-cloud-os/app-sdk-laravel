@@ -13,3 +13,7 @@ description: 공통 SDK 계약으로 접속 IP를 조회하고 변경 충돌을 
 ## 적용 안내
 
 - 사용 전에 대응하는 Core와 독립 런타임 구현을 함께 반영해야 합니다. 기존 쓰기 계정 발급 계약은 유지됩니다. 접속 정보를 표시하기 전에 네트워크 적용 상태를 확인하세요. 브라우저 IP와 데이터베이스 클라이언트의 실제 접속 IP는 다를 수 있습니다.
+
+## 사용 방법
+
+- [외부 프로그램에서 DB 데이터 입력받기](https://developers.nexia.to/ko/docs/building-apps-external-database-writers)

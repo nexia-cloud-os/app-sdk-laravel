@@ -14,3 +14,8 @@ description: New shared report normalization and explicit owner-authorized self-
 ## Owner-admitted self references
 
 - Add `ResourceReferenceSelfServiceContribution` for explicit exact-self purposes with owner-enforced actor and organization filtering. It does not grant ordinary directory access. Adopt with the matching Core and runtime before rebuilding participating Apps.
+
+## Usage
+
+- [Reference another App record](https://developers.nexia.to/docs/platform-extensions-resource-references)
+- [Choose a supported report query](https://developers.nexia.to/docs/app-sdk-governed-reports)

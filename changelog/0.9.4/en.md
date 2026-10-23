@@ -7,3 +7,8 @@ description: Container import pipeline contracts
 ---
 
 `ImportPipelineWire` transports data-only import pipeline declarations and results, including normalized rows, without executable handler names. Existing App pipeline interfaces remain compatible. Adopt matching Core and runtime support before using container dataset imports.
+
+## Usage
+
+- [Import and export Resource data](https://developers.nexia.to/docs/building-apps-import-and-export)
+- [Start using the SDK](https://developers.nexia.to/docs/app-sdk-overview)

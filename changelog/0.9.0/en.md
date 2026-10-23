@@ -11,3 +11,7 @@ description: Process starts identify an authored document and one executable pro
 - `ProcessStartBindingDescriptor` requires `documentKey` instead of `definitionKey`. Update named arguments and serialized catalogs; the old field is rejected. Pair it with `processId` to select the executable process.
 - Host test fixtures create the document through `createBpmnDocument()` before calling `createProcessDefinition()` with `bpmn_document_id` and `bpmn_process_id`.
 - Requires the matching Core 0.8.0 implementation and updated consuming Apps. Rebuild isolated App artifacts and reinstall their catalogs before activation.
+
+## Usage
+
+- [Business Process contracts](https://developers.nexia.to/docs/app-sdk-business-process-contracts)

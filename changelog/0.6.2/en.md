@@ -13,3 +13,7 @@ description: Accept owner-published numeric measures without a unit.
 ## Compatibility
 
 - Existing payloads remain valid. No migration is required.
+
+## Usage
+
+- [Choose a supported report query](https://developers.nexia.to/docs/app-sdk-governed-reports)

@@ -14,3 +14,7 @@ description: Submit external HTTP and MCP operations through the host.
 
 - Requires matching Core and isolated-runtime support. Submit after the App transaction commits and declare `integration.submit` and `integration.result` for durable App work.
 - Reuse the same idempotency key for identical requests. Reconcile an `unknown` external outcome before starting a new request.
+
+## Usage
+
+- [External operations](https://developers.nexia.to/docs/app-sdk-external-integrations)

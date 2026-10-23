@@ -38,3 +38,8 @@ description: 업무 레코드 연결과 이관 복구 계약 및 결재 호스�
 - `templateExampleRows`를 사용하는 앱에는 이 계약이 포함된 Laravel SDK 릴리스와 예시 행을 출력하는 Core가 모두 필요합니다. 이전 SDK 설치 버전에는 이 선언을 사용하지 마세요.
 - 앱이 해당 컴포넌트를 사용하기 전에 호스트가 `NxSectionRow`, `NxSwitch`를 연결해야 합니다. SDK 0.7.0과 Core 0.6.21 이상 0.6 계열을 함께 사용합니다.
 - 기존 두 인자 멱등 실행 호출은 그대로 유지됩니다. 별도 `ApprovalIdempotency` 구현은 `?Closure $prepare = null`을 추가하고 준비·트랜잭션 계약을 준수해야 합니다. 준비 단계를 사용하는 앱에는 새 Laravel SDK와 이를 구현한 Core가 모두 필요하며, SDK 0.7.0과 Core 0.6.21 이상 0.6 계열을 함께 사용합니다.
+
+## 사용 방법
+
+- [리소스 데이터 가져오기·내보내기](https://developers.nexia.to/ko/docs/building-apps-import-and-export)
+- [업무 프로세스 계약](https://developers.nexia.to/ko/docs/app-sdk-business-process-contracts)

@@ -9,3 +9,7 @@ description: Read optional birth dates and registered company facts through auth
 Apps can read an optional ISO birth date from `PersonProfileView` and registered company facts through `HasLegalEntityProfile::legalProfile()`. The company profile contains the legal name, business number, representative and registered address. Existing constructor calls remain compatible; absent values remain null.
 
 Adopt the matching Core implementation, nullable tenant migration and isolated runtime adapter before using these fields. Existing issued documents are not rewritten.
+
+## Usage
+
+- [Permissions and roles](https://developers.nexia.to/docs/architecture-permissions-and-roles)

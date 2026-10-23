@@ -9,3 +9,7 @@ description: Resolve references for several dates or owner-defined filters in bo
 Apps can optionally use `GroupedResourceReferences::resolveManyGrouped` to resolve resource IDs under several as-of dates or owner-defined column filters. Existing `ResourceReferences` implementations remain compatible.
 
 Adopt the matching Core and isolated runtime releases before using grouped reads. Resource owners must explicitly support each accepted filter; actor, organization and owner authorization still apply to each group.
+
+## Usage
+
+- [Reference another App record](https://developers.nexia.to/docs/platform-extensions-resource-references)

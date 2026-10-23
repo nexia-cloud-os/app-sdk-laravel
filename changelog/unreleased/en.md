@@ -14,3 +14,5 @@ status: draft
 
 - App metadata now requires `nexia.json` schema version `2` with runtime `laravel`; Composer `extra.nexia` declarations and duplicate declarations are rejected. Require `nexia-cloud-os/sdk-laravel`; the old package-name replacements are removed. Adopt the matching Core and runtime loaders together.
 - Removed the PHP `ResourceActionDescriptor` alias. Declare catalog actions with `ActionDefinition`; the React dropdown action type is unaffected.
+
+- The optional `SignatureBulkBindingLifecycleProvider` contract lets a bulk-signature provider reconcile reservations and accepted or released requests. [Lifecycle implementation guide](https://developers.nexia.to/docs/platform-extensions-electronic-signature).

@@ -13,3 +13,7 @@ description: 소유자가 단위를 발행하지 않은 숫자 measure를 허용
 ## 호환성
 
 - 기존 payload는 계속 유효합니다. 마이그레이션이 필요하지 않습니다.
+
+## 사용 방법
+
+- [지원되는 리포트 쿼리 선택하기](https://developers.nexia.to/ko/docs/app-sdk-governed-reports)

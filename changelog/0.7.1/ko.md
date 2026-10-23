@@ -14,3 +14,7 @@ description: Composer 호스트와 격리 런타임에서 사용하는 호환 �
 - 앱은 의사결정 결과 템플릿, Runtime 요구사항, 설정 정의와 실행 미지원 Action을 선언할 수 있습니다. 필수 기능이 지원되지 않으면 거부하며 선언만으로 설정 접근·비동기 작업·변경이 활성화되지 않습니다.
 - 이 릴리스의 PHP 패키지 이름은 `nexia/sdk-laravel`이며 같은 버전의 `amuzcorp/nexia-app-sdk-laravel`을 대체합니다. 루트 의존성과 잠금 파일을 갱신하세요. 앱 호환 범위는 넓히지 않으며 React 버전은 독립적입니다.
 - 앱은 지원 의존성 정책을 따라야 하며 실행형 autoload 훅이나 다른 앱의 직접 의존성을 추가할 수 없습니다. `platform`이 없는 기존 메타데이터는 읽을 수 있지만 새 기능에는 대응하는 호스트가 필요합니다.
+
+## 사용 방법
+
+- [SDK 사용 시작하기](https://developers.nexia.to/ko/docs/app-sdk-overview)

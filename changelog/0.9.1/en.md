@@ -13,3 +13,7 @@ description: Register source IPs through a shared, revision-checked SDK contract
 ## Adoption
 
 - Requires the paired Core and isolated-runtime implementations before use. Existing writer provisioning remains unchanged. Display network application status before exposing connection details; the browser IP may differ from the database client's egress IP.
+
+## Usage
+
+- [Receive external database writes](https://developers.nexia.to/docs/building-apps-external-database-writers)

@@ -14,3 +14,5 @@ status: draft
 
 - App 메타데이터는 `nexia.json`의 schema version `2`, runtime `laravel` 선언이 필요합니다. Composer `extra.nexia` 선언과 중복 선언은 거부합니다. `nexia-cloud-os/sdk-laravel`을 요구해야 하며 이전 패키지명 대체 선언은 제거했습니다. 대응 Core·런타임 로더를 함께 적용해야 합니다.
 - PHP `ResourceActionDescriptor` 별칭을 제거했습니다. 카탈로그 액션은 `ActionDefinition`으로 선언해야 합니다. React 드롭다운 액션 타입에는 영향이 없습니다.
+
+- 선택 계약 `SignatureBulkBindingLifecycleProvider`로 대량 전자서명 제공자가 예약과 요청 접수·해제를 조정할 수 있습니다. [수명 주기 구현 가이드](https://developers.nexia.to/ko/docs/platform-extensions-electronic-signature)를 참고하세요.

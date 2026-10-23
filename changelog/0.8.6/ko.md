@@ -14,3 +14,8 @@ description: 리포트 필드 정규화와 소유 앱이 권한을 확인하는 
 ## 소유 앱이 허용하는 본인 참조
 
 - `ResourceReferenceSelfServiceContribution`으로 명시한 본인 전용 용도를 선언하고 소유 앱이 사용자·조직 범위를 제한할 수 있습니다. 일반 디렉터리 조회 권한을 부여하지 않습니다. 대응하는 Core·런타임을 함께 적용하고 참여 앱을 다시 빌드해야 합니다.
+
+## 사용 방법
+
+- [다른 앱의 레코드 참조하기](https://developers.nexia.to/ko/docs/platform-extensions-resource-references)
+- [지원되는 리포트 쿼리 선택하기](https://developers.nexia.to/ko/docs/app-sdk-governed-reports)

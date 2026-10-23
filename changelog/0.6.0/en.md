@@ -25,3 +25,8 @@ description: Release the current composition contract, notifications, and automa
 ## Upgrade required
 
 Use Core 0.6.0 with these Laravel and React 0.6.0 artifacts. Earlier composition payloads are not converted automatically. Recreate affected saved compositions through the coordinated upgrade procedure; do not run a destructive reset implicitly. Review and update consumer compatibility constraints before adoption.
+
+## Usage
+
+- [Choose a supported report query](https://developers.nexia.to/docs/app-sdk-governed-reports)
+- [Start using the SDK](https://developers.nexia.to/docs/app-sdk-overview)

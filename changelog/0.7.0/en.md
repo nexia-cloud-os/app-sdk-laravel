@@ -40,3 +40,8 @@ description: Contracts for connected processes and resumable imports, with an up
 - Apps using `templateExampleRows` require a Laravel SDK release containing this contract and a Core host that renders the rows. Do not enable the declaration against older installed SDK versions.
 - Hosts must bind the new `NxSectionRow` and `NxSwitch` components before Apps consume them. Use SDK 0.7.0 with Core 0.6.21 or later in the 0.6 line.
 - Existing two-argument idempotency callers remain unchanged. Custom `ApprovalIdempotency` implementations must add `?Closure $prepare = null` and honor the preparation/transaction contract. Apps consuming preparation require both the new Laravel SDK and the implementing Core host; use SDK 0.7.0 and Core 0.6.21 or later in the 0.6 line.
+
+## Usage
+
+- [Import and export Resource data](https://developers.nexia.to/docs/building-apps-import-and-export)
+- [Business Process contracts](https://developers.nexia.to/docs/app-sdk-business-process-contracts)
