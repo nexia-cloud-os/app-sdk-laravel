@@ -16,3 +16,18 @@ status: draft
 - PHP `ResourceActionDescriptor` 별칭을 제거했습니다. 카탈로그 액션은 `ActionDefinition`으로 선언해야 합니다. React 드롭다운 액션 타입에는 영향이 없습니다.
 
 - 선택 계약 `SignatureBulkBindingLifecycleProvider`로 대량 전자서명 제공자가 예약과 요청 접수·해제를 조정할 수 있습니다. [수명 주기 구현 가이드](https://developers.nexia.to/ko/docs/platform-extensions-electronic-signature)를 참고하세요.
+
+## 내 팀 프로필의 조건부 표시
+
+- API v2 `profile.team.overview` 배치와 선택적 `SlotWidgetDescriptor.availabilityResourceKey`를 추가합니다. 소유 앱이 같은 앱의 Resource Reference에서 `fields.visible`을 반환해 현재 사용자의 표시 대상을 판단합니다. 조회 실패 시 재시도를 표시하며, 기존 개인 슬롯과 null 필드를 생략한 전송 형태는 호환됩니다. 새 슬롯을 등록하기 전에 대응하는 PHP SDK와 Core 호스트를 함께 적용하세요. 업무 권한과 대상 범위 검사는 앱에서 계속 수행해야 합니다.
+
+
+## 공통 문서 데이터
+
+PHP에 용도별 문서 준비를 위한 `DocumentDataSourceDescriptor`,
+`DocumentDataSourceContribution`, `DocumentDataHost`를 추가합니다. 중립 이름의
+query/result는 기존 값 검증 계약을 재사용합니다. 기존 전자서명 소스는 명시적으로
+새 용도를 추가하기 전까지 전자서명 전용입니다. 정확한 소스·버전·필드 연결을
+저장하고 새 호스트를 사용하기 전에 대응하는 Core·런타임을 적용하세요.
+출시 버전은 미정이며 자세한 내용은
+[계약 가이드](https://developers.nexia.to/ko/docs/app-sdk-electronic-signature-contracts)에 있습니다.

@@ -113,7 +113,7 @@ final class PlatformCallbackWire
             return new ProcessWorkActionInvocation(...$data);
         }
         if ($method === 'process.user_task') return new ProcessUserTaskSubmissionInvocation(...$data);
-        if ($method !== 'signature.data' || $tenant === null || (string) $data['tenant'] !== (string) $tenant->key()) {
+        if (! in_array($method, ['signature.data', 'document.data'], true) || $tenant === null || (string) $data['tenant'] !== (string) $tenant->key()) {
             throw new InvalidArgumentException('Unsupported callback or tenant.');
         }
         $data['tenant'] = $tenant;
@@ -178,7 +178,7 @@ final class PlatformCallbackWire
         }
         if ($method === 'signature.bulk.preview') return SignatureBulkBindingPreviewResult::fromArray($data['result'], $data['protected_plan']);
         if (in_array($method, ['signature.bulk.reauthorize', 'signature.bulk.lifecycle'], true)) return SignatureBulkBindingReauthorizationResult::fromArray($data);
-        if ($method !== 'signature.data') throw new InvalidArgumentException('Unsupported callback result.');
+        if (! in_array($method, ['signature.data', 'document.data'], true)) throw new InvalidArgumentException('Unsupported callback result.');
         return new SignatureDocumentDataResult(SignatureDocumentDataStatus::from($data['status']),
             array_map(static fn (array $c) => new SignatureDocumentDataCandidate(ResourceRef::fromArray($c['resource_ref']), $c['source_revision'], $c['content_hash'], $c['effective_at'] === null ? null : new DateTimeImmutable($c['effective_at'])), $data['candidates']),
             array_map(static fn (array $i) => new SignatureDocumentDataResolvedItem(ResourceRef::fromArray($i['resource_ref']), $i['source_revision'], $i['content_hash'],

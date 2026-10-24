@@ -20,6 +20,7 @@ final class PlatformDescriptorWire
         'process_form' => ProcessUserTaskFormDescriptor::class,
         'signature_bulk' => SignatureBulkBindingDescriptor::class,
         'signature_data' => SignatureDocumentDataSourceDescriptor::class,
+        'document_data' => DocumentDataSourceDescriptor::class,
         'process_start' => ProcessStartBindingDescriptor::class,
         'process_template' => ProcessTemplateDescriptor::class,
         'decision_template' => DecisionResultTemplateDescriptor::class,
@@ -38,6 +39,9 @@ final class PlatformDescriptorWire
             return ['type' => $type, 'data' => $descriptor->toArray()];
         }
         $data = get_object_vars($descriptor);
+        if ($descriptor instanceof SlotWidgetDescriptor && $descriptor->availabilityResourceKey === null) {
+            unset($data['availabilityResourceKey']);
+        }
         // Keep existing non-copy binding envelopes canonical across SDK upgrades.
         if ($descriptor instanceof ApprovalFormBindingDescriptor && ! $descriptor->supportsDocumentCopy) {
             unset($data['supportsDocumentCopy']);
@@ -75,6 +79,8 @@ final class PlatformDescriptorWire
             $descriptor = SignatureBulkBindingDescriptor::fromArray($data);
         } elseif ($wire['type'] === 'signature_data') {
             $descriptor = SignatureDocumentDataSourceDescriptor::fromArray($data);
+        } elseif ($wire['type'] === 'document_data') {
+            $descriptor = DocumentDataSourceDescriptor::fromArray($data);
         } else {
             if ($wire['type'] === 'decision_template') {
                 $data['fields'] = array_map(static fn (array $field) => new DecisionResultFieldDescriptor(...$field), $data['fields']);
@@ -106,7 +112,8 @@ final class PlatformDescriptorWire
             ! preg_match('/\A[A-Za-z][A-Za-z0-9_.-]{0,190}\z/D', $descriptor->component)
             || ! preg_match('/\A[a-z][a-z0-9_.-]{0,190}\z/D', $descriptor->slot)
             || $descriptor->slotApiVersion < 1 || $descriptor->slotApiVersion > 100
-            || ($descriptor->familyKey !== null && ! str_starts_with($descriptor->familyKey, $appKey.'.')))) {
+            || ($descriptor->familyKey !== null && ! str_starts_with($descriptor->familyKey, $appKey.'.'))
+            || ($descriptor->availabilityResourceKey !== null && ! str_starts_with($descriptor->availabilityResourceKey, $appKey.'.')))) {
             throw new InvalidArgumentException('Invalid slot widget declaration.');
         }
         return $descriptor;

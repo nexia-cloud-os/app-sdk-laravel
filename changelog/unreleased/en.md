@@ -16,3 +16,18 @@ status: draft
 - Removed the PHP `ResourceActionDescriptor` alias. Declare catalog actions with `ActionDefinition`; the React dropdown action type is unaffected.
 
 - The optional `SignatureBulkBindingLifecycleProvider` contract lets a bulk-signature provider reconcile reservations and accepted or released requests. [Lifecycle implementation guide](https://developers.nexia.to/docs/platform-extensions-electronic-signature).
+
+## Conditional My Team profile contributions
+
+- Add the API-v2 `profile.team.overview` placement and optional `SlotWidgetDescriptor.availabilityResourceKey`. The owning App resolves actor eligibility through a same-owner Resource Reference returning `fields.visible`. Failed lookups show retry; existing personal slots and null-field wire shapes remain compatible. Adopt the matching PHP SDK and Core host before registering the new slot. Permission and subject checks remain mandatory in the App.
+
+
+## Shared document data
+
+PHP adds `DocumentDataSourceDescriptor`, `DocumentDataSourceContribution` and
+`DocumentDataHost` for purpose-scoped document preparation. Neutral query/result
+names reuse the existing validated value contract. Existing Signature sources
+remain Signature-only unless explicitly opted in. Save exact source/version/field
+bindings and adopt matching Core/runtime support before consuming the new host.
+Release versions are pending. See the
+[contract guide](https://developers.nexia.to/docs/app-sdk-electronic-signature-contracts).

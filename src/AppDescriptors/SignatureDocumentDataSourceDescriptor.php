@@ -17,8 +17,12 @@ use Nexia\Signature\SignatureDocumentDataLookupMode;
  * source. Actual values remain available only through the paired runtime
  * provider during signature request preparation.
  */
-final readonly class SignatureDocumentDataSourceDescriptor implements AppDescriptor
+readonly class SignatureDocumentDataSourceDescriptor implements AppDescriptor
 {
+    protected const MAX_DESCRIPTOR_FIELDS = SignatureDocumentDataLimits::MAX_TOP_LEVEL_FIELDS;
+    protected const MAX_DESCRIPTOR_VALUES = SignatureDocumentDataLimits::MAX_MAPPED_VALUES;
+    protected const MAX_SAMPLE_FIELDS = SignatureDocumentDataLimits::MAX_LIST_ITEMS;
+    protected const MAX_DESCRIPTOR_BYTES = SignatureDocumentDataLimits::MAX_SOURCE_RESULT_BYTES;
     /** Canonical descriptor identity: `{source_key}@{source_version}`. */
     public string $key;
 
@@ -43,7 +47,16 @@ final readonly class SignatureDocumentDataSourceDescriptor implements AppDescrip
         public ?string $stableSortKey = null,
         public ?string $defaultSourceRefAnchor = null,
         public ?string $resourceKey = null,
+        public array $purposes = ['signature_request_preparation'],
     ) {
+        if (! array_is_list($purposes) || $purposes === [] || count(array_unique($purposes)) !== count($purposes)) {
+            throw new InvalidArgumentException('Document data source purposes must be a non-empty unique list.');
+        }
+        foreach ($purposes as $purpose) {
+            if (! is_string($purpose) || \Nexia\Signature\SignatureDocumentDataPurpose::tryFrom($purpose) === null) {
+                throw new InvalidArgumentException('Unsupported document data source purpose.');
+            }
+        }
         if (! preg_match('/\A[a-z][a-z0-9]*(?:-[a-z0-9]+)*\z/D', $appKey)) {
             throw new InvalidArgumentException('Signature document data source app_key must be canonical.');
         }
@@ -98,8 +111,8 @@ final readonly class SignatureDocumentDataSourceDescriptor implements AppDescrip
             throw new InvalidArgumentException("Signature document data source [{$sourceKey}] cannot declare default_source_ref_anchor for its lookup mode.");
         }
 
-        if (! array_is_list($fields) || $fields === [] || count($fields) > SignatureDocumentDataLimits::MAX_TOP_LEVEL_FIELDS) {
-            throw new InvalidArgumentException("Signature document data source [{$sourceKey}] must declare 1 to ".SignatureDocumentDataLimits::MAX_TOP_LEVEL_FIELDS.' top-level fields.');
+        if (! array_is_list($fields) || $fields === [] || count($fields) > static::MAX_DESCRIPTOR_FIELDS) {
+            throw new InvalidArgumentException("Signature document data source [{$sourceKey}] must declare 1 to ".static::MAX_DESCRIPTOR_FIELDS.' top-level fields.');
         }
         $fieldMap = [];
         foreach ($fields as $field) {
@@ -157,18 +170,23 @@ final readonly class SignatureDocumentDataSourceDescriptor implements AppDescrip
                 throw new InvalidArgumentException("Signature document data source [{$sourceKey}] synthetic_sample is missing required field [{$field->key}].");
             }
         }
-        SignatureDocumentDataLimits::assertBoundedJsonValue($syntheticSample, "Signature document data source [{$sourceKey}] synthetic_sample");
+        if (count($syntheticSample) > static::MAX_SAMPLE_FIELDS) {
+            throw new InvalidArgumentException("Document data source [{$sourceKey}] synthetic_sample exceeds the metadata field bound.");
+        }
+        foreach ($syntheticSample as $sample) {
+            SignatureDocumentDataLimits::assertBoundedJsonValue($sample, "Signature document data source [{$sourceKey}] synthetic_sample", 1);
+        }
         SignatureDocumentDataLimits::assertPayloadByteLength(
             $syntheticSample,
             SignatureDocumentDataLimits::MAX_SOURCE_RESULT_BYTES,
             "Signature document data source [{$sourceKey}] synthetic_sample",
         );
-        if (self::recursiveFieldCount($fields) > SignatureDocumentDataLimits::MAX_MAPPED_VALUES) {
+        if (self::recursiveFieldCount($fields) > static::MAX_DESCRIPTOR_VALUES) {
             throw new InvalidArgumentException("Signature document data source [{$sourceKey}] exceeds the maximum recursive field count.");
         }
         SignatureDocumentDataLimits::assertPayloadByteLength(
             $this->toArray(),
-            SignatureDocumentDataLimits::MAX_SOURCE_RESULT_BYTES,
+            static::MAX_DESCRIPTOR_BYTES,
             "Signature document data source [{$sourceKey}] descriptor",
         );
 
@@ -225,12 +243,15 @@ final readonly class SignatureDocumentDataSourceDescriptor implements AppDescrip
         }
         $data['label_key'] = $this->labelKey;
         $data['description_key'] = $this->descriptionKey;
+        if ($this->purposes !== ['signature_request_preparation']) {
+            $data['purposes'] = $this->purposes;
+        }
 
         return $data;
     }
 
     /** @param array<string, mixed> $data */
-    public static function fromArray(array $data): self
+    public static function fromArray(array $data): static
     {
         $required = [
             'app_key',
@@ -245,7 +266,7 @@ final readonly class SignatureDocumentDataSourceDescriptor implements AppDescrip
             'label_key',
             'description_key',
         ];
-        $optional = ['resource_key', 'stable_sort_key', 'default_source_ref_anchor'];
+        $optional = ['resource_key', 'stable_sort_key', 'default_source_ref_anchor', 'purposes'];
         if (array_is_list($data)
             || array_diff(array_keys($data), [...$required, ...$optional]) !== []
             || array_diff($required, array_keys($data)) !== []) {
@@ -263,7 +284,7 @@ final readonly class SignatureDocumentDataSourceDescriptor implements AppDescrip
             throw new InvalidArgumentException('Serialized signature document data source collection shape is invalid.');
         }
 
-        return new self(
+        return new static(
             appKey: self::requiredString($data, 'app_key'),
             sourceKey: self::requiredString($data, 'source_key'),
             sourceVersion: self::requiredInteger($data, 'source_version'),
@@ -297,6 +318,7 @@ final readonly class SignatureDocumentDataSourceDescriptor implements AppDescrip
             stableSortKey: self::nullableString($data, 'stable_sort_key'),
             defaultSourceRefAnchor: self::nullableString($data, 'default_source_ref_anchor'),
             resourceKey: self::nullableString($data, 'resource_key'),
+            purposes: $data['purposes'] ?? ['signature_request_preparation'],
         );
     }
 

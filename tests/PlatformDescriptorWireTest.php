@@ -94,3 +94,18 @@ foreach (['../record', 'Some\\Class', 'https://example.invalid/component', '<scr
     try { PlatformDescriptorWire::decode($invalid, 'sample-app'); } catch (InvalidArgumentException) { $rejected = true; }
     assert($rejected);
 }
+
+
+// An omitted availability field preserves legacy catalog fingerprints.
+$legacyWidget = new \Nexia\AppDescriptors\SlotWidgetDescriptor('sample.profile', '1.0', 'profile.self.overview', 'SampleProfile', 2);
+$legacyWire = PlatformDescriptorWire::encode($legacyWidget);
+assert(! array_key_exists('availabilityResourceKey', $legacyWire['data']));
+assert(PlatformDescriptorWire::encode(PlatformDescriptorWire::decode($legacyWire, 'sample')) === $legacyWire);
+$conditional = new \Nexia\AppDescriptors\SlotWidgetDescriptor('sample.team', '1.0', 'profile.team.overview', 'SampleTeam', 2,
+    permission: 'sample.grant.read', familyKey: 'sample.team', availabilityResourceKey: 'sample.team_availability');
+$conditionalWire = PlatformDescriptorWire::encode($conditional);
+assert(PlatformDescriptorWire::decode($conditionalWire, 'sample')->availabilityResourceKey === 'sample.team_availability');
+$conditionalWire['data']['availabilityResourceKey'] = 'foreign.availability';
+$rejected = false;
+try { PlatformDescriptorWire::decode($conditionalWire, 'sample'); } catch (InvalidArgumentException) { $rejected = true; }
+assert($rejected);

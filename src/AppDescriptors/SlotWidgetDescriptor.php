@@ -30,7 +30,12 @@ final class SlotWidgetDescriptor implements AppDescriptor
         public readonly int $sort = 100,
         public readonly ?string $labelKey = null,
         public readonly ?string $familyKey = null,
+        /** Optional owner Resource Reference returning fields.visible for the current actor. */
+        public readonly ?string $availabilityResourceKey = null,
     ) {
+        if ($availabilityResourceKey !== null && ! preg_match('/\A[a-z][a-z0-9-]*\.[a-z][a-z0-9_.-]{0,140}\z/D', $availabilityResourceKey)) {
+            throw new \InvalidArgumentException('Invalid widget availability resource key.');
+        }
         if ($familyKey !== null && trim($familyKey) === '') {
             throw new \InvalidArgumentException(
                 "SlotWidgetDescriptor [{$key}] family_key must be a non-empty string.",

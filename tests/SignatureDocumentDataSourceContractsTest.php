@@ -627,3 +627,32 @@ documentDataMustThrow(
 );
 
 fwrite(STDOUT, "Signature document data source contracts passed.\n");
+
+
+// Shared metadata grows independently of protected resolution payloads.
+$sharedFields = array_map(static fn ($index) => documentDataField('field_'.$index, required: false), range(0, 74));
+$shared = new \Nexia\AppDescriptors\DocumentDataSourceDescriptor(
+    appKey: 'sample-owner', sourceKey: 'sample-owner.shared_facts', sourceVersion: 1,
+    supportedSubjectResourceKeys: ['sample-owner.worker'], cardinality: SignatureDocumentDataCardinality::One,
+    lookupMode: SignatureDocumentDataLookupMode::DirectSubject, providedDataContracts: [], fields: $sharedFields,
+    syntheticSample: [], labelKey: 'sample-owner.facts', descriptionKey: 'sample-owner.facts_help',
+    purposes: ['document_preparation'],
+);
+$sharedWire = \Nexia\AppDescriptors\PlatformDescriptorWire::encode($shared);
+$restoredShared = \Nexia\AppDescriptors\PlatformDescriptorWire::decode($sharedWire, 'sample-owner');
+if ($sharedWire['type'] !== 'document_data' || $restoredShared::class !== $shared::class
+    || $restoredShared->toArray() !== $shared->toArray()
+    || $descriptor->purposes !== ['signature_request_preparation'] || isset($descriptor->toArray()['purposes'])) {
+    throw new RuntimeException('Shared metadata must retain distinct wire ownership and legacy purpose defaults.');
+}
+documentDataMustThrow(static fn () => \Nexia\AppDescriptors\DocumentDataSourceDescriptor::fromArray([
+    ...$shared->toArray(), 'purposes' => ['other_purpose'],
+]), 'Unknown purposes must not widen source access.');
+documentDataMustThrow(static fn () => \Nexia\AppDescriptors\PlatformDescriptorWire::decode($sharedWire, 'another-owner'),
+    'Shared descriptors must retain owner checks.');
+documentDataMustThrow(static fn () => new SignatureDocumentDataResolvedItem($subject, null, hash('sha256', 'wide'), null,
+    array_fill_keys(array_column($sharedFields, 'key'), null)), 'Wide metadata must not widen protected result bounds.');
+if (\Nexia\DocumentData\DocumentDataPurpose::DocumentPreparation !== SignatureDocumentDataPurpose::DocumentPreparation
+    || !is_a(\Nexia\DocumentData\DocumentDataQuery::class, SignatureDocumentDataQuery::class, true)) {
+    throw new RuntimeException('Neutral document contracts must reuse the legacy validated value contract.');
+}

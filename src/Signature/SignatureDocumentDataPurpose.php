@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Nexia\Signature;
 
-/** The only v1 purpose for owner-authorized protected document-data access. */
+/** Explicit consumer purpose; adding a consumer never grants access to a source. */
 enum SignatureDocumentDataPurpose: string
 {
     case SignatureRequestPreparation = 'signature_request_preparation';
+    case DocumentPreparation = 'document_preparation';
 }

@@ -222,3 +222,33 @@ working until the deferred tables or constraints are ready. The platform binds
 the declaration to the submitted migration files and checksums. This declaration
 does not authorize a developer to bypass retirement or replay uncertain writes.
 Apps without this field retain their existing migration behavior.
+
+### Conditional profile contributions
+
+`SlotWidgetDescriptor` accepts optional `availabilityResourceKey`. For the
+Core-owned `profile.team.overview` API-v2 slot, declare an App-owned resolvable
+ResourceDescriptor and ResourceReferenceResolutionContribution. The contract
+must be discoverable (`publicForIntegration: true`); it may remain excluded
+from Builder (`publicForBuilder: false`). Public discovery does not grant data
+access. The resolver accepts the actor public ID only with the same actor,
+selected Legal Entity and `<app-key>.profile-availability` purpose. Return a
+ResolvedResourceReference with only `fields.visible: bool` after independent
+permission/population checks. Lookup failures should propagate, not become false.
+
+Requires the matching Core host. The host hides false results and shows retry
+on unresolved or invalid responses. The optional field is omitted from legacy
+wire declarations when null. Profile props remain v2; `visibility: owner`
+describes workspace ownership, never permission to read or grant data for
+other people. Every App endpoint must enforce its own subject authorization.
+
+
+### Shared document data (unreleased)
+
+`Nexia\DocumentData\Contracts\DocumentDataHost` separates metadata discovery
+from owner-authorized value resolution. Contributions use
+`AppDescriptors\DocumentDataSourceDescriptor` and explicitly declare purposes.
+Legacy Signature DTOs/interfaces remain valid; neutral DocumentData DTO names
+are aliases of their validated counterparts. The matching Core and native
+runtime must be adopted before an App consumes this host. See the
+[document-data reference](https://developers.nexia.to/docs/app-sdk-electronic-signature-contracts)
+for stable bindings, pagination and unchanged protected-result limits.
