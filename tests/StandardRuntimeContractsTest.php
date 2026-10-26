@@ -181,3 +181,15 @@ $queryContract['query']['sortable'] = ["unsafe\033[2J"];
 assert(! str_contains(json_encode(\Nexia\AppRuntime\ResourceQueryDiagnostics::issues([$queryContract])), 'unsafe'));
 
 echo "Standard Runtime declaration and dependency policies passed.\n";
+
+$lists = [
+    ['key' => 'sample.note', 'operation' => 'list', 'method' => 'GET', 'path' => '/api/sample/notes'],
+    ['key' => 'sample.note', 'operation' => 'list', 'method' => 'GET', 'path' => '/api/legal-entities/{legalEntity}/sample/notes'],
+];
+\Nexia\AppRuntime\StandardCatalogPolicy::validate([...$catalog,
+    'route_bindings' => [...$catalog['route_bindings'], ...$lists]]);
+foreach ([[$lists[0], $lists[0]], [[...$lists[0], 'method' => 'POST']],
+    [[...$lists[0], 'operation' => 'read'], [...$lists[1], 'operation' => 'read']]] as $invalidBindings) {
+    $rejects(fn () => \Nexia\AppRuntime\StandardCatalogPolicy::validate([...$catalog,
+        'route_bindings' => [...$catalog['route_bindings'], ...$invalidBindings]]));
+}

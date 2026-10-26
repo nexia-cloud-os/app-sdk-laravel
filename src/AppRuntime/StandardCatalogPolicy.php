@@ -32,6 +32,12 @@ final class StandardCatalogPolicy
         $bindings = [];
         foreach ($catalog['route_bindings'] ?? [] as $binding) {
             $identity = $binding['key'].':'.$binding['operation'];
+            if ($binding['operation'] === 'list') {
+                if ($binding['method'] !== 'GET') {
+                    throw new CatalogValidationException('catalog_reference_invalid');
+                }
+                $identity .= ':'.$binding['path'];
+            }
             if (isset($bindings[$identity])) {
                 throw new CatalogValidationException('catalog_reference_invalid');
             }

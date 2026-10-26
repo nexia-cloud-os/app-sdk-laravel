@@ -37,10 +37,28 @@ final class ResourceWriteRoutes
     /** The registered canonical collection endpoint, with no guessed path. */
     public static function listForModel(string $modelClass, array $byController): ?array
     {
+        $routes = self::listsForModel($modelClass, $byController);
+
+        return count($routes) === 1 ? $routes[0] : null;
+    }
+
+    /** Registered collection routes for catalog export; callers selecting one route must still reject ambiguity.
+     * @param array<string, list<Route>> $byController
+     * @return list<array{method: string, uri: string}>
+     */
+    public static function listsForModel(string $modelClass, array $byController): array
+    {
         $controller = self::controllerFor($modelClass, $byController);
         $uris = $controller === null ? [] : self::readUrisFor($byController[$controller], member: false);
+        if (count($uris) > 1 && ! array_filter($byController[$controller],
+            static fn (Route $route): bool => in_array('GET', $route->methods(), true)
+                && ! self::isMemberRoute($route) && $route->getActionMethod() === 'index')) {
+            return [];
+        }
+        $paths = array_keys($uris);
+        sort($paths, SORT_STRING);
 
-        return count($uris) === 1 ? ['method' => 'GET', 'uri' => array_key_first($uris)] : null;
+        return array_map(static fn (string $uri): array => ['method' => 'GET', 'uri' => $uri], $paths);
     }
 
     /**

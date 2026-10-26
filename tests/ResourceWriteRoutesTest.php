@@ -84,4 +84,26 @@ assert($resolve([$canonical[0], $canonical[2], ...$legacy]) === []);
 assert(ResourceWriteRoutes::detailForModel($model, ResourceWriteRoutes::byController($legacy))
     === ['method' => 'GET', 'uri' => 'api/legal-entities/{entity}/notes/{note}']);
 
-echo "Resource write route discovery passed.\n";
+
+// Catalog export retains multiple explicit index routes without choosing an Agent destination.
+$scopedIndex = $standard('GET', 'api/legal-entities/{legalEntity}/notes', 'index');
+$expectedLists = [
+    ['method' => 'GET', 'uri' => 'api/legal-entities/{legalEntity}/notes'],
+    ['method' => 'GET', 'uri' => 'api/notes'],
+];
+foreach ([[$canonical[0], $scopedIndex], [$scopedIndex, $canonical[0]]] as $collectionRoutes) {
+    $registered = ResourceWriteRoutes::byController($collectionRoutes);
+    assert(ResourceWriteRoutes::listsForModel($model, $registered) === $expectedLists);
+    assert(ResourceWriteRoutes::listForModel($model, $registered) === null);
+    assert(ResourceWriteRoutes::forModel($model, $registered) === []);
+}
+assert(ResourceWriteRoutes::listsForModel($model, ResourceWriteRoutes::byController([$canonical[0]]))
+    === [['method' => 'GET', 'uri' => 'api/notes']]);
+assert(ResourceWriteRoutes::listsForModel($model, ResourceWriteRoutes::byController([
+    $route('GET', 'api/notes'), $route('GET', 'api/notes/export'),
+])) === []);
+assert(ResourceWriteRoutes::listsForModel($model, ResourceWriteRoutes::byController([
+    $canonical[0], $route('GET', 'api/admin/notes', 'Nexia\\Apps\\Example\\Notes\\Http\\Controllers\\Admin\\NoteController'),
+])) === []);
+
+echo "Resource write and collection route discovery passed.\n";
