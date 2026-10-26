@@ -481,3 +481,16 @@ try {
 }
 
 fwrite(STDOUT, "Resource reference contract passed.\n");
+
+
+// Owner batching is an optional extension; legacy batch providers remain valid.
+assert(is_subclass_of(
+    \Nexia\ResourceReference\Contracts\ResourceReferenceGroupedResolutionContribution::class,
+    \Nexia\ResourceReference\Contracts\ResourceReferenceBatchResolutionContribution::class,
+));
+$groupedOwnerMethod = new ReflectionMethod(
+    \Nexia\ResourceReference\Contracts\ResourceReferenceGroupedResolutionContribution::class,
+    'resolveManyGrouped',
+);
+assert($groupedOwnerMethod->getNumberOfRequiredParameters() === 2);
+assert((string) $groupedOwnerMethod->getReturnType() === 'array');

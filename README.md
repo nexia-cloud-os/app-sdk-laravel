@@ -252,3 +252,81 @@ are aliases of their validated counterparts. The matching Core and native
 runtime must be adopted before an App consumes this host. See the
 [document-data reference](https://developers.nexia.to/docs/app-sdk-electronic-signature-contracts)
 for stable bindings, pagination and unchanged protected-result limits.
+
+### Grouped Resource Reference resolution (unreleased)
+
+A consumer with multiple effective dates or owner-defined filters can use the
+optional `Nexia\ResourceReference\Contracts\GroupedResourceReferences`
+capability. Keep one actor, Legal Entity, operating-unit context and purpose
+per call. Group keys identify results; missing or denied IDs can be omitted.
+For example, with an injected `ResourceReferences $references`, an authorized
+`ResourceReferenceResolutionContext $context`, and an owner resource key:
+
+```php
+$groups = [
+    'first-date' => ['resource_ids' => $resourceIds, 'as_of' => $firstDate],
+    'second-date' => ['resource_ids' => $resourceIds, 'as_of' => $secondDate],
+];
+
+if ($references instanceof \Nexia\ResourceReference\Contracts\GroupedResourceReferences) {
+    $resolved = $references->resolveManyGrouped($resourceKey, $groups, $context);
+} else {
+    $resolved = [];
+    foreach ($groups as $key => $group) {
+        $groupContext = new \Nexia\ResourceReference\ResourceReferenceResolutionContext(
+            legalEntity: $context->legalEntity,
+            actor: $context->actor,
+            asOf: $group['as_of'],
+            purpose: $context->purpose,
+            operatingUnit: $context->operatingUnit,
+            includeProtectedValues: $context->includeProtectedValues,
+            effectiveThrough: $group['effective_through'] ?? $group['as_of'],
+            filters: $group['filters'] ?? $context->filters,
+            sort: $context->sort,
+        );
+        $resolved[$key] = $references->resolveMany(
+            $resourceKey, array_values(array_unique($group['resource_ids'])), $groupContext,
+        );
+    }
+}
+```
+
+`$firstDate` and `$secondDate` are `DateTimeImmutable` values. Consume results
+with `$resolved[$groupKey][$resourceId] ?? null`; never retry omitted IDs through
+an unscoped lookup. The transport splits requests into at most 31 groups and
+400 total selectors, with at most 100 unique IDs per group fragment. Bound the
+consumer's input window too: transport splitting does not bound the entire
+input collection or an owner's in-memory result size.
+
+Owners opt in explicitly by implementing
+`Nexia\ResourceReference\Contracts\ResourceReferenceGroupedResolutionContribution`,
+which extends `ResourceReferenceBatchResolutionContribution`. Its
+`resolveManyGrouped(array $groups, ResourceReferenceResolutionContext $context)`
+returns `array<group-key, array<resource-id, ResolvedResourceReference>>`.
+Register the same resolver contribution as before; implement the inherited
+single/batch paths as well. Deploy the compatible SDK and host/runtime dispatch
+before adopting this interface. The matching runtime calls the grouped owner
+once per bounded request; owners without this capability keep the existing
+per-group batch/single resolution fallback. A grouped HTTP call alone therefore
+does not prove that owner SQL is batched.
+
+Inside the grouped owner, read relevant local rows and relations once for the
+bounded selector set, then evaluate each group's exact date, filters and
+`effective_through`. Preserve the owner's interval boundaries (including any
+exclusive end date), timezone and assignment precedence. A broad min/max date
+query only supplies candidates; it must not substitute one date's result for
+another's. Return each reference with its group's exact `asOf` and enforce live
+actor, organization, purpose and record authorization for every group. Reusing
+loaded models within this invocation is allowed; caching authorization across
+requests or treating a denied reference as permission to read a projection is
+not.
+
+Measure both sides of this boundary in focused tests. Use an isolated App
+fixture with repeated IDs across dates and units, count outgoing host calls and
+owner SQL separately, and assert a query budget that does not multiply by
+rows × dates × units. Compare small and large inputs, first/last effective-day
+boundaries, denied actors, separate invocations after data changes, and legacy
+fallback results. Record elapsed time and peak memory without logging IDs,
+payloads or tokens. Finally time the actual authorized workflow, including file
+reading and result preparation; a mocked transport benchmark is not end-to-end
+performance evidence.

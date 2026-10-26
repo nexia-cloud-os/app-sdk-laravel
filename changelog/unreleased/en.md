@@ -31,3 +31,7 @@ remain Signature-only unless explicitly opted in. Save exact source/version/fiel
 bindings and adopt matching Core/runtime support before consuming the new host.
 Release versions are pending. See the
 [contract guide](https://developers.nexia.to/docs/app-sdk-electronic-signature-contracts).
+
+## Grouped Resource Reference owner resolution
+
+Owners may optionally implement `ResourceReferenceGroupedResolutionContribution` to resolve multiple dates and filter groups in one call on a runtime supporting this capability. Existing batch providers remain compatible and retain per-group resolution. Authorize every group using its date and filters under the supplied actor and organization context; omit denied references and retain exact group keys and as-of times.

@@ -31,3 +31,7 @@ query/result는 기존 값 검증 계약을 재사용합니다. 기존 전자서
 저장하고 새 호스트를 사용하기 전에 대응하는 Core·런타임을 적용하세요.
 출시 버전은 미정이며 자세한 내용은
 [계약 가이드](https://developers.nexia.to/ko/docs/app-sdk-electronic-signature-contracts)에 있습니다.
+
+## 리소스 참조 제공자의 그룹 일괄 조회
+
+여러 날짜와 필터 그룹을 한 번에 조회하려는 제공자는 이 기능을 지원하는 런타임에서 선택적으로 `ResourceReferenceGroupedResolutionContribution`을 구현할 수 있습니다. 기존 일괄 조회 제공자는 그룹별 조회로 계속 동작합니다. 전달받은 사용자와 조직 범위 안에서 각 그룹의 날짜와 필터에 대한 권한을 검증하고, 거부된 참조는 제외하며 그룹 키와 기준 시각을 그대로 유지해야 합니다.
