@@ -42,6 +42,7 @@
             "@php -d zend.assertions=1 -d assert.exception=1 tests/ApprovalDomainEnumsTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/ApprovalDocumentBodyTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/ApprovalIdempotencyRequestTest.php",
+      "@php -d zend.assertions=1 -d assert.exception=1 tests/ApprovalSubmissionDeliveryTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/ApprovalLineDefinitionTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/ApprovalRoutePolicyStepTest.php",
             "@php -d zend.assertions=1 -d assert.exception=1 tests/DescriptorStatusTest.php",
