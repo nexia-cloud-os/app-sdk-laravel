@@ -193,3 +193,8 @@ foreach ([[$lists[0], $lists[0]], [[...$lists[0], 'method' => 'POST']],
     $rejects(fn () => \Nexia\AppRuntime\StandardCatalogPolicy::validate([...$catalog,
         'route_bindings' => [...$catalog['route_bindings'], ...$invalidBindings]]));
 }
+
+
+$attribute = new ReflectionClass(\Nexia\AppRuntime\BatchableRead::class);
+assert($attribute->getAttributes(Attribute::class)[0]->newInstance()->flags === Attribute::TARGET_METHOD);
+assert($attribute->newInstance() instanceof \Nexia\AppRuntime\BatchableRead);

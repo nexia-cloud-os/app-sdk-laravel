@@ -330,3 +330,10 @@ fallback results. Record elapsed time and peak memory without logging IDs,
 payloads or tokens. Finally time the actual authorized workflow, including file
 reading and result preparation; a mocked transport benchmark is not end-to-end
 performance evidence.
+
+## Optional custom read batching
+
+A read-only JSON GET controller method may declare `#[Nexia\AppRuntime\BatchableRead]`.
+The catalog exporter discovers its registered routes; the existing SDK HTTP API
+continues to work without declaration. See [read batching](docs/read-batching.md)
+for authorization boundaries, non-blocking development info and rollout order.
