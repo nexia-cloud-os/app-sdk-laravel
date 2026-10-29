@@ -15,6 +15,12 @@ final readonly class ImportRowDisposition
 
     public const UNCHANGED = 'unchanged';
 
+    /** Excluded by an explicit import rule; no record was saved. */
+    public const SKIPPED = 'skipped';
+
+    /** Not attempted or rolled back when an apply operation stopped. */
+    public const NOT_PROCESSED = 'not_processed';
+
     public const CONFLICT = 'conflict';
 
     public const ERROR = 'error';
@@ -34,7 +40,7 @@ final readonly class ImportRowDisposition
         public ?string $invitationStatus = null,
         public array $issues = [],
     ) {
-        if (! in_array($status, [self::CREATE, self::UPDATE, self::UNCHANGED, self::CONFLICT, self::ERROR], true)) {
+        if (! in_array($status, [self::CREATE, self::UPDATE, self::UNCHANGED, self::SKIPPED, self::NOT_PROCESSED, self::CONFLICT, self::ERROR], true)) {
             throw new InvalidArgumentException("Unknown import row disposition [{$status}].");
         }
     }

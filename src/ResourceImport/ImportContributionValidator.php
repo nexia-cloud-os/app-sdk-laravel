@@ -103,6 +103,10 @@ final class ImportContributionValidator
 
     public static function pipeline(ResourceImportPipelineDefinition $definition): void
     {
+        if ($definition->resultRowsPath !== null
+            && preg_match('~\A/api/[a-z0-9/-]+/\{batch\}/[a-z0-9-]+\z~D', $definition->resultRowsPath) !== 1) {
+            throw new InvalidArgumentException('Import result rows require an App API path with a batch placeholder.');
+        }
         self::common(
             resourceKey: $definition->resourceKey,
             schema: $definition->schema,

@@ -91,5 +91,10 @@ final class ResourceImportPipelineDefinition
         /** Record successful executions as evidence for this declared migration stage. */
         public readonly ?DataMigrationStageIdentity $dataMigrationStage = null,
         public readonly array $templateExampleRows = [],
+        /** App GET path containing {batch}; accepts status/page/per_page and returns
+         * {data: list<ImportRowDisposition wire rows>, total: int, page: int, per_page: int}.
+         * The App authorizes the current actor, legal entity and batch owner.
+         */
+        public readonly ?string $resultRowsPath = null,
     ) {}
 }

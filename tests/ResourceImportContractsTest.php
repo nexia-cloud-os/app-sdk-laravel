@@ -17,6 +17,7 @@ use Nexia\ResourceImport\Decision\MultipleChoiceDecision;
 use Nexia\ResourceImport\Execution\Contracts\QueuedImportExecution;
 use Nexia\ResourceImport\FillRuleProposal;
 use Nexia\ResourceImport\ImportContributionValidator;
+use Nexia\ResourceImport\ImportRowDisposition;
 use Nexia\ResourceImport\ImportFileCapability;
 use Nexia\ResourceImport\ImportRecipeDefinition;
 use Nexia\ResourceImport\ImportSourceProfile;
@@ -316,3 +317,18 @@ assert(\Nexia\ResourceImport\ImportPipelineWire::state(
 importContractMustFail(fn () => \Nexia\ResourceImport\ImportPipelineWire::restoreState(
     [...$stateWire, 'rowCount' => -1],
 ), 'Invalid pipeline result counts.');
+
+// Optional result paging preserves legacy catalog fingerprints.
+assert(! array_key_exists('resultRowsPath', $wire));
+$paged = [...get_object_vars(validPipelineDefinition()), 'resultRowsPath' => '/api/fixture/imports/{batch}/rows'];
+$pagedDefinition = new ResourceImportPipelineDefinition(...$paged);
+$pagedWire = \Nexia\ResourceImport\ImportPipelineWire::definition($pagedDefinition);
+assert(\Nexia\ResourceImport\ImportPipelineWire::restoreDefinition($pagedWire, ResourceImportContractsPipeline::class)->resultRowsPath === $paged['resultRowsPath']);
+foreach (['https://example.test/{batch}/rows', '/api/fixture/../{batch}/rows', '/api/fixture/{batch}/rows?secret=1'] as $invalid) {
+    importContractMustFail(fn () => ImportContributionValidator::pipeline(new ResourceImportPipelineDefinition(...[...$paged, 'resultRowsPath' => $invalid])), 'Import result rows require an App API path with a batch placeholder.');
+}
+
+foreach ([ImportRowDisposition::SKIPPED, ImportRowDisposition::NOT_PROCESSED] as $status) {
+    $row = new ImportRowDisposition(row: 42, status: $status, values: []);
+    assert($row->toArray()['status'] === $status);
+}

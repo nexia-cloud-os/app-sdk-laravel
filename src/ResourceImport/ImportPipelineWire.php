@@ -30,6 +30,9 @@ final class ImportPipelineWire
         ImportContributionValidator::pipeline($definition);
         $data = get_object_vars($definition);
         unset($data['handlerClass']);
+        if ($definition->resultRowsPath === null) {
+            unset($data['resultRowsPath']);
+        }
         $data['schema'] = $definition->schema->toArray();
         $data['fillRuleProposals'] = array_map(get_object_vars(...), $definition->fillRuleProposals);
         $data['sourceProfiles'] = array_map(get_object_vars(...), $definition->sourceProfiles);
@@ -41,6 +44,7 @@ final class ImportPipelineWire
     public static function restoreDefinition(array $data, string $handler): ResourceImportPipelineDefinition
     {
         $wire = $data;
+        $data += ['resultRowsPath' => null];
         self::assertShape($data, ResourceImportPipelineDefinition::class, ['handlerClass']);
         if (array_key_exists('handlerClass', $data)) {
             throw new InvalidArgumentException('Remote pipeline handlers are not executable metadata.');
