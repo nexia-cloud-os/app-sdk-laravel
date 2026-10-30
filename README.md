@@ -46,8 +46,8 @@ Closing review retains saved data and does not report success or undo the write.
 This method does not hold Core locks for the App transaction or promise a shared
 rollback. Use the explicit party and organization conditions; local-only directory
 lock methods are not part of the shared SDK.
-The draft contract needs coordinated SDK/Core/runtime adoption; package publication
-and the retained local user runtime are separate from source implementation.
+This contract requires coordinated SDK/Core/runtime adoption; package publication
+does not prove that the selected App runtime has adopted the contract.
 
 ## Organization conditions
 
@@ -242,22 +242,25 @@ describes workspace ownership, never permission to read or grant data for
 other people. Every App endpoint must enforce its own subject authorization.
 
 
-### Shared document data (unreleased)
+### Shared document data
 
 `Nexia\DocumentData\Contracts\DocumentDataHost` separates metadata discovery
 from owner-authorized value resolution. Contributions use
 `AppDescriptors\DocumentDataSourceDescriptor` and explicitly declare purposes.
 Legacy Signature DTOs/interfaces remain valid; neutral DocumentData DTO names
 are aliases of their validated counterparts. The matching Core and native
-runtime must be adopted before an App consumes this host. See the
+runtime must be adopted before an App consumes this host: PHP SDK 0.10.10,
+Core 0.8.152 and Manager 0.1.0-alpha.75 or later. See the
 [document-data reference](https://developers.nexia.to/docs/app-sdk-electronic-signature-contracts)
 for stable bindings, pagination and unchanged protected-result limits.
 
-### Grouped Resource Reference resolution (unreleased)
+### Grouped Resource Reference resolution
 
 A consumer with multiple effective dates or owner-defined filters can use the
 optional `Nexia\ResourceReference\Contracts\GroupedResourceReferences`
-capability. Keep one actor, Legal Entity, operating-unit context and purpose
+capability from PHP SDK 0.10.12. Adopt the matching host/runtime dispatch
+before enabling grouped providers. Keep one actor, Legal Entity, operating-unit
+context and purpose
 per call. Group keys identify results; missing or denied IDs can be omitted.
 For example, with an injected `ResourceReferences $references`, an authorized
 `ResourceReferenceResolutionContext $context`, and an owner resource key:
@@ -337,3 +340,22 @@ A read-only JSON GET controller method may declare `#[Nexia\AppRuntime\Batchable
 The catalog exporter discovers its registered routes; the existing SDK HTTP API
 continues to work without declaration. See [read batching](docs/read-batching.md)
 for authorization boundaries, non-blocking development info and rollout order.
+
+## Released optional contracts
+
+Core 0.8.173 supports the contracts below with a matching App runtime.
+Apps must adopt the required PHP package and keep actor/record authorization.
+SDK installation alone does not enable an App workflow.
+
+| Contract | PHP SDK | Procedure |
+| --- | --- | --- |
+| `PersonLegalEntityAccess::end` | 0.10.13 | [Company access termination](https://developers.nexia.to/en/docs/app-sdk-sdk-contracts) |
+| `ApprovalSubmissionHost` | 0.10.15 | [Background submission](https://developers.nexia.to/en/docs/app-sdk-approval-contracts) |
+| `PersonProfileHistory::pageForAuthorizedHr` owner reference | 0.10.15 | [Authorized profile history](https://developers.nexia.to/en/docs/app-sdk-sdk-contracts) |
+| `IncrementalResourceImportPipeline` and `resultRowsPath` | 0.10.16 | [Resumable imports](https://developers.nexia.to/en/docs/building-apps-import-and-export) |
+
+Implementations of `PersonProfileHistory` must accept the final optional
+`?ResourceRef $authorizationResource = null` parameter. An owner reference is
+not a permission grant; callers omitting it still need directory authority.
+Approval receipts are not completed cases, and pending import checkpoints are
+not eligible batches. Keep uncertain results under their original request keys.

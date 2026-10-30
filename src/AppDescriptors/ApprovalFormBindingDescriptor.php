@@ -59,6 +59,8 @@ final class ApprovalFormBindingDescriptor implements AppDescriptor
         // Opt in only when the create widget can authorize and import a source
         // resource into an independent App draft, never reuse the source handle.
         public readonly bool $supportsDocumentCopy = false,
+        /** @var list<string> Additional permissions every deciding actor needs in the submission Legal Entity. */
+        public readonly array $requiredActorPermissionKeys = [],
     ) {
         if (trim($appKey) === '') {
             throw new \InvalidArgumentException('ApprovalFormBindingDescriptor app_key must be a non-empty string.');
@@ -101,6 +103,12 @@ final class ApprovalFormBindingDescriptor implements AppDescriptor
         foreach ($additionalSubmitPermissionKeys as $permission) {
             if (! is_string($permission) || trim($permission) === '') {
                 throw new \InvalidArgumentException("ApprovalFormBindingDescriptor [{$id}] submit permissions must be non-empty strings.");
+            }
+        }
+
+        foreach ($requiredActorPermissionKeys as $permission) {
+            if (! is_string($permission) || trim($permission) === '' || trim($permission) !== $permission) {
+                throw new \InvalidArgumentException("ApprovalFormBindingDescriptor [{$id}] actor permissions must be non-empty permission keys.");
             }
         }
 

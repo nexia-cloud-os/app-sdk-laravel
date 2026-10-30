@@ -39,6 +39,9 @@ final class PlatformDescriptorWire
             return ['type' => $type, 'data' => $descriptor->toArray()];
         }
         $data = get_object_vars($descriptor);
+        if ($descriptor instanceof ApprovalFormBindingDescriptor && $descriptor->requiredActorPermissionKeys === []) {
+            unset($data['requiredActorPermissionKeys']);
+        }
         if ($descriptor instanceof SlotWidgetDescriptor && $descriptor->availabilityResourceKey === null) {
             unset($data['availabilityResourceKey']);
         }

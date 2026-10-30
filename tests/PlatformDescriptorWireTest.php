@@ -11,6 +11,7 @@ use Nexia\AppDescriptors\ApprovalRoutePolicyPresetDescriptor;
 use Nexia\Approval\Domain\ApprovalRoutePolicyStep;
 
 foreach ([
+    new \Nexia\AppDescriptors\ApprovalFormBindingDescriptor('sample', 'record', 'submit', 'sample.submit', ['create'], 'sample.submit', 'sample.record', requiredActorPermissionKeys: ['sample.record.authorize']),
     new \Nexia\AppDescriptors\SignatureBulkBindingDescriptor('sample', 'sample.contract', '1.0', 1,
         ['sample.record'], [new \Nexia\AppDescriptors\SignatureBulkRoleAssignmentPolicy('signer', [\Nexia\Signature\SignatureBulkParticipantAssignmentSource::BindingResolved])],
         [\Nexia\Signature\SignatureInvitationChannel::Email], [\Nexia\Signature\SignatureAuthenticationMethod::EmailOtp],
