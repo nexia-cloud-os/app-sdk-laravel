@@ -117,13 +117,34 @@ readonly class TransportResourceReferences implements GroupedResourceReferences
 
     public function searchEffectiveRange(string $resourceKey, array $queries, DateTimeImmutable $from, DateTimeImmutable $until, ResourceReferenceResolutionContext $context, int $limit = 10000): array
     {
-        if ($queries === []) {
-            return [];
+        foreach ($queries as $query) {
+            if (! is_string($query) || mb_strlen($query) > 160) {
+                throw new InvalidArgumentException('Effective-range queries must be strings of at most 160 characters.');
+            }
+        }
+        if ($limit < 1 || $limit > 10000 || $from > $until) {
+            throw new InvalidArgumentException('Invalid effective-range search bounds.');
+        }
+        $result = [];
+        foreach (array_chunk(array_values(array_unique($queries)), 100) as $chunk) {
+            $snapshots = $this->request('searchEffectiveRange', $resourceKey, $context, [
+                'queries' => $chunk, 'from' => $from->format(DATE_ATOM), 'until' => $until->format(DATE_ATOM), 'limit' => $limit,
+            ]);
+            if (! is_array($snapshots) || count($snapshots) > $limit) {
+                throw new RuntimeException('Invalid effective-range response.');
+            }
+            foreach ($snapshots as $snapshot) {
+                $reference = $this->reference($snapshot);
+                $key = json_encode([$reference->appKey, $reference->resourceKey, $reference->resourceId,
+                    $reference->asOf->format(DATE_ATOM)], JSON_THROW_ON_ERROR);
+                $result[$key] ??= $reference;
+                if (count($result) >= $limit) {
+                    return array_values($result);
+                }
+            }
         }
 
-        return array_map($this->reference(...), $this->request('searchEffectiveRange', $resourceKey, $context, [
-            'queries' => $queries, 'from' => $from->format(DATE_ATOM), 'until' => $until->format(DATE_ATOM), 'limit' => $limit,
-        ]));
+        return array_values($result);
     }
 
     public function searchEffectiveRangePage(string $resourceKey, DateTimeImmutable $from, DateTimeImmutable $until, ResourceReferenceResolutionContext $context, int $page = 1, int $perPage = 500): ?ResourceReferencePage

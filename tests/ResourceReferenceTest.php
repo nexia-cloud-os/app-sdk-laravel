@@ -494,3 +494,60 @@ $groupedOwnerMethod = new ReflectionMethod(
 );
 assert($groupedOwnerMethod->getNumberOfRequiredParameters() === 2);
 assert((string) $groupedOwnerMethod->getReturnType() === 'array');
+
+$rangeQueries = array_map(static fn ($i): string => 'worker-'.$i, range(1, 201));
+$rangeCalls = [];
+$rangeReference = static fn (string $id, string $date = '2026-09-23'): array => (new ResolvedResourceReference(
+    'sample-owner', 'sample-owner.worker', $id, 'Synthetic worker', null, [], new DateTimeImmutable($date),
+))->snapshot();
+$transport = new \Nexia\ResourceReference\TransportResourceReferences(
+    static function (array $body) use (&$rangeCalls, $rangeReference, $resolutionContext): array {
+        assert($body['method'] === 'searchEffectiveRange' && count($body['queries']) <= 100);
+        assert($body['context']['actor_public_id'] === $resolutionContext->actor->publicId());
+        assert($body['context']['purpose'] === $resolutionContext->purpose);
+        assert($body['from'] === '2026-01-01T00:00:00+00:00' && $body['until'] === '2026-12-31T00:00:00+00:00');
+        $rangeCalls[] = $body['queries'];
+        return array_slice([$rangeReference('shared'), ...array_map($rangeReference, $body['queries'])], 0, $body['limit']);
+    },
+);
+$from = new DateTimeImmutable('2026-01-01');
+$until = new DateTimeImmutable('2026-12-31');
+$rangeResult = $transport->searchEffectiveRange('sample-owner.worker', [...$rangeQueries, $rangeQueries[0]], $from, $until, $resolutionContext);
+assert(array_map('count', $rangeCalls) === [100, 100, 1]);
+assert(array_merge(...$rangeCalls) === $rangeQueries && count($rangeResult) === 202);
+assert(count(array_filter($rangeResult, static fn ($r) => $r->resourceId === 'shared')) === 1);
+$rangeCalls = [];
+assert(count($transport->searchEffectiveRange('sample-owner.worker', $rangeQueries, $from, $until, $resolutionContext, 2)) === 2);
+assert(count($rangeCalls) === 1, 'Reaching the caller limit must not dispatch more callbacks.');
+assert($transport->searchEffectiveRange('sample-owner.worker', [], $from, $until, $resolutionContext) === []);
+foreach ([['too-long-'.str_repeat('x', 160)], [1]] as $invalidQueries) {
+    try {
+        $transport->searchEffectiveRange('sample-owner.worker', $invalidQueries, $from, $until, $resolutionContext);
+        throw new LogicException('Invalid range selector accepted.');
+    } catch (InvalidArgumentException) {}
+}
+assert(count($rangeCalls) === 1);
+$rangeCalls = [];
+$transport = new \Nexia\ResourceReference\TransportResourceReferences(static function ($body) use (&$rangeCalls, $rangeReference): array {
+    $rangeCalls[] = $body;
+    if (count($rangeCalls) === 2) throw new RuntimeException('Later range batch unavailable.');
+    return [$rangeReference('first')];
+});
+try {
+    $transport->searchEffectiveRange('sample-owner.worker', $rangeQueries, $from, $until, $resolutionContext);
+    throw new LogicException('Partial range search accepted.');
+} catch (RuntimeException $error) {
+    assert($error->getMessage() === 'Later range batch unavailable.' && count($rangeCalls) === 2);
+}
+$transport = new \Nexia\ResourceReference\TransportResourceReferences(static function ($body) use ($rangeReference): array {
+    return [$rangeReference('same-worker', $body['queries'][0] === 'worker-1' ? '2026-01-01' : '2026-06-01')];
+});
+assert(count($transport->searchEffectiveRange('sample-owner.worker', $rangeQueries, $from, $until, $resolutionContext)) === 2,
+    'Distinct historical snapshots must not be merged just because their resource ID matches.');
+foreach ([null, [[]]] as $invalidResult) {
+    $transport = new \Nexia\ResourceReference\TransportResourceReferences(static fn () => $invalidResult);
+    try {
+        $transport->searchEffectiveRange('sample-owner.worker', ['worker-1'], $from, $until, $resolutionContext);
+        throw new LogicException('Invalid range response accepted.');
+    } catch (RuntimeException) {}
+}
