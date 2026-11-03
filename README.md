@@ -359,3 +359,18 @@ Implementations of `PersonProfileHistory` must accept the final optional
 not a permission grant; callers omitting it still need directory authority.
 Approval receipts are not completed cases, and pending import checkpoints are
 not eligible batches. Keep uncertain results under their original request keys.
+
+### Party business classifications and relationships
+
+`PartyBusinessDirectory` reads active Party roles and directed relationships in
+batches, or searches active Parties using role codes and an independent person /
+organization filter. The current actor needs directory read authority; results
+are limited to Parties and relationship endpoints that actor can see. A role
+such as `core.customer` is a classification of a Party, not a directed edge.
+
+For a host-governed write, include `roles` or `relationships` in
+`PartyWritePreconditions::register()` when the selected Party must still satisfy
+those conditions. Relationship conditions use `code`, `direction` (`incoming`
+or `outgoing`), and `other_party_public_id`. Registration does not prove the
+App write completed: the host checks again at completion and a later conflict may
+require review with App data retained. The matching Core and runtime are needed.

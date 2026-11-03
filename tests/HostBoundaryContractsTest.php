@@ -24,6 +24,8 @@ use Nexia\Identity\Contracts\ActorDirectory;
 use Nexia\Identity\Contracts\Party;
 use Nexia\Identity\Contracts\PartyAccess;
 use Nexia\Identity\Contracts\PartyRelationshipDirectory;
+use Nexia\Identity\Contracts\PartyBusinessDirectory;
+use Nexia\Identity\Contracts\PartyWritePreconditions;
 use Nexia\Identity\Contracts\PersonLoginInvitations;
 use Nexia\Identity\Contracts\PersonPartyProvisioner;
 use Nexia\Identity\Contracts\PersonProfileHistory;
@@ -177,6 +179,8 @@ foreach ([
     PersonProfileHistory::class,
     PartyDirectory::class,
     PartyRelationshipDirectory::class,
+    PartyBusinessDirectory::class,
+    PartyWritePreconditions::class,
     HostReferenceResolver::class,
     RoleCatalog::class,
     SubjectPermissionAuthorizer::class,
@@ -207,6 +211,8 @@ foreach ([
     PersonProfileHistory::class => ['pageForAuthorizedHr'],
     PartyDirectory::class => ['findByPublicId', 'findCanonicalByPublicId', 'requireByPublicId', 'exists', 'findByPublicIds', 'orderByDisplayLabel'],
     PartyRelationshipDirectory::class => ['findVisibleByPublicId'],
+    PartyBusinessDirectory::class => ['activeRoles', 'activeRelationships', 'search'],
+    PartyWritePreconditions::class => ['register'],
     ProcessRuntime::class => ['hasPublishedEventStart', 'findInstance', 'correlateReceiveTask', 'deliverMessage'],
     RecentAuthentication::class => ['isFresh'],
     ApprovalIdempotency::class => ['execute'],

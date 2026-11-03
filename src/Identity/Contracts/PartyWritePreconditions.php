@@ -18,7 +18,7 @@ interface PartyWritePreconditions
      * Returning confirms registration, not final save success.
      * Unsupported execution contexts must reject, never fall back to an ordinary lookup.
      *
-     * @param array{person?: bool, organization?: bool, archived?: bool} $expected Nonempty explicit predicates.
+     * @param array{person?: bool, organization?: bool, archived?: bool, roles?: non-empty-list<string>, relationships?: non-empty-list<array{code:string, direction:'incoming'|'outgoing', other_party_public_id:string}>} $expected Nonempty explicit predicates.
      */
     public function register(Actor $actor, string $publicId, array $expected): void;
 }
