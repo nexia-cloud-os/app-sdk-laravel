@@ -25,5 +25,7 @@ final readonly class ProcessUserTaskSubmissionInvocation
         public Actor $actor,
         public ResourceRef $resourceRef,
         public array $input,
+        /** Host-frozen activity context; never supplied by the form submitter. */
+        public array $taskContext = [],
     ) {}
 }

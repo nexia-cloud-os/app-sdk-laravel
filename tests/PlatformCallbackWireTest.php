@@ -45,7 +45,7 @@ $tenant = new class implements \Nexia\Tenancy\Contracts\TenantIdentity {
 };
 foreach ([
     ['process.work', new \Nexia\Process\ProcessWorkActionInvocation('sample', 'finish', '1', 'process', 1, 'once', $entity, $actor, $ref, [], resourceInputs: ['one' => $ref, 'many' => [$ref]])],
-    ['process.user_task', new \Nexia\Process\ProcessUserTaskSubmissionInvocation('sample', 'submit', 'sample.form', '1', 'process', 1, 'task', 'once', $entity, $actor, $ref, [])],
+    ['process.user_task', new \Nexia\Process\ProcessUserTaskSubmissionInvocation('sample', 'submit', 'sample.form', '1', 'process', 1, 'task', 'once', $entity, $actor, $ref, [], taskContext: ['multi_instance_item' => ['public_id' => 'item-1', 'label' => 'Review'], 'multi_instance_index' => 0])],
     ['approval.subject', new \Nexia\Approval\Resolver\ResolverContext($actor, $entity, $ref, subjectActor: $actor)],
     ['approval.resolve', new \Nexia\Approval\Resolver\ResolverContext($actor, $entity, $ref, subjectActor: $actor)],
     ['signature.data', new \Nexia\Signature\SignatureDocumentDataQuery($tenant, $entity, $actor,
@@ -75,6 +75,10 @@ try {
     PlatformCallbackWire::restoreResult('arbitrary.class', []);
     throw new LogicException('Unknown callback accepted.');
 } catch (InvalidArgumentException) {}
+$legacyTask = new \Nexia\Process\ProcessUserTaskSubmissionInvocation('sample', 'submit', 'sample.form', '1', 'process', 1, 'task', 'once', $entity, $actor, $ref, []);
+$legacyWire = PlatformCallbackWire::input($legacyTask);
+unset($legacyWire['taskContext']);
+assert(PlatformCallbackWire::restoreInput('process.user_task', $legacyWire, $actor, $entity, $actor, $tenant)->taskContext === []);
 echo "Closed callback DTO roundtrips passed.\n";
 
 foreach ([new \Nexia\SelfService\SelfWorkContextQuery($actor, null),
