@@ -10,6 +10,12 @@ use Nexia\ResourceComposition\CompositionSpecValidationException;
 
 require dirname(__DIR__).'/vendor/autoload.php';
 
+assert(is_subclass_of(\Nexia\Laravel\ResourceComposition\Contracts\DashboardGenericListProjectionProvider::class,
+    \Nexia\Laravel\ResourceComposition\Contracts\DashboardGenericCompositionQueryProvider::class));
+assert(\Nexia\Laravel\ResourceComposition\Contracts\DashboardGenericListProjectionProvider::PUBLIC_REFERENCE_SET_FILTER === 'public_reference_set');
+assert(\Nexia\Laravel\ResourceComposition\Contracts\DashboardGenericListProjectionProvider::JSON_BOOLEAN_SCALAR === 'json_boolean_scalar');
+assert(interface_exists(\Nexia\Laravel\ResourceComposition\Contracts\DashboardAggregateDimensions::class));
+
 $declared = [
     'public_id' => ['type' => 'uuid'],
     'status' => ['type' => 'string', 'enum' => ['active'], 'enum_labels' => ['active' => 'status.active']],

@@ -59,6 +59,16 @@ $querySource = new DashboardQuerySource(
 $manifestRow = $querySource->agentManifestRow('sample-time');
 $definitionRow = $querySource->agentDefinitionRow('sample-time');
 $backingSourceRow = $querySource->backingSourceRow('sample-time');
+$statusSource = new DashboardQuerySource('sample-time.personal_status.read', 'Status source', '/api/sample-time/status',
+    'sample-time.leave_balance.read', SubjectPopulation::Self, pollingOnly: true, widgetAppStatuses: ['people']);
+if ($statusSource->widgetAppStatuses !== ['people']) throw new RuntimeException('Widget status declaration was not retained.');
+$selectedScope = new DashboardQuerySource('sample-time.selected.read', 'Selected source', '/api/sample-time/selected',
+    'sample-time.leave_balance.read', SubjectPopulation::Self, pollingOnly: true, usesLegalEntitySelection: true, legalEntityScope: 'selected');
+$independentScope = new DashboardQuerySource('sample-time.independent.read', 'Independent source', '/api/sample-time/independent',
+    'sample-time.leave_balance.read', SubjectPopulation::Self, pollingOnly: true, legalEntityScope: 'independent');
+if ($querySource->legalEntityScope !== null || $selectedScope->legalEntityScope !== 'selected' || $independentScope->legalEntityScope !== 'independent') {
+    throw new RuntimeException('Dashboard scope classification compatibility failed.');
+}
 
 if ($manifestRow !== [
     'key' => 'sample-time.personal_time_leave.read',
@@ -93,7 +103,55 @@ if ($manifestRow !== [
     throw new RuntimeException('Dashboard query source Agent contract changed unexpectedly.');
 }
 
+$reference = ['resource_key' => 'people.worker_assignment', 'purpose' => 'sample-time.manager', 'visibility_group' => 'manager', 'population' => 'direct_reports', 'include_party_key' => true];
+$referenceSource = new DashboardQuerySource('sample-time.summary.read', 'Manager reference', '/api/sample-time/summary',
+    'sample-time.leave_balance.read', SubjectPopulation::LegalEntity, pollingOnly: true, usesLegalEntitySelection: true,
+    visibilityPermissionGroups: ['manager' => ['sample-time.leave_balance.read']], widgetReferenceReads: [$reference]);
+if ($referenceSource->widgetReferenceReads !== [$reference]) throw new RuntimeException('Widget reference population was not retained.');
+
+$tenantWide = new DashboardQuerySource('sample-time.company.read', 'Company source', '/api/sample-time/company',
+    'sample-time.leave_balance.read', SubjectPopulation::LegalEntity, pollingOnly: true,
+    usesLegalEntitySelection: true, legalEntityScope: 'selected', tenantWideRead: true);
+if (! $tenantWide->tenantWideRead) throw new RuntimeException('Tenant-wide dashboard contract was not retained.');
+
 $invalidFactories = [
+    static fn (): DashboardQuerySource => new DashboardQuerySource('sample-time.company.read', 'Invalid company source', '/api/sample-time/company',
+        'sample-time.leave_balance.read', SubjectPopulation::LegalEntity, pollingOnly: true, tenantWideRead: true),
+    static fn (): DashboardQuerySource => new DashboardQuerySource('sample-time.company.read', 'Invalid agent source', '/api/sample-time/company',
+        'sample-time.leave_balance.read', SubjectPopulation::LegalEntity, pollingOnly: true, usesLegalEntitySelection: true,
+        legalEntityScope: 'selected', capability: RendererCapability::HumanAndAgent, tenantWideRead: true),
+    static fn (): DashboardQuerySource => new DashboardQuerySource('sample-time.company.read', 'Invalid self source', '/api/sample-time/company',
+        'sample-time.leave_balance.read', SubjectPopulation::Self, pollingOnly: true, usesLegalEntitySelection: true,
+        legalEntityScope: 'selected', tenantWideRead: true),
+    static fn (): DashboardQuerySource => new DashboardQuerySource('sample-time.invalid.read', 'Invalid scope', '/api/sample-time/invalid',
+        'sample-time.leave_balance.read', SubjectPopulation::Self, legalEntityScope: 'selected'),
+    static fn (): DashboardQuerySource => new DashboardQuerySource('sample-time.invalid.read', 'Invalid scope', '/api/sample-time/invalid',
+        'sample-time.leave_balance.read', SubjectPopulation::Self, usesLegalEntitySelection: true, legalEntityScope: 'independent'),
+    static fn (): DashboardQuerySource => new DashboardQuerySource('sample-time.invalid.read', 'Invalid scope', '/api/sample-time/invalid',
+        'sample-time.leave_balance.read', SubjectPopulation::Self, legalEntityScope: 'unknown'),
+    static fn (): DashboardQuerySource => new DashboardQuerySource('sample-time.summary.read', 'Invalid party key declaration',
+        '/api/sample-time/summary', 'sample-time.leave_balance.read', SubjectPopulation::LegalEntity, pollingOnly: true,
+        usesLegalEntitySelection: true, visibilityPermissionGroups: ['manager' => ['sample-time.leave_balance.read']],
+        widgetReferenceReads: [[...$reference, 'include_party_key' => false]]),
+    static fn (): DashboardQuerySource => new DashboardQuerySource('sample-time.summary.read', 'Invalid reference population',
+        '/api/sample-time/summary', 'sample-time.leave_balance.read', SubjectPopulation::LegalEntity, pollingOnly: true,
+        usesLegalEntitySelection: true, visibilityPermissionGroups: ['manager' => ['sample-time.leave_balance.read']],
+        widgetReferenceReads: [[...$reference, 'population' => 'legal_entity']]),
+    static fn (): DashboardQuerySource => new DashboardQuerySource('sample-time.summary.read', 'Invalid self reference population',
+        '/api/sample-time/summary', 'sample-time.leave_balance.read', SubjectPopulation::Self, pollingOnly: true,
+        usesLegalEntitySelection: true, visibilityPermissionGroups: ['manager' => ['sample-time.leave_balance.read']], widgetReferenceReads: [$reference]),
+    static fn (): DashboardQuerySource => new DashboardQuerySource('sample-time.summary.read', 'Invalid status key.',
+        '/api/sample-time/summary', 'sample-time.leave_balance.read', SubjectPopulation::Self,
+        pollingOnly: true, widgetAppStatuses: ['People']),
+    static fn (): DashboardQuerySource => new DashboardQuerySource('sample-time.summary.read', 'Duplicate status key.',
+        '/api/sample-time/summary', 'sample-time.leave_balance.read', SubjectPopulation::Self,
+        pollingOnly: true, widgetAppStatuses: ['people', 'people']),
+    static fn (): DashboardQuerySource => new DashboardQuerySource('sample-time.summary.read', 'Invalid widget path.',
+        '/api/sample-time/summary', 'sample-time.leave_balance.read', SubjectPopulation::Self,
+        pollingOnly: true, widgetPath: '/api/sample-time/widget'),
+    static fn (): DashboardQuerySource => new DashboardQuerySource('sample-time.summary.read', 'Invalid widget path.',
+        '/api/sample-time/summary', 'sample-time.leave_balance.read', SubjectPopulation::Self,
+        pollingOnly: true, usesLegalEntitySelection: true, widgetPath: '/api/sample-time/{legalEntity}'),
     static fn (): DashboardWidgetParameter => new DashboardWidgetParameter('', 'string', 'invalid'),
     static fn (): DashboardWidgetParameter => new DashboardWidgetParameter('status', 'object', 'invalid'),
     static fn (): DashboardWidgetParameter => new DashboardWidgetParameter('status', 'string', 'invalid', []),

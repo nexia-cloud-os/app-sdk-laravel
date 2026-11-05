@@ -34,3 +34,7 @@ Release versions are pending. See the
 ## Grouped Resource Reference owner resolution
 
 Owners may optionally implement `ResourceReferenceGroupedResolutionContribution` to resolve multiple dates and filter groups in one call on a runtime supporting this capability. Existing batch providers remain compatible and retain per-group resolution. Authorize every group using its date and filters under the supplied actor and organization context; omit denied references and retain exact group keys and as-of times.
+
+## App overview dashboards and legal-entity selection
+
+Apps can declare an editable default dashboard and opt dashboard sources into the viewer’s legal-entity selection. Use the matching Core and App runtime; the declaration does not grant data access. See the [dashboard guide](https://developers.nexia.to/docs/platform-extensions-add-dashboard-widget) and [SDK source](https://github.com/nexia-cloud-os/app-sdk-laravel/tree/main/src/Dashboard).

@@ -34,3 +34,7 @@ query/result는 기존 값 검증 계약을 재사용합니다. 기존 전자서
 ## 리소스 참조 제공자의 그룹 일괄 조회
 
 여러 날짜와 필터 그룹을 한 번에 조회하려는 제공자는 이 기능을 지원하는 런타임에서 선택적으로 `ResourceReferenceGroupedResolutionContribution`을 구현할 수 있습니다. 기존 일괄 조회 제공자는 그룹별 조회로 계속 동작합니다. 전달받은 사용자와 조직 범위 안에서 각 그룹의 날짜와 필터에 대한 권한을 검증하고, 거부된 참조는 제외하며 그룹 키와 기준 시각을 그대로 유지해야 합니다.
+
+## 앱 개요 대시보드와 법인 선택
+
+앱은 편집 가능한 기본 대시보드와 사용자가 선택한 법인을 따르는 조회 소스를 선언할 수 있습니다. 대응하는 Core와 앱 런타임이 필요하며 선언 자체가 데이터 접근 권한을 부여하지는 않습니다. [대시보드 안내](https://developers.nexia.to/ko/docs/platform-extensions-add-dashboard-widget)와 [SDK 소스](https://github.com/nexia-cloud-os/app-sdk-laravel/tree/main/src/Dashboard)를 참고하세요.
