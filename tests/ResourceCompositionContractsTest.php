@@ -168,4 +168,11 @@ foreach ($fixture['invalid'] as $case) {
     }
 }
 
+assert(class_exists(\Nexia\Laravel\ResourceComposition\OrganizationReferenceProjection::class));
+assert(trait_exists(\Nexia\Laravel\ResourceComposition\Concerns\ProjectsOrganizationReferences::class));
+assert(method_exists(\Nexia\Laravel\ResourceComposition\OrganizationReferenceProjection::class, 'legalEntity'));
+assert(method_exists(\Nexia\Laravel\ResourceComposition\OrganizationReferenceProjection::class, 'operatingUnit'));
+assert(method_exists(\Nexia\Laravel\ResourceComposition\OrganizationReferenceProjection::class, 'legalEntityLabel'));
+assert(method_exists(\Nexia\Laravel\ResourceComposition\OrganizationReferenceProjection::class, 'operatingUnitLabel'));
+
 fwrite(STDOUT, "Resource Composition contracts passed.\n");
