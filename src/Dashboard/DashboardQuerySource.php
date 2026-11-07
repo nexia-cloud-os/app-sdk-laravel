@@ -34,6 +34,7 @@ final readonly class DashboardQuerySource
         public array $widgetAppStatuses = [],
         public ?string $legalEntityScope = null,
         public bool $tenantWideRead = false,
+        public bool $repeatableRead = false,
     ) {
         if ($tenantWideRead && ($capability !== RendererCapability::HumanOnly || ! $usesLegalEntitySelection
             || $legalEntityScope !== 'selected' || $subjectPopulation === SubjectPopulation::Self)) {

@@ -1,0 +1,7 @@
+# Dashboard source read snapshots
+
+A `DashboardQuerySource` can set `repeatableRead: true` when a source needs all of its database reads to use one PostgreSQL snapshot. Supported App runtimes start a read-only `REPEATABLE READ` transaction for that authorized source and retain the normal statement timeout. The default is `false`; other sources and ordinary App requests keep their existing transaction behavior. The declaration grants no permission and does not cover Core callbacks or other database connections.
+
+This requires a Runtime with explicit support, as well as the SDK containing the declaration. An older SDK rejects the named argument. An older Runtime may ignore a newer SDK declaration: the App must check or establish the required isolation on the connection before reading and fail if that is impossible. Do not use a read-committed fallback when a consistent snapshot is required. Deploy the supporting SDK and Runtime before an App that declares this requirement; roll back the App before removing Runtime support.
+
+For an App that must still load its catalog with an older SDK, it may include the named argument only if `property_exists(DashboardQuerySource::class, 'repeatableRead')`. That compatibility check does not establish a snapshot: the App must independently enforce the requirement when the source executes. If enforcement fails, return an error rather than partial data.

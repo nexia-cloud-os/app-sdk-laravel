@@ -62,6 +62,11 @@ $backingSourceRow = $querySource->backingSourceRow('sample-time');
 $statusSource = new DashboardQuerySource('sample-time.personal_status.read', 'Status source', '/api/sample-time/status',
     'sample-time.leave_balance.read', SubjectPopulation::Self, pollingOnly: true, widgetAppStatuses: ['people']);
 if ($statusSource->widgetAppStatuses !== ['people']) throw new RuntimeException('Widget status declaration was not retained.');
+$snapshotSource = new DashboardQuerySource('sample-time.snapshot.read', 'Snapshot source', '/api/sample-time/snapshot',
+    'sample-time.leave_balance.read', SubjectPopulation::Self, pollingOnly: true, repeatableRead: true);
+if ($querySource->repeatableRead !== false || $snapshotSource->repeatableRead !== true) {
+    throw new RuntimeException('Dashboard snapshot declaration compatibility failed.');
+}
 $selectedScope = new DashboardQuerySource('sample-time.selected.read', 'Selected source', '/api/sample-time/selected',
     'sample-time.leave_balance.read', SubjectPopulation::Self, pollingOnly: true, usesLegalEntitySelection: true, legalEntityScope: 'selected');
 $independentScope = new DashboardQuerySource('sample-time.independent.read', 'Independent source', '/api/sample-time/independent',

@@ -2,6 +2,7 @@
 status: draft
 ---
 
+
 - Slot widget component keys now accept hyphenated App identifiers in the sandbox catalog, matching Composer registrations. Component paths, URLs, and PHP class names remain invalid.
 - Resource subject actor declarations and signed approval callbacks now share the SDK wire contract, allowing sandbox hosts to resolve the owning App’s approval subject.
 
