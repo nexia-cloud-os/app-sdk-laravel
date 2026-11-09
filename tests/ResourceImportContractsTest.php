@@ -291,6 +291,7 @@ importContractMustFail(
 fwrite(STDOUT, "Resource Import contracts are valid.\n");
 
 
+assert(in_array('login_invitation.ensure', \Nexia\ResourceImport\ImportPipelineWire::WORK_CALLBACKS, true));
 $wire = \Nexia\ResourceImport\ImportPipelineWire::definition(validPipelineDefinition());
 assert(! array_key_exists('handlerClass', $wire));
 assert(\Nexia\ResourceImport\ImportPipelineWire::definition(
@@ -332,3 +333,10 @@ foreach ([ImportRowDisposition::SKIPPED, ImportRowDisposition::NOT_PROCESSED] as
     $row = new ImportRowDisposition(row: 42, status: $status, values: []);
     assert($row->toArray()['status'] === $status);
 }
+
+// Login provisioning is a public, optional-profile contract independent of invitation mail.
+$accountMethod = new ReflectionMethod(\Nexia\Identity\Contracts\PersonLoginAccounts::class, 'ensure');
+assert((string) $accountMethod->getReturnType() === 'void');
+assert($accountMethod->getNumberOfRequiredParameters() === 4);
+assert($accountMethod->getParameters()[4]->getDefaultValue() === null);
+assert($accountMethod->getParameters()[5]->getDefaultValue() === []);

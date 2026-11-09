@@ -18,7 +18,7 @@ final class ImportPipelineWire
         'person.profile.write', 'party.precondition', 'organization.precondition',
         'attachment.exists', 'attachment.file', 'attachment.attach', 'attachment.has_any',
         'selection.resolve', 'selection.options', 'selection.resolve_write',
-        'login_invitation.invite', 'audit.record',
+        'login_invitation.invite', 'login_invitation.ensure', 'audit.record',
     ];
 
     public static function workKey(string $appKey): string { return $appKey.'.resource_import'; }
