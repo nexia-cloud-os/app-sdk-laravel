@@ -24,6 +24,7 @@ foreach ([
     ]),
     new \Nexia\AppDescriptors\SlotWidgetDescriptor('sample.record.submit', '1.0', 'approval.composer.business_form', 'sample.record.submit', 1),
     new \Nexia\AppDescriptors\SlotWidgetDescriptor('sample.self.profile', '1.0', 'profile.self.overview', 'SampleProfile', 2, permission: 'sample.profile.read', familyKey: 'sample.self'),
+    new \Nexia\AppDescriptors\ProfileTabDescriptor('sample.attendance', 'sample.attendance.title', 'SampleAttendanceTab', 'sample.attendance.read'),
     new \Nexia\AppDescriptors\DecisionResultTemplateDescriptor('sample.decision', '1.0', 'sample.decision.label',
         [new \Nexia\AppDescriptors\DecisionResultFieldDescriptor('approved', 'sample.approved', 'boolean', 'plain')]),
     new \Nexia\AppDescriptors\OfficialSealUseDescriptor('sample', 'sample.document.issued', ['sample.document.issue']),
@@ -51,6 +52,16 @@ foreach ([
     }
 }
 echo "Platform descriptor boundary passed.\n";
+
+foreach ([
+    ['foreign.attendance', 'sample.attendance.read'],
+    ['sample.attendance', 'foreign.attendance.read'],
+] as [$key, $permission]) {
+    $wire = PlatformDescriptorWire::encode(new \Nexia\AppDescriptors\ProfileTabDescriptor($key, 'sample.title', 'SampleAttendanceTab', $permission));
+    $rejected = false;
+    try { PlatformDescriptorWire::decode($wire, 'sample'); } catch (InvalidArgumentException) { $rejected = true; }
+    assert($rejected);
+}
 
 // The catalog uses the same document locator as the PHP descriptor.
 $storedProcessStart = [

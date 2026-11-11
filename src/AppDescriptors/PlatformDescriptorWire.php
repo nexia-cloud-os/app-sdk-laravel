@@ -14,6 +14,7 @@ final class PlatformDescriptorWire
 {
     public const TYPES = [
         'slot_widget' => SlotWidgetDescriptor::class,
+        'profile_tab' => ProfileTabDescriptor::class,
         'performance_measurement' => PerformanceMeasurementSourceDescriptor::class,
         'official_seal_use' => OfficialSealUseDescriptor::class,
         'process_work' => ProcessWorkActionDescriptor::class,
@@ -50,7 +51,8 @@ final class PlatformDescriptorWire
             unset($data['supportsDocumentCopy']);
         }
         if (! $descriptor instanceof ProcessTemplateDescriptor && ! $descriptor instanceof ProcessUserTaskFormDescriptor
-            && ! $descriptor instanceof DecisionResultTemplateDescriptor && ! $descriptor instanceof SlotWidgetDescriptor) unset($data['key']);
+            && ! $descriptor instanceof DecisionResultTemplateDescriptor && ! $descriptor instanceof SlotWidgetDescriptor
+            && ! $descriptor instanceof ProfileTabDescriptor) unset($data['key']);
         if ($descriptor instanceof DecisionResultTemplateDescriptor) {
             $data['fields'] = array_map(get_object_vars(...), $descriptor->fields);
         }
@@ -106,8 +108,9 @@ final class PlatformDescriptorWire
             $class = self::TYPES[$wire['type']];
             $descriptor = new $class(...$data);
         }
-        if ((! $descriptor instanceof DecisionResultTemplateDescriptor && ! $descriptor instanceof SlotWidgetDescriptor && ! $descriptor instanceof PerformanceMeasurementSourceDescriptor && $descriptor->appKey !== $appKey)
+        if ((! $descriptor instanceof DecisionResultTemplateDescriptor && ! $descriptor instanceof SlotWidgetDescriptor && ! $descriptor instanceof ProfileTabDescriptor && ! $descriptor instanceof PerformanceMeasurementSourceDescriptor && $descriptor->appKey !== $appKey)
             || ! str_starts_with($descriptor->descriptorKey(), $appKey.'.')
+            || ($descriptor instanceof ProfileTabDescriptor && ! str_starts_with($descriptor->permission, $appKey.'.'))
             || self::encode($descriptor) != $wire) {
             throw new InvalidArgumentException('Platform descriptor ownership or canonical shape differs.');
         }
