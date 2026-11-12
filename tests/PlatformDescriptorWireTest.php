@@ -121,3 +121,38 @@ $conditionalWire['data']['availabilityResourceKey'] = 'foreign.availability';
 $rejected = false;
 try { PlatformDescriptorWire::decode($conditionalWire, 'sample'); } catch (InvalidArgumentException) { $rejected = true; }
 assert($rejected);
+
+
+// Optional additions keep old direct-component envelopes byte-for-byte canonical.
+$tab = new \Nexia\AppDescriptors\ProfileTabDescriptor('sample.records', 'sample.records', 'Records', 'sample.read');
+$wire = PlatformDescriptorWire::encode($tab);
+assert(! array_key_exists('widgetKeys', $wire['data']));
+assert(! array_key_exists('legacyTabIds', $wire['data']));
+assert($wire === ['type' => 'profile_tab', 'data' => [
+    'key' => 'sample.records', 'labelKey' => 'sample.records',
+    'component' => 'Records', 'permission' => 'sample.read',
+    'sort' => 100, 'status' => 'active',
+]]);
+assert(PlatformDescriptorWire::encode(PlatformDescriptorWire::decode($wire, 'sample')) === $wire);
+
+$group = new \Nexia\AppDescriptors\ProfileTabDescriptor(
+    key: 'sample.records', labelKey: 'sample.records',
+    widgetKeys: ['sample.profile.records'], legacyTabIds: ['records'],
+);
+$wire = PlatformDescriptorWire::encode($group);
+assert(PlatformDescriptorWire::encode(PlatformDescriptorWire::decode($wire, 'sample')) === $wire);
+foreach ([
+    ['widgetKeys' => ['foreign.records']],
+    ['widgetKeys' => ['sample.records', 'sample.records']],
+    ['widgetKeys' => ['sample.records'], 'legacyTabIds' => ['overview']],
+    ['widgetKeys' => ['sample.records'], 'legacyTabIds' => ['../settings']],
+    ['widgetKeys' => ['sample.records'], 'component' => 'Records', 'permission' => 'sample.read'],
+    [],
+] as $arguments) {
+    $rejected = false;
+    try { new \Nexia\AppDescriptors\ProfileTabDescriptor(...['key' => 'sample.records', 'labelKey' => 'sample.records', ...$arguments]); }
+    catch (InvalidArgumentException) { $rejected = true; }
+    assert($rejected);
+}
+$target = new \Nexia\SelfService\SelfServiceReturnTarget('sample.records');
+assert($target->tab === 'sample.records');

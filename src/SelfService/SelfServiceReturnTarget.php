@@ -16,7 +16,7 @@ final readonly class SelfServiceReturnTarget
         public ?string $anchor = null,
         public ?ResourceRef $workContext = null,
     ) {
-        if (preg_match('/\A[a-z][a-z0-9_-]*\z/D', $tab) !== 1
+        if ((str_contains($tab, '.') && strlen($tab) > 191) || preg_match('/\A[a-z][a-z0-9_-]*(?:\.[a-z][a-z0-9_.-]*)?\z/D', $tab) !== 1
             || ($view !== null && preg_match('/\A[a-z][a-z0-9_-]*\z/D', $view) !== 1)
             || ($anchor !== null && preg_match('/\A[a-z][a-z0-9_-]*\z/D', $anchor) !== 1)) {
             throw new InvalidArgumentException('A self-service return target must use canonical destination keys.');

@@ -46,6 +46,11 @@ final class PlatformDescriptorWire
         if ($descriptor instanceof SlotWidgetDescriptor && $descriptor->availabilityResourceKey === null) {
             unset($data['availabilityResourceKey']);
         }
+        if ($descriptor instanceof ProfileTabDescriptor) {
+            foreach (['widgetKeys', 'legacyTabIds'] as $field) {
+                if ($descriptor->$field === []) unset($data[$field]);
+            }
+        }
         // Keep existing non-copy binding envelopes canonical across SDK upgrades.
         if ($descriptor instanceof ApprovalFormBindingDescriptor && ! $descriptor->supportsDocumentCopy) {
             unset($data['supportsDocumentCopy']);
@@ -110,7 +115,7 @@ final class PlatformDescriptorWire
         }
         if ((! $descriptor instanceof DecisionResultTemplateDescriptor && ! $descriptor instanceof SlotWidgetDescriptor && ! $descriptor instanceof ProfileTabDescriptor && ! $descriptor instanceof PerformanceMeasurementSourceDescriptor && $descriptor->appKey !== $appKey)
             || ! str_starts_with($descriptor->descriptorKey(), $appKey.'.')
-            || ($descriptor instanceof ProfileTabDescriptor && ! str_starts_with($descriptor->permission, $appKey.'.'))
+            || ($descriptor instanceof ProfileTabDescriptor && $descriptor->permission !== null && ! str_starts_with($descriptor->permission, $appKey.'.'))
             || self::encode($descriptor) != $wire) {
             throw new InvalidArgumentException('Platform descriptor ownership or canonical shape differs.');
         }

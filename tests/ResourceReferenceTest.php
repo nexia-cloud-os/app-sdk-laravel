@@ -464,6 +464,64 @@ $transport->resolveManyGrouped('sample-owner.worker', array_fill_keys(
 ), $resolutionContext);
 assert(count($groupCalls) === 2 && count($groupCalls[0]['groups']) === 31 && count($groupCalls[1]['groups']) === 1);
 
+$groupCalls = [];
+$groupIds = array_map(static fn (int $index): string => 'worker-'.str_pad((string) $index, 3, '0', STR_PAD_LEFT), range(1, 201));
+$groupedTransport = new \Nexia\ResourceReference\TransportResourceReferences(static function (array $body) use (&$groupCalls): array {
+    $groupCalls[] = $body;
+    $result = [];
+    foreach ($body['groups'] as $key => $group) {
+        foreach ($group['resource_ids'] as $id) {
+            if ($id === 'worker-100') continue;
+            $result[$key][$id] = (new ResolvedResourceReference(
+                'sample-owner', 'sample-owner.worker', $id, 'Worker', null, [], new DateTimeImmutable($group['as_of']),
+            ))->snapshot();
+        }
+    }
+
+    return $result;
+});
+$manyGroups = [
+    'first' => ['resource_ids' => $groupIds, 'as_of' => new DateTimeImmutable('2026-01-01'), 'filters' => ['region' => 'north']],
+    'second' => ['resource_ids' => $groupIds, 'as_of' => new DateTimeImmutable('2026-02-01'), 'filters' => ['region' => 'south']],
+];
+$many = $groupedTransport->resolveManyGrouped('sample-owner.worker', $manyGroups, $resolutionContext);
+assert(count($groupCalls) === 3);
+assert(array_keys($many) === ['first', 'second'] && count($many['first']) === 200 && count($many['second']) === 200);
+assert($many['first']['worker-201']->asOf->format('Y-m-d') === '2026-01-01');
+assert($many['second']['worker-201']->asOf->format('Y-m-d') === '2026-02-01');
+foreach ($groupCalls as $call) {
+    assert(array_keys($call['groups']) === ['first', 'second']);
+    assert(count($call['groups']['first']['resource_ids']) <= 100 && count($call['groups']['second']['resource_ids']) <= 100);
+    assert($call['groups']['first']['filters']['region'] === 'north' && $call['groups']['second']['filters']['region'] === 'south');
+    assert($call['context']['purpose'] === $resolutionContext->purpose);
+    assert($call['context']['actor_public_id'] === $resolutionContext->actor->publicId());
+}
+$invalidGroup = new \Nexia\ResourceReference\TransportResourceReferences(static fn (): array => ['foreign' => []]);
+try {
+    $invalidGroup->resolveManyGrouped('sample-owner.worker', $manyGroups, $resolutionContext);
+    throw new LogicException('Unknown grouped responses must fail.');
+} catch (RuntimeException $error) {
+    assert($error->getMessage() === 'Invalid grouped reference response.');
+}
+$invalidMember = new \Nexia\ResourceReference\TransportResourceReferences(static fn (): array => ['first' => ['foreign' => $resolved->snapshot()]]);
+try {
+    $invalidMember->resolveManyGrouped('sample-owner.worker', $manyGroups, $resolutionContext);
+    throw new LogicException('An unrequested group member must fail.');
+} catch (RuntimeException $error) {
+    assert($error->getMessage() === 'Unexpected grouped reference.');
+}
+$attempts = 0;
+$failedGroup = new \Nexia\ResourceReference\TransportResourceReferences(static function () use (&$attempts): array {
+    if (++$attempts === 2) throw new RuntimeException('Grouped batch unavailable.');
+    return [];
+});
+try {
+    $failedGroup->resolveManyGrouped('sample-owner.worker', $manyGroups, $resolutionContext);
+    throw new LogicException('A failed grouped batch must not return partial success.');
+} catch (RuntimeException $error) {
+    assert($error->getMessage() === 'Grouped batch unavailable.' && $attempts === 2);
+}
+
 $transport = new \Nexia\ResourceReference\TransportResourceReferences(static function (array $body, Closure $decode) use ($resolved) {
     return $decode($resolved->snapshot());
 });

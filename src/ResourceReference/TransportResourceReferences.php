@@ -74,6 +74,7 @@ readonly class TransportResourceReferences implements GroupedResourceReferences
             $batch = [];
             $count = 0;
         };
+        $pending = [];
         foreach ($groups as $key => $group) {
             if (! is_string($key) || $key === '' || mb_strlen($key) > 80 || ! is_array($group)
                 || ! is_array($group['resource_ids'] ?? null)
@@ -91,18 +92,36 @@ readonly class TransportResourceReferences implements GroupedResourceReferences
                     throw new InvalidArgumentException('Reference IDs must be bounded strings.');
                 }
             }
-            foreach (array_chunk(array_values(array_unique($group['resource_ids'])), 100) as $chunk) {
+            $chunks = array_chunk(array_values(array_unique($group['resource_ids'])), 100);
+            if ($chunks !== []) {
+                $pending[$key] = ['chunks' => $chunks, 'index' => 0, 'as_of' => $asOf->format(DATE_ATOM),
+                    'effective_through' => $through->format(DATE_ATOM), 'filters' => $filters];
+            }
+        }
+        while ($pending !== []) {
+            foreach ($pending as $key => $selection) {
+                $chunk = $selection['chunks'][$selection['index']];
                 if (count($batch) >= 31 || $count + count($chunk) > 400 || isset($batch[$key])) {
                     $flush();
                 }
-                $batch[$key] = ['resource_ids' => $chunk, 'as_of' => $asOf->format(DATE_ATOM),
-                    'effective_through' => $through->format(DATE_ATOM), 'filters' => $filters];
+                $batch[$key] = ['resource_ids' => $chunk, 'as_of' => $selection['as_of'],
+                    'effective_through' => $selection['effective_through'], 'filters' => $selection['filters']];
                 $count += count($chunk);
+                if (++$pending[$key]['index'] === count($selection['chunks'])) {
+                    unset($pending[$key]);
+                }
             }
         }
         $flush();
 
-        return $result;
+        $ordered = [];
+        foreach ($groups as $key => $_) {
+            if (isset($result[$key])) {
+                $ordered[$key] = $result[$key];
+            }
+        }
+
+        return $ordered;
     }
 
     public function search(string $resourceKey, string $query, ResourceReferenceResolutionContext $context, int $limit = 25): array

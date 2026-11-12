@@ -78,10 +78,10 @@ if (! $context->isPrimary
 }
 
 if ((new SelfServiceReturnTarget(tab: 'sample-destination'))->tab !== 'sample-destination') {
-    throw new RuntimeException('Return targets must accept canonical host-owned Profile destinations.');
+    throw new RuntimeException('Return targets must accept canonical Profile destinations.');
 }
 
-foreach (['Admin', 'sample.destination', '-sample', 'sample destination'] as $invalidDestination) {
+foreach (['Admin', 'sample/destination', '-sample', 'sample destination'] as $invalidDestination) {
     try {
         new SelfServiceReturnTarget(tab: $invalidDestination);
         throw new RuntimeException('Return targets must reject non-canonical Profile destinations.');
@@ -105,3 +105,16 @@ try {
 }
 
 fwrite(STDOUT, "Self-service contracts passed.\n");
+
+// Extending namespaced destinations must not narrow the old SDK's accepted
+// host-owned destination grammar. Transport limits remain a host concern.
+if ((new SelfServiceReturnTarget(tab: str_repeat('a', 192)))->tab !== str_repeat('a', 192)) {
+    throw new RuntimeException('Existing host-owned destination values must remain valid.');
+}
+if ((new SelfServiceReturnTarget(tab: 'sample.records'))->tab !== 'sample.records') {
+    throw new RuntimeException('Namespaced App destinations must be supported.');
+}
+try {
+    new SelfServiceReturnTarget(tab: 'sample.'.str_repeat('a', 185));
+    throw new RuntimeException('Oversized App destination accepted.');
+} catch (InvalidArgumentException) {}
