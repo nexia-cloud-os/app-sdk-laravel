@@ -570,6 +570,22 @@ $transport = new \Nexia\ResourceReference\TransportResourceReferences(
 );
 $from = new DateTimeImmutable('2026-01-01');
 $until = new DateTimeImmutable('2026-12-31');
+
+$limitCalls = [];
+$limitTransport = new \Nexia\ResourceReference\TransportResourceReferences(static function (array $body) use (&$limitCalls): array {
+    $limitCalls[] = $body['limit'];
+    return [];
+});
+$limitTransport->searchEffectiveRange('sample-owner.worker', ['worker'], $from, $until, $resolutionContext);
+$limitTransport->searchEffectiveRange('sample-owner.worker', ['worker'], $from, $until, $resolutionContext, 50000);
+$limitTransport->searchEffectiveRange('sample-owner.worker', ['worker'], $from, $until, $resolutionContext, 100000);
+assert($limitCalls === [10000, 50000, 100000]);
+try {
+    $limitTransport->searchEffectiveRange('sample-owner.worker', ['worker'], $from, $until, $resolutionContext, 100001);
+    throw new LogicException('Out-of-range limit accepted.');
+} catch (InvalidArgumentException) {}
+assert(count($limitCalls) === 3);
+
 $rangeResult = $transport->searchEffectiveRange('sample-owner.worker', [...$rangeQueries, $rangeQueries[0]], $from, $until, $resolutionContext);
 assert(array_map('count', $rangeCalls) === [100, 100, 1]);
 assert(array_merge(...$rangeCalls) === $rangeQueries && count($rangeResult) === 202);
@@ -652,3 +668,25 @@ try {
     $transport->searchBatch($searches);
     throw new LogicException('Incomplete batch response accepted.');
 } catch (RuntimeException) {}
+
+$complete = new \Nexia\ResourceReference\TransportResourceReferences(static function (array $body) use ($resolved) {
+    if ($body['method'] !== 'searchCompleteEffectiveRange' || $body['queries'] !== ['first', 'second']) {
+        throw new RuntimeException('Complete range request changed unexpectedly.');
+    }
+    return [$resolved->snapshot()];
+});
+$completeResult = $complete->searchCompleteEffectiveRange('sample-owner.worker', ['first', 'second'], new DateTimeImmutable('2026-01-01'), new DateTimeImmutable('2026-12-31'), $resolutionContext);
+if (count($completeResult) !== 1 || $completeResult[0]->resourceId !== 'worker-01') {
+    throw new RuntimeException('Complete range response changed unexpectedly.');
+}
+$unsupported = new \Nexia\ResourceReference\TransportResourceReferences(static fn () => null);
+if ($unsupported->searchCompleteEffectiveRange('sample-owner.worker', ['first'], new DateTimeImmutable('2026-01-01'), new DateTimeImmutable('2026-12-31'), $resolutionContext) !== null) {
+    throw new RuntimeException('Unsupported complete range was not preserved.');
+}
+$invalidComplete = new \Nexia\ResourceReference\TransportResourceReferences(static fn () => [$resolved->snapshot(), $resolved->snapshot()]);
+try {
+    $invalidComplete->searchCompleteEffectiveRange('sample-owner.worker', ['first'], new DateTimeImmutable('2026-01-01'), new DateTimeImmutable('2026-12-31'), $resolutionContext);
+    throw new RuntimeException('Duplicate complete range reference accepted.');
+} catch (RuntimeException $error) {
+    if ($error->getMessage() === 'Duplicate complete range reference accepted.') throw $error;
+}

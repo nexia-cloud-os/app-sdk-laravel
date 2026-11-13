@@ -397,3 +397,10 @@ require review with App data retained. The matching Core and runtime are needed.
 ### Independent reference searches
 
 When `ResourceReferences` implements `BatchSearchResourceReferences`, `searchBatch()` accepts a list of searches and splits it into bounded transport requests. Each item supplies `resource_key`, `query`, `context`, and optional `limit`. Results retain input order: a `status` of `200` includes a `result` list, while a failure has a non-200 `status` and no result. Check every status; one rejected item does not authorize or invalidate another. If the transport itself fails, the batch has no per-item response. Each context and owner remains independently authorized. Empty input sends no request. Nested or restricted host contexts may use individual reads; an older transport without batch support propagates the original individual-read exception. Install matching Core and App runtime support before adopting the optional capability; otherwise continue using `search()` separately.
+
+
+### Optional batch identity and complete range queries
+
+Compatible hosts may implement `BatchActorDirectory::findByPublicIds()` and `BatchCanonicalPartyDirectory::findCanonicalByPublicIds()`. Check for each optional interface before use and retain the existing single-ID lookup. Actor visibility and Party merge/visibility semantics remain unchanged; missing or invisible parties are omitted.
+
+A consumer may use `CompleteEffectiveRangeReferences::searchCompleteEffectiveRange()` for a bounded list of exact terms and a date range. An owner implements `ResourceReferenceCompleteEffectiveRangeSearchContribution` and must return `null` if it cannot return the complete authorized result within the supplied limit. Consumers must fall back when the interface or result is unavailable; an empty list is a complete empty result, not an unsupported response. Existing effective-range searches accept explicit limits up to 100,000, while the omitted limit remains 10,000. Existing response size limits still apply. Adopt matching Core and App runtime versions before using these capabilities; this SDK release alone does not update them.

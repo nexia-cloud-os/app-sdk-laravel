@@ -21,6 +21,8 @@ use Nexia\Documents\Contracts\PdfFontProvider;
 use Nexia\Documents\PdfFontAsset;
 use Nexia\Identity\Contracts\Actor;
 use Nexia\Identity\Contracts\ActorDirectory;
+use Nexia\Identity\Contracts\BatchActorDirectory;
+use Nexia\Identity\Contracts\BatchCanonicalPartyDirectory;
 use Nexia\Identity\Contracts\Party;
 use Nexia\Identity\Contracts\PartyAccess;
 use Nexia\Identity\Contracts\PartyRelationshipDirectory;
@@ -151,6 +153,8 @@ if ($preparation->getName() !== 'prepare' || ! $preparation->isDefaultValueAvail
 foreach ([
     Actor::class,
     ActorDirectory::class,
+    BatchActorDirectory::class,
+    BatchCanonicalPartyDirectory::class,
     AuthorizedFileReader::class,
     AttachmentStore::class,
     LegalEntity::class,
@@ -197,6 +201,8 @@ foreach ([
 foreach ([
     Actor::class => ['key', 'publicId', 'displayLabel', 'partyKey', 'isVerified'],
     ActorDirectory::class => ['findByKey', 'requireByKey', 'findByPublicId', 'findByPartyKey'],
+    BatchActorDirectory::class => ['findByPublicIds'],
+    BatchCanonicalPartyDirectory::class => ['findCanonicalByPublicIds'],
     AuthorizedFileReader::class => ['read'],
     AttachmentStore::class => ['createGeneratedFile', 'attach', 'exists', 'fileForAttachment', 'downloadHrefIfAuthorized'],
     PdfFontProvider::class => ['forLocale'],

@@ -8,12 +8,13 @@ use Closure;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use Nexia\ResourceReference\Contracts\BatchSearchResourceReferences;
+use Nexia\ResourceReference\Contracts\CompleteEffectiveRangeReferences;
 use Nexia\ResourceReference\Contracts\GroupedResourceReferences;
 use RuntimeException;
 use Throwable;
 
 /** Existing Resource Reference wire contract over a host-owned bounded transport. */
-readonly class TransportResourceReferences implements GroupedResourceReferences, BatchSearchResourceReferences
+readonly class TransportResourceReferences implements GroupedResourceReferences, BatchSearchResourceReferences, CompleteEffectiveRangeReferences
 {
     /** The host may use the optional second callback to decode public snapshots once. */
     public function __construct(private Closure $send, private ?Closure $sendBatch = null) {}
@@ -194,7 +195,7 @@ readonly class TransportResourceReferences implements GroupedResourceReferences,
                 throw new InvalidArgumentException('Effective-range queries must be strings of at most 160 characters.');
             }
         }
-        if ($limit < 1 || $limit > 10000 || $from > $until) {
+        if ($limit < 1 || $limit > 100000 || $from > $until) {
             throw new InvalidArgumentException('Invalid effective-range search bounds.');
         }
         $result = [];
@@ -224,6 +225,38 @@ readonly class TransportResourceReferences implements GroupedResourceReferences,
         return $this->page($this->request('searchEffectiveRangePage', $resourceKey, $context, [
             'from' => $from->format(DATE_ATOM), 'until' => $until->format(DATE_ATOM), 'page' => $page, 'per_page' => $perPage,
         ]));
+    }
+
+    public function searchCompleteEffectiveRange(string $resourceKey, array $queries, DateTimeImmutable $from, DateTimeImmutable $until, ResourceReferenceResolutionContext $context): ?array
+    {
+        if ($queries === [] || count($queries) > 100 || $from > $until) {
+            throw new InvalidArgumentException('Invalid complete effective-range search bounds.');
+        }
+        foreach ($queries as $query) {
+            if (! is_string($query) || $query === '' || mb_strlen($query) > 160) {
+                throw new InvalidArgumentException('Invalid effective-range search term.');
+            }
+        }
+        $result = $this->request('searchCompleteEffectiveRange', $resourceKey, $context, [
+            'queries' => array_values(array_unique($queries)), 'from' => $from->format(DATE_ATOM), 'until' => $until->format(DATE_ATOM),
+        ]);
+        if ($result === null) {
+            return null;
+        }
+        if (! is_array($result) || ! array_is_list($result) || count($result) > 1000) {
+            throw new RuntimeException('Invalid complete effective-range response.');
+        }
+        $references = [];
+        $seen = [];
+        foreach ($result as $snapshot) {
+            $reference = $this->reference($snapshot);
+            if ($reference->resourceKey !== $resourceKey || isset($seen[$reference->resourceId])) {
+                throw new RuntimeException('Invalid complete effective-range reference.');
+            }
+            $seen[$reference->resourceId] = true;
+            $references[] = $reference;
+        }
+        return $references;
     }
 
     public function authorized(string $resourceKey, ResourceReferenceResolutionContext $context): bool
