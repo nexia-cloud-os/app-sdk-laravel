@@ -374,3 +374,7 @@ those conditions. Relationship conditions use `code`, `direction` (`incoming`
 or `outgoing`), and `other_party_public_id`. Registration does not prove the
 App write completed: the host checks again at completion and a later conflict may
 require review with App data retained. The matching Core and runtime are needed.
+
+### Independent reference searches
+
+When `ResourceReferences` implements `BatchSearchResourceReferences`, `searchBatch()` accepts a list of searches and splits it into bounded transport requests. Each item supplies `resource_key`, `query`, `context`, and optional `limit`. Results retain input order: a `status` of `200` includes a `result` list, while a failure has a non-200 `status` and no result. Check every status; one rejected item does not authorize or invalidate another. If the transport itself fails, the batch has no per-item response. Each context and owner remains independently authorized. Empty input sends no request. Nested or restricted host contexts may use individual reads; an older transport without batch support propagates the original individual-read exception. Install matching Core and App runtime support before adopting the optional capability; otherwise continue using `search()` separately.

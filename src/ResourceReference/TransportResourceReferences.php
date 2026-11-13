@@ -7,15 +7,16 @@ namespace Nexia\ResourceReference;
 use Closure;
 use DateTimeImmutable;
 use InvalidArgumentException;
+use Nexia\ResourceReference\Contracts\BatchSearchResourceReferences;
 use Nexia\ResourceReference\Contracts\GroupedResourceReferences;
 use RuntimeException;
 use Throwable;
 
 /** Existing Resource Reference wire contract over a host-owned bounded transport. */
-readonly class TransportResourceReferences implements GroupedResourceReferences
+readonly class TransportResourceReferences implements GroupedResourceReferences, BatchSearchResourceReferences
 {
     /** The host may use the optional second callback to decode public snapshots once. */
-    public function __construct(private Closure $send) {}
+    public function __construct(private Closure $send, private ?Closure $sendBatch = null) {}
 
     public function resolve(string $resourceKey, string $resourceId, ResourceReferenceResolutionContext $context): ?ResolvedResourceReference
     {
@@ -129,6 +130,58 @@ readonly class TransportResourceReferences implements GroupedResourceReferences
         return array_map($this->reference(...), $this->request('search', $resourceKey, $context, ['query' => $query, 'limit' => $limit]));
     }
 
+    public function searchBatch(array $searches): array
+    {
+        if (! array_is_list($searches)) {
+            throw new InvalidArgumentException('Reference searches must be a list.');
+        }
+        $bodies = [];
+        foreach ($searches as $search) {
+            if (! is_array($search) || ! is_string($search['resource_key'] ?? null)
+                || ! is_string($search['query'] ?? null) || ! ($search['context'] ?? null) instanceof ResourceReferenceResolutionContext
+                || ! is_int($search['limit'] ?? 25)) {
+                throw new InvalidArgumentException('Invalid reference search.');
+            }
+            $bodies[] = $this->body('search', $search['resource_key'], $search['context'],
+                ['query' => $search['query'], 'limit' => $search['limit'] ?? 25]);
+        }
+        if ($bodies === []) return [];
+        if ($this->sendBatch === null) {
+            $results = [];
+            foreach ($bodies as $body) {
+                $results[] = ['status' => 200, 'result' => ($this->send)($body, $this->reference(...))];
+            }
+        } else {
+            $results = [];
+            foreach (array_chunk($bodies, 2) as $chunk) {
+                $received = ($this->sendBatch)($chunk);
+                if (! is_array($received) || ! array_is_list($received) || count($received) !== count($chunk)) {
+                    throw new RuntimeException('Invalid batch reference response.');
+                }
+                array_push($results, ...$received);
+            }
+        }
+        if (! is_array($results) || ! array_is_list($results) || count($results) !== count($bodies)) {
+            throw new RuntimeException('Invalid batch reference response.');
+        }
+        foreach ($results as &$result) {
+            if (! is_array($result) || ! is_int($result['status'] ?? null)
+                || ($result['status'] !== 200 && ($result['status'] < 400 || $result['status'] > 599))) {
+                throw new RuntimeException('Invalid batch reference response.');
+            }
+            if ($result['status'] === 200) {
+                if (! is_array($result['result'] ?? null) || ! array_is_list($result['result'])) {
+                    throw new RuntimeException('Invalid batch reference response.');
+                }
+                $result = ['status' => 200, 'result' => array_map($this->reference(...), $result['result'])];
+            } else {
+                $result = ['status' => $result['status']];
+            }
+        }
+        unset($result);
+        return $results;
+    }
+
     public function searchPage(string $resourceKey, string $query, ResourceReferenceResolutionContext $context, int $page = 1, int $perPage = 25): ?ResourceReferencePage
     {
         return $this->page($this->request('searchPage', $resourceKey, $context, ['query' => $query, 'page' => $page, 'per_page' => $perPage]));
@@ -219,6 +272,11 @@ readonly class TransportResourceReferences implements GroupedResourceReferences
 
     private function request(string $method, string $resource, ?ResourceReferenceResolutionContext $context = null, array $arguments = []): mixed
     {
+        return ($this->send)($this->body($method, $resource, $context, $arguments), $this->reference(...));
+    }
+
+    private function body(string $method, string $resource, ?ResourceReferenceResolutionContext $context = null, array $arguments = []): array
+    {
         if ($context?->includeProtectedValues) {
             throw new RuntimeException('Development read probes do not expose protected values.');
         }
@@ -231,7 +289,7 @@ readonly class TransportResourceReferences implements GroupedResourceReferences
                 'effective_through' => $context->effectiveThrough?->format(DATE_ATOM),
             ];
         }
-        return ($this->send)($body, $this->reference(...));
+        return $body;
     }
 
 }

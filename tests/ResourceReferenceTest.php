@@ -609,3 +609,46 @@ foreach ([null, [[]]] as $invalidResult) {
         throw new LogicException('Invalid range response accepted.');
     } catch (RuntimeException) {}
 }
+
+// Independent searches keep their own scope, result and failure in one transport.
+$searchCalls = [];
+$transport = new \Nexia\ResourceReference\TransportResourceReferences(
+    static function (): array { throw new LogicException('Unexpected individual call'); },
+    static function (array $bodies) use (&$searchCalls, $resolved): array {
+        $searchCalls[] = $bodies;
+        return [['status' => 200, 'result' => [$resolved->snapshot()]], ['status' => 403]];
+    },
+);
+$searches = [
+    ['resource_key' => 'sample-owner.worker', 'query' => '', 'context' => $resolutionContext, 'limit' => 100],
+    ['resource_key' => 'other.item', 'query' => 'sample', 'context' => $resolutionContext, 'limit' => 25],
+];
+$batchResult = $transport->searchBatch($searches);
+assert(count($searchCalls) === 1 && count($searchCalls[0]) === 2);
+assert($searchCalls[0][0]['context']['actor_public_id'] === $actor->publicId());
+assert($searchCalls[0][1]['context']['purpose'] === $resolutionContext->purpose);
+assert($batchResult[0]['result'][0]->snapshot() === $resolved->snapshot() && $batchResult[1] === ['status' => 403]);
+assert($transport->searchBatch([]) === [] && count($searchCalls) === 1);
+$chunkSizes = [];
+$transport = new \Nexia\ResourceReference\TransportResourceReferences(static fn () => [],
+    static function (array $chunk) use (&$chunkSizes): array {
+        $chunkSizes[] = count($chunk);
+        return array_fill(0, count($chunk), ['status' => 200, 'result' => []]);
+    });
+assert(count($transport->searchBatch(array_fill(0, 5, $searches[0]))) === 5 && $chunkSizes === [2, 2, 1]);
+$transport = new \Nexia\ResourceReference\TransportResourceReferences(static function (array $body) use (&$searchCalls, $resolved): array {
+    $searchCalls[] = $body;
+    if ($body['resource_key'] === 'other.item') throw new RuntimeException('rejected');
+    return [$resolved->snapshot()];
+});
+try {
+    $transport->searchBatch($searches);
+    throw new LogicException('Individual fallback must propagate its original error.');
+} catch (RuntimeException $error) {
+    assert($error->getMessage() === 'rejected');
+}
+$transport = new \Nexia\ResourceReference\TransportResourceReferences(static fn () => [], static fn () => [['status' => 200, 'result' => []]]);
+try {
+    $transport->searchBatch($searches);
+    throw new LogicException('Incomplete batch response accepted.');
+} catch (RuntimeException) {}
