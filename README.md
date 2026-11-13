@@ -215,13 +215,24 @@ it cannot recall a request already sent. Do not log returned business data.
 ## Staged tenant migrations
 
 PHP SDK 0.10.1 accepts an optional `tenant_migration_phases.contract` list in
-`nexia.json`. List unique migration basenames without `.php`, for example:
+`nexia.json`. Alternatively, put the same `contract` list in
+`database/tenant-migration-phases.json`; do not declare both locations. The file
+form is also supported by older SDK-based developer tools. List unique migration
+basenames without `.php`, for example:
 
 ```json
 "tenant_migration_phases": {
   "contract": ["2026_10_18_000001_add_document_reference"]
 }
 ```
+
+For the file form, its whole contents are `{"contract": ["2026_10_18_000001_add_document_reference"]}`.
+Use a contract phase when the previous runtime still needs a column or constraint
+that the migration removes or replaces. Keep the new App usable before the
+contract phase runs; for example, an old uniqueness constraint may temporarily
+reject values that the new version eventually permits. Add a new migration
+instead of changing an already deployed one. Run `nexia check` and review the
+submission's migration results; source checks do not verify production cutover.
 
 Use this only with a host and runtime supporting staged migrations. Listed
 migrations run after the previous runtime has retired; all other migrations
