@@ -340,3 +340,10 @@ assert((string) $accountMethod->getReturnType() === 'void');
 assert($accountMethod->getNumberOfRequiredParameters() === 4);
 assert($accountMethod->getParameters()[4]->getDefaultValue() === null);
 assert($accountMethod->getParameters()[5]->getDefaultValue() === []);
+
+// The opt-in changes only declared catalogs; legacy metadata remains byte-compatible.
+assert(! array_key_exists('supportsWorkCheckpoint', $wire));
+$checkpointedDefinition = new ResourceImportPipelineDefinition(...[...get_object_vars(validPipelineDefinition()), 'supportsWorkCheckpoint' => true]);
+$checkpointedWire = \Nexia\ResourceImport\ImportPipelineWire::definition($checkpointedDefinition);
+assert($checkpointedWire['supportsWorkCheckpoint'] === true);
+assert(\Nexia\ResourceImport\ImportPipelineWire::restoreDefinition($checkpointedWire, ResourceImportContractsPipeline::class)->supportsWorkCheckpoint);

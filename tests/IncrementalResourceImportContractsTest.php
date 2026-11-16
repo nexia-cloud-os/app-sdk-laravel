@@ -28,3 +28,7 @@ foreach ([[-1, 0], [0, -1], [2, 1]] as [$processed, $total]) {
     } catch (InvalidArgumentException) {
     }
 }
+
+$checkpointed = new ReflectionClass(\Nexia\ResourceImport\Contracts\WorkCheckpointedResourceImportPipeline::class);
+assert($checkpointed->isSubclassOf(\Nexia\ResourceImport\Contracts\IncrementalResourceImportPipeline::class));
+assert(array_map(fn (ReflectionParameter $p) => $p->getName(), $checkpointed->getMethod('applyNextForWork')->getParameters()) === ['batchId', 'legalEntity', 'actor', 'workId']);

@@ -96,5 +96,7 @@ final class ResourceImportPipelineDefinition
          * The App authorizes the current actor, legal entity and batch owner.
          */
         public readonly ?string $resultRowsPath = null,
+        /** Declare that the handler commits work-bound apply checkpoints. */
+        public readonly bool $supportsWorkCheckpoint = false,
     ) {}
 }

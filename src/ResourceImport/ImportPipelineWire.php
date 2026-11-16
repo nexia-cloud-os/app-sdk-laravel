@@ -31,6 +31,9 @@ final class ImportPipelineWire
         ImportContributionValidator::pipeline($definition);
         $data = get_object_vars($definition);
         unset($data['handlerClass']);
+        if (! $definition->supportsWorkCheckpoint) {
+            unset($data['supportsWorkCheckpoint']);
+        }
         if ($definition->resultRowsPath === null) {
             unset($data['resultRowsPath']);
         }
@@ -45,7 +48,7 @@ final class ImportPipelineWire
     public static function restoreDefinition(array $data, string $handler): ResourceImportPipelineDefinition
     {
         $wire = $data;
-        $data += ['resultRowsPath' => null];
+        $data += ['resultRowsPath' => null, 'supportsWorkCheckpoint' => false];
         self::assertShape($data, ResourceImportPipelineDefinition::class, ['handlerClass']);
         if (array_key_exists('handlerClass', $data)) {
             throw new InvalidArgumentException('Remote pipeline handlers are not executable metadata.');
