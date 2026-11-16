@@ -6,8 +6,14 @@ use Nexia\ResourceImport\ImportBatchState;
 use Nexia\ResourceImport\ImportPipelineStep;
 use Nexia\ResourceImport\ImportPipelineWire;
 use Nexia\ResourceImport\ImportStage;
+use Nexia\ResourceImport\Contracts\PagedImportDecisionProvider;
 
 require __DIR__.'/register-source-autoload.php';
+
+assert(interface_exists(PagedImportDecisionProvider::class));
+foreach (['import.review.page', 'import.review.stage', 'import.review.seal', 'import.review.operation'] as $method) {
+    assert(in_array($method, ImportPipelineWire::METHODS, true));
+}
 
 $pending = new ImportPipelineStep(null, 250, 1000);
 assert($pending->toArray() === ['continuation' => ['processed' => 250, 'total' => 1000]]);

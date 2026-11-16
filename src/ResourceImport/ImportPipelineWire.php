@@ -23,7 +23,8 @@ final class ImportPipelineWire
 
     public static function workKey(string $appKey): string { return $appKey.'.resource_import'; }
 
-    public const METHODS = ['import.receive', 'import.validate', 'import.apply', 'import.retry', 'import.plan'];
+    public const METHODS = ['import.receive', 'import.validate', 'import.apply', 'import.retry', 'import.plan',
+        'import.review.page', 'import.review.stage', 'import.review.seal', 'import.review.operation'];
 
     public static function definition(ResourceImportPipelineDefinition $definition): array
     {

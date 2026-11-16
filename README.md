@@ -360,6 +360,10 @@ The catalog exporter discovers its registered routes; the existing SDK HTTP API
 continues to work without declaration. See [read batching](docs/read-batching.md)
 for authorization boundaries, non-blocking development info and rollout order.
 
+## Paged import review (unreleased)
+
+The optional [paged import review contract](docs/paged-import-review.md) requires a future SDK release and matching Core and App runtime. Existing imports remain unchanged.
+
 ## Released optional contracts
 
 Core 0.8.173 supports the contracts below with a matching App runtime.
