@@ -11,4 +11,5 @@ enum DataMigrationRunStatus: string
     case Completed = 'completed';
     case CompletedWithErrors = 'completed_with_errors';
     case Failed = 'failed';
+    case Cancelled = 'cancelled';
 }

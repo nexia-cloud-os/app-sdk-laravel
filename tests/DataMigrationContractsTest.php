@@ -54,6 +54,10 @@ if (! interface_exists(DataMigrationRunRecorder::class)
     throw new RuntimeException('Data migration run wire contract changed unexpectedly.');
 }
 
+if (DataMigrationRunStatus::from('cancelled') !== DataMigrationRunStatus::Cancelled) {
+    throw new RuntimeException('Cancelled migration status must round-trip.');
+}
+
 try {
     new DataMigrationRunResult(['raw_rows' => [['employee_number' => '1']]]);
     throw new RuntimeException('Data migration result must reject nested source data.');
