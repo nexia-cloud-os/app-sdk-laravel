@@ -6,6 +6,7 @@ namespace Nexia\ResourceImport;
 
 use Nexia\ResourceImport\Contracts\ResourceImportPipeline;
 use InvalidArgumentException;
+use Nexia\AsyncWork\AppWorkDefinition;
 use Nexia\ResourceImport\Contracts\ImportDecisionProvider;
 use Nexia\ResourceImport\Contracts\ImportRecipeProvider;
 use Nexia\ResourceImport\Contracts\ImportRowPolicy;
@@ -103,6 +104,9 @@ final class ImportContributionValidator
 
     public static function pipeline(ResourceImportPipelineDefinition $definition): void
     {
+        if ($definition->workConflictGroup !== null && ! AppWorkDefinition::validConflictGroup($definition->workConflictGroup)) {
+            throw new InvalidArgumentException('Import work conflict group is invalid.');
+        }
         if ($definition->resultRowsPath !== null
             && preg_match('~\A/api/[a-z0-9/-]+/\{batch\}/[a-z0-9-]+\z~D', $definition->resultRowsPath) !== 1) {
             throw new InvalidArgumentException('Import result rows require an App API path with a batch placeholder.');

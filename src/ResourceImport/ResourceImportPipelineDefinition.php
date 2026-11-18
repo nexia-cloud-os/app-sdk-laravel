@@ -98,5 +98,9 @@ final class ResourceImportPipelineDefinition
         public readonly ?string $resultRowsPath = null,
         /** Declare that the handler commits work-bound apply checkpoints. */
         public readonly bool $supportsWorkCheckpoint = false,
+        /** Plan and composed review reads run without side effects in a read-only database snapshot. */
+        public readonly bool $supportsReadOnlyPlan = false,
+        /** App-local write conflict group for all work on this pipeline. */
+        public readonly ?string $workConflictGroup = null,
     ) {}
 }

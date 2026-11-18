@@ -12,7 +12,7 @@ final class AppWorkCatalog
     /**
      * @param list<AppWorkDefinition> $work
      * @param list<AppWorkSchedule> $schedules
-     * @return array{work: list<array{key: string, platform_callbacks: list<string>}>, schedules: list<array{key: string, work_key: string, cron: string, payload: array<string, mixed>}>}
+     * @return array{work: list<array{key: string, platform_callbacks: list<string>, conflict_group?: string}>, schedules: list<array{key: string, work_key: string, cron: string, payload: array<string, mixed>}>}
      */
     public static function validate(array $work, array $schedules, string $appKey): array
     {
@@ -60,7 +60,8 @@ final class AppWorkCatalog
         $work = [];
         foreach ($catalog['work'] as $definition) {
             $callbacks = is_array($definition) ? ($definition['platform_callbacks'] ?? []) : null;
-            if (! is_array($definition) || array_diff(array_keys($definition), ['key', 'platform_callbacks']) !== []
+            if (! is_array($definition) || array_diff(array_keys($definition), ['key', 'platform_callbacks', 'conflict_group']) !== []
+                || (array_key_exists('conflict_group', $definition) && ! AppWorkDefinition::validConflictGroup($definition['conflict_group']))
                 || ! is_string($definition['key']) || ! is_array($callbacks) || ! array_is_list($callbacks)
                 || count($callbacks) > 20 || ! str_starts_with($definition['key'], $prefix)
                 || preg_match('/\A[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9_-]*)+\z/D', $definition['key']) !== 1

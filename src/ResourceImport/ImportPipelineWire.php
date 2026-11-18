@@ -34,6 +34,12 @@ final class ImportPipelineWire
         if (! $definition->supportsWorkCheckpoint) {
             unset($data['supportsWorkCheckpoint']);
         }
+        if (! $definition->supportsReadOnlyPlan) {
+            unset($data['supportsReadOnlyPlan']);
+        }
+        if ($definition->workConflictGroup === null) {
+            unset($data['workConflictGroup']);
+        }
         if ($definition->resultRowsPath === null) {
             unset($data['resultRowsPath']);
         }
@@ -48,7 +54,7 @@ final class ImportPipelineWire
     public static function restoreDefinition(array $data, string $handler): ResourceImportPipelineDefinition
     {
         $wire = $data;
-        $data += ['resultRowsPath' => null, 'supportsWorkCheckpoint' => false];
+        $data += ['resultRowsPath' => null, 'supportsWorkCheckpoint' => false, 'supportsReadOnlyPlan' => false, 'workConflictGroup' => null];
         self::assertShape($data, ResourceImportPipelineDefinition::class, ['handlerClass']);
         if (array_key_exists('handlerClass', $data)) {
             throw new InvalidArgumentException('Remote pipeline handlers are not executable metadata.');

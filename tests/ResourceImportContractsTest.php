@@ -347,3 +347,17 @@ $checkpointedDefinition = new ResourceImportPipelineDefinition(...[...get_object
 $checkpointedWire = \Nexia\ResourceImport\ImportPipelineWire::definition($checkpointedDefinition);
 assert($checkpointedWire['supportsWorkCheckpoint'] === true);
 assert(\Nexia\ResourceImport\ImportPipelineWire::restoreDefinition($checkpointedWire, ResourceImportContractsPipeline::class)->supportsWorkCheckpoint);
+
+assert(! array_key_exists('supportsReadOnlyPlan', $wire));
+assert(! \Nexia\ResourceImport\ImportPipelineWire::restoreDefinition($wire, ResourceImportContractsPipeline::class)->supportsReadOnlyPlan);
+$readOnlyDefinition = new ResourceImportPipelineDefinition(...[...get_object_vars(validPipelineDefinition()), 'supportsReadOnlyPlan' => true]);
+$readOnlyWire = \Nexia\ResourceImport\ImportPipelineWire::definition($readOnlyDefinition);
+assert($readOnlyWire['supportsReadOnlyPlan'] === true);
+assert(\Nexia\ResourceImport\ImportPipelineWire::restoreDefinition($readOnlyWire, ResourceImportContractsPipeline::class)->supportsReadOnlyPlan);
+
+assert(! array_key_exists('workConflictGroup', $wire));
+$groupedDefinition = new ResourceImportPipelineDefinition(...[...get_object_vars(validPipelineDefinition()), 'workConflictGroup' => 'ledger']);
+$groupedWire = \Nexia\ResourceImport\ImportPipelineWire::definition($groupedDefinition);
+assert($groupedWire['workConflictGroup'] === 'ledger');
+assert(\Nexia\ResourceImport\ImportPipelineWire::restoreDefinition($groupedWire, ResourceImportContractsPipeline::class)->workConflictGroup === 'ledger');
+importContractMustFail(fn () => \Nexia\ResourceImport\ImportPipelineWire::restoreDefinition([...$groupedWire, 'workConflictGroup' => 'ledger.*'], ResourceImportContractsPipeline::class), 'conflict group');

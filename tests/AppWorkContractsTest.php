@@ -54,6 +54,17 @@ $dispatcher = new AppWorkContractsDispatcher;
 $dispatcher->dispatch('fixture.reconcile', ['cursor' => null], 'fixture:cursor:root');
 assert($dispatcher->dispatched === [['key' => 'fixture.reconcile', 'payload' => ['cursor' => null], 'idempotency_key' => 'fixture:cursor:root']]);
 AppWorkCatalog::validateWire($catalog, 'fixture');
+$grouped = new AppWorkDefinition('fixture.reconcile', AppWorkContractsHandler::class, workConflictGroup: 'ledger');
+$wire = AppWorkCatalog::validate([$grouped], [], 'fixture');
+assert($wire['work'][0]['conflict_group'] === 'ledger');
+AppWorkCatalog::validateWire($wire, 'fixture');
+foreach (['', 'Ledger', str_repeat('a', 65)] as $invalidGroup) {
+    appWorkContractMustFail(fn () => new AppWorkDefinition('fixture.reconcile', AppWorkContractsHandler::class, workConflictGroup: $invalidGroup), 'conflict group');
+}
+foreach ([null, 1, '', 'ledger.*'] as $invalidGroup) {
+    $wire['work'][0]['conflict_group'] = $invalidGroup;
+    appWorkContractMustFail(fn () => AppWorkCatalog::validateWire($wire, 'fixture'), 'catalog is invalid');
+}
 $stored = $catalog;
 ksort($stored['schedules'][0]);
 AppWorkCatalog::validateWire($stored, 'fixture');
