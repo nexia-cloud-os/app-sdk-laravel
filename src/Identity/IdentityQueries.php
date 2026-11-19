@@ -17,7 +17,12 @@ use Nexia\Identity\Query\IdentityBusinessQuery;
 use Nexia\Identity\Query\IdentityRead;
 use Nexia\Laravel\Identity\Contracts\PartyDirectory;
 
-/** Standard identity reads without changing the existing host contracts. */
+/**
+ * Standard identity reads without changing the existing host contracts.
+ *
+ * @deprecated Use Nexia\Laravel\Directory\Party and User for directory reads,
+ *             or PersonProfileDirectory for profile reads. Existing batches remain supported.
+ */
 final readonly class IdentityQueries
 {
     public function __construct(

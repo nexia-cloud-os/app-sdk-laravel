@@ -22,6 +22,13 @@ interface ApprovalHost
     /** Resolve the one active route visible to the current tenant and optional Legal Entity applicability. */
     public function resolveRoute(string $routePolicyKey, ?LegalEntity $legalEntity): ?ApprovalRouteReference;
 
+    /**
+     * For an authorized approval detail view, use Approval::query($legalEntity)->where('source', 'native')->find($approvalCasePublicId).
+     * Keep this method for outcome reconciliation, binding and resource versions, automatic-decision evidence,
+     * and verified events.
+     *
+     * @see \Nexia\Approval\Approval
+     */
     public function caseSummary(string $approvalCasePublicId): ?ApprovalCaseSummary;
 
     public function routeExists(string $routePolicyKey, ?int $legalEntityId): bool;
