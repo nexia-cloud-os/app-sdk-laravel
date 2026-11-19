@@ -12,7 +12,7 @@ final class AppWorkCatalog
     /**
      * @param list<AppWorkDefinition> $work
      * @param list<AppWorkSchedule> $schedules
-     * @return array{work: list<array{key: string, platform_callbacks: list<string>, conflict_group?: string}>, schedules: list<array{key: string, work_key: string, cron: string, payload: array<string, mixed>}>}
+     * @return array{work: list<array{key: string, platform_callbacks: list<string>, conflict_group?: string}>, schedules: list<array{key: string, work_key: string, cron: string, payload: array<string, mixed>, tenant_managed?: true}>}
      */
     public static function validate(array $work, array $schedules, string $appKey): array
     {
@@ -80,8 +80,9 @@ final class AppWorkCatalog
         }
         $schedules = [];
         foreach ($catalog['schedules'] as $schedule) {
-            if (! is_array($schedule) || count($schedule) !== 4
-                || array_diff(array_keys($schedule), ['key', 'work_key', 'cron', 'payload']) !== []
+            if (! is_array($schedule) || array_diff(['key', 'work_key', 'cron', 'payload'], array_keys($schedule)) !== []
+                || array_diff(array_keys($schedule), ['key', 'work_key', 'cron', 'payload', 'tenant_managed']) !== []
+                || (array_key_exists('tenant_managed', $schedule) && $schedule['tenant_managed'] !== true)
                 || ! is_string($schedule['key']) || ! str_starts_with($schedule['key'], $prefix)
                 || ! is_string($schedule['work_key']) || ! isset($work[$schedule['work_key']])
                 || ! is_string($schedule['cron']) || ! is_array($schedule['payload']) || isset($schedules[$schedule['key']])

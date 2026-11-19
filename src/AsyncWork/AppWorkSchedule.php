@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Nexia\AsyncWork;
 
 use InvalidArgumentException;
+use Nexia\Events\EventDraft;
+use Nexia\Events\LegalEntityScope;
 
 /** A Core-owned cron trigger for one declared App work key. */
 final readonly class AppWorkSchedule
@@ -15,6 +17,7 @@ final readonly class AppWorkSchedule
         public string $workKey,
         public string $cron,
         public array $payload = [],
+        public bool $tenantManaged = false,
     ) {
         foreach ([$key, $workKey] as $value) {
             if (preg_match('/\A[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9_-]*)+\z/D', $value) !== 1) {
@@ -33,9 +36,22 @@ final readonly class AppWorkSchedule
         }
     }
 
-    /** @return array{key: string, work_key: string, cron: string, payload: array<string, mixed>} */
+    /** Publish inside the same App transaction as the state change. Revisions increase per schedule. */
+    public static function activationChanged(string $scheduleKey, bool $enabled, int $revision): EventDraft
+    {
+        if (! preg_match('/\A([a-z][a-z0-9-]*)\.[a-z][a-z0-9_-]*(?:\.[a-z][a-z0-9_-]*)*\z/D', $scheduleKey, $owner)
+            || strlen($scheduleKey) > 191 || $revision < 0) {
+            throw new InvalidArgumentException('Invalid App schedule activation.');
+        }
+
+        return new EventDraft($owner[1].'.work_schedule.activation_changed',
+            ['schedule_key' => $scheduleKey, 'enabled' => $enabled, 'revision' => $revision], LegalEntityScope::tenantWide());
+    }
+
+    /** @return array{key: string, work_key: string, cron: string, payload: array<string, mixed>, tenant_managed?: true} */
     public function toArray(): array
     {
-        return ['key' => $this->key, 'work_key' => $this->workKey, 'cron' => $this->cron, 'payload' => $this->payload];
+        return ['key' => $this->key, 'work_key' => $this->workKey, 'cron' => $this->cron, 'payload' => $this->payload,
+            ...($this->tenantManaged ? ['tenant_managed' => true] : [])];
     }
 }

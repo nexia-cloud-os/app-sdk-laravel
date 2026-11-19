@@ -65,6 +65,16 @@ foreach ([null, 1, '', 'ledger.*'] as $invalidGroup) {
     $wire['work'][0]['conflict_group'] = $invalidGroup;
     appWorkContractMustFail(fn () => AppWorkCatalog::validateWire($wire, 'fixture'), 'catalog is invalid');
 }
+$managed = new AppWorkSchedule($schedule->key, $schedule->workKey, $schedule->cron, tenantManaged: true);
+$wire = AppWorkCatalog::validate([$work], [$managed], 'fixture');
+assert($wire['schedules'][0]['tenant_managed'] === true);
+AppWorkCatalog::validateWire($wire, 'fixture');
+$wire['schedules'][0]['tenant_managed'] = 'true';
+appWorkContractMustFail(fn () => AppWorkCatalog::validateWire($wire, 'fixture'), 'catalog is invalid');
+$activation = AppWorkSchedule::activationChanged($schedule->key, false, 0);
+assert($activation->eventName === 'fixture.work_schedule.activation_changed');
+assert($activation->payload === ['schedule_key' => $schedule->key, 'enabled' => false, 'revision' => 0]);
+appWorkContractMustFail(fn () => AppWorkSchedule::activationChanged($schedule->key, false, -1), 'Invalid App schedule');
 $stored = $catalog;
 ksort($stored['schedules'][0]);
 AppWorkCatalog::validateWire($stored, 'fixture');
