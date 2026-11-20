@@ -49,10 +49,16 @@ final class ResourceWriteRoutes
     public static function listsForModel(string $modelClass, array $byController): array
     {
         $controller = self::controllerFor($modelClass, $byController);
-        $uris = $controller === null ? [] : self::readUrisFor($byController[$controller], member: false);
-        if (count($uris) > 1 && ! array_filter($byController[$controller],
-            static fn (Route $route): bool => in_array('GET', $route->methods(), true)
-                && ! self::isMemberRoute($route) && $route->getActionMethod() === 'index')) {
+        if ($controller === null) {
+            return [];
+        }
+        $routes = $byController[$controller];
+        $collections = array_filter($routes, static fn (Route $route): bool =>
+            in_array('GET', $route->methods(), true) && ! self::isMemberRoute($route)
+            && in_array($route->getActionMethod(), ['index', 'canonicalIndex', 'indexForLegalEntity'], true));
+        $uris = $collections === [] ? self::readUrisFor($routes, member: false)
+            : array_fill_keys(array_map(static fn (Route $route): string => $route->uri(), $collections), true);
+        if ($collections === [] && count($uris) > 1) {
             return [];
         }
         $paths = array_keys($uris);

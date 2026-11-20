@@ -106,4 +106,11 @@ assert(ResourceWriteRoutes::listsForModel($model, ResourceWriteRoutes::byControl
     $canonical[0], $route('GET', 'api/admin/notes', 'Nexia\\Apps\\Example\\Notes\\Http\\Controllers\\Admin\\NoteController'),
 ])) === []);
 
+$variants = [$scopedIndex, $standard('GET', 'api/notes', 'canonicalIndex'),
+    $standard('GET', 'api/notes/export', 'export')];
+assert(ResourceWriteRoutes::listsForModel($model, ResourceWriteRoutes::byController($variants)) === $expectedLists);
+
+$variants[0] = $standard('GET', 'api/legal-entities/{legalEntity}/notes', 'indexForLegalEntity');
+assert(ResourceWriteRoutes::listsForModel($model, ResourceWriteRoutes::byController($variants)) === $expectedLists);
+
 echo "Resource write and collection route discovery passed.\n";
