@@ -139,7 +139,21 @@ final class ResourceDescriptorContract
                 );
             }
 
-            if (! is_array($field) || ($field['type'] ?? null) !== 'resource_reference') {
+            if (is_array($field) && ($field['type'] ?? null) === 'string' && array_key_exists('reference_resource_key', $field)) {
+                $target = $field['reference_resource_key'];
+                $separator = is_string($target) ? strpos($target, '.') : false;
+                $targetAppKey = $separator === false ? '' : substr($target, 0, $separator);
+                if (! is_string($target) || ! ResourceRef::hasCanonicalIdentity($targetAppKey, $target)) {
+                    throw DescriptorValidationException::contribution(
+                        $contributor,
+                        "resource [{$resource->key}] field [{$fieldKey}] must name a canonical referenced Resource.",
+                        "{$resourceIndex}.fieldSchema.{$fieldKey}.reference_resource_key",
+                    );
+                }
+            }
+            $storedMulti = is_array($field) && ($field['type'] ?? null) === 'string'
+                && (array_key_exists('accepted_resource_keys', $field) || array_key_exists('target_resource_key_field', $field));
+            if (! is_array($field) || (($field['type'] ?? null) !== 'resource_reference' && ! $storedMulti)) {
                 continue;
             }
 
@@ -185,6 +199,13 @@ final class ResourceDescriptorContract
 
             $hasTargetResourceKeyField = array_key_exists('target_resource_key_field', $field);
             $targetResourceKeyField = $field['target_resource_key_field'] ?? null;
+            if ($storedMulti && (! $hasTargetResourceKeyField || array_key_exists('reference_resource_key', $field))) {
+                throw DescriptorValidationException::contribution(
+                    $contributor,
+                    "resource [{$resource->key}] field [{$fieldKey}] requires one discriminator and multiple targets.",
+                    $path,
+                );
+            }
             if ($hasTargetResourceKeyField) {
                 $targetField = is_string($targetResourceKeyField)
                     ? ($resource->fieldSchema[$targetResourceKeyField] ?? null)
@@ -201,7 +222,7 @@ final class ResourceDescriptorContract
                     || ! is_array($targetField)
                     || ($targetField['type'] ?? null) !== 'string'
                     || ($targetField['derived'] ?? false) === true
-                    || (($targetComposition['selectable'] ?? false) !== true
+                    || (! $storedMulti && ($targetComposition['selectable'] ?? false) !== true
                         && ($targetComposition['relationship_binding'] ?? false) !== true)) {
                     throw DescriptorValidationException::contribution(
                         $contributor,
@@ -209,6 +230,10 @@ final class ResourceDescriptorContract
                         $path.'.target_resource_key_field',
                     );
                 }
+            }
+
+            if ($storedMulti) {
+                continue;
             }
 
             $temporalInterval = is_array($field['composition'] ?? null)

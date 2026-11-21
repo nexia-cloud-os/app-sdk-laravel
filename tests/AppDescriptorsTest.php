@@ -313,6 +313,22 @@ try {
     // Expected contract validation.
 }
 
+ResourceDescriptorContract::assertValid('StoredReference', [new ResourceDescriptor(
+    key: 'sample.expense_report', version: '1.0',
+    fieldSchema: ['owner_public_id' => ['type' => 'string', 'format' => 'uuid', 'reference_resource_key' => 'sample.owner']],
+)]);
+foreach (['invalid', '', null, ['sample.owner']] as $invalidTarget) {
+    try {
+        ResourceDescriptorContract::assertValid('InvalidStoredReference', [new ResourceDescriptor(
+            key: 'sample.expense_report', version: '1.0',
+            fieldSchema: ['owner_public_id' => ['type' => 'string', 'reference_resource_key' => $invalidTarget]],
+        )]);
+        throw new RuntimeException('Invalid stored Resource reference must be rejected.');
+    } catch (DescriptorValidationException) {
+        // Expected contract validation.
+    }
+}
+
 $partyField = [
     'type' => 'resource_reference',
     'accepted_resource_keys' => ['directory.party'],
@@ -326,7 +342,10 @@ $partyField = [
 ResourceDescriptorContract::assertValid('PartyField', [new ResourceDescriptor(
     key: 'sample.expense_report',
     version: '1.0',
-    fieldSchema: ['owner_party_public_id' => $partyField],
+    fieldSchema: [
+        'owner_public_id' => ['type' => 'string', 'reference_resource_key' => 'other.owner'],
+        'owner_party_public_id' => $partyField,
+    ],
 )]);
 
 $polymorphicField = [
@@ -773,3 +792,39 @@ foreach ($invalidPayloads as $invalidPayload) {
 }
 
 fwrite(STDOUT, "App descriptor contracts are valid.\n");
+
+$storedMulti = [
+    'type' => 'string',
+    'accepted_resource_keys' => ['sample-owner.worker', 'sample-owner.team'],
+    'target_resource_key_field' => 'context_resource_key',
+];
+$storedMultiSchema = ['context_resource_key' => ['type' => 'string'], 'context_public_id' => $storedMulti];
+ResourceDescriptorContract::assertValid('StoredMulti', [new ResourceDescriptor(
+    key: 'sample.expense_report', version: '1.0', fieldSchema: $storedMultiSchema,
+)]);
+foreach ([
+    [...$storedMulti, 'target_resource_key_field' => null],
+    [...$storedMulti, 'accepted_resource_keys' => ['sample-owner.worker']],
+    [...$storedMulti, 'accepted_resource_keys' => ['sample-owner.worker', 'sample-owner.worker']],
+    [...$storedMulti, 'accepted_resource_keys' => ['sample-owner.worker', 'invalid']],
+    [...$storedMulti, 'reference_resource_key' => 'sample-owner.worker'],
+    [...$storedMulti, 'derived' => true],
+] as $invalid) {
+    try {
+        ResourceDescriptorContract::assertValid('InvalidStoredMulti', [new ResourceDescriptor(
+            key: 'sample.expense_report', version: '1.0',
+            fieldSchema: ['context_resource_key' => ['type' => 'string'], 'context_public_id' => $invalid],
+        )]);
+        throw new RuntimeException('Invalid stored multi-target reference must be rejected.');
+    } catch (DescriptorValidationException) {
+        // Expected contract validation.
+    }
+}
+try {
+    ResourceDescriptorContract::assertValid('MissingStoredMultiKey', [new ResourceDescriptor(
+        key: 'sample.expense_report', version: '1.0', fieldSchema: ['context_public_id' => $storedMulti],
+    )]);
+    throw new RuntimeException('Stored multi-target references require a declared discriminator.');
+} catch (DescriptorValidationException) {
+    // Expected contract validation.
+}
