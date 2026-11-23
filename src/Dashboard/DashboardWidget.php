@@ -19,6 +19,7 @@ final class DashboardWidget
      * @param  array<string, mixed>  $spec
      * @param  list<DashboardWidgetParameter>  $parameters
      * @param  list<string>  $requiredAnyPermission
+     * @param  array{minRows:int, defaultRows:int, maxRows:int|null}|null  $height Height in grid rows. A null maxRows allows manual growth.
      */
     public function __construct(
         public readonly string $key,
@@ -32,6 +33,7 @@ final class DashboardWidget
         public readonly RendererCapability $capability = RendererCapability::HumanOnly,
         public readonly array $requiredAnyPermission = [],
         public readonly bool $discoverable = true,
+        public readonly ?array $height = null,
     ) {
         if ($titleKey === '' || $titleKey !== trim($titleKey)) {
             throw new InvalidArgumentException("DashboardWidget {$key} titleKey must be a non-blank catalog key");
@@ -39,6 +41,17 @@ final class DashboardWidget
 
         if ($spec === [] || ! isset($spec['component'])) {
             throw new InvalidArgumentException("DashboardWidget {$key} spec is not a ComponentSpec dict");
+        }
+
+        if ($height !== null) {
+            $min = $height['minRows'] ?? null;
+            $default = $height['defaultRows'] ?? null;
+            $max = $height['maxRows'] ?? null;
+            if (count($height) !== 3 || ! array_key_exists('maxRows', $height)
+                || ! is_int($min) || $min < 1 || ! is_int($default) || $default < $min
+                || ($max !== null && (! is_int($max) || $max < $default))) {
+                throw new InvalidArgumentException("DashboardWidget {$key} declares invalid grid heights");
+            }
         }
 
         $seenParamNames = [];
@@ -96,6 +109,10 @@ final class DashboardWidget
 
         if ($this->requiredAnyPermission !== []) {
             $row['required_any_permission'] = array_values($this->requiredAnyPermission);
+        }
+
+        if ($this->height !== null) {
+            $row['height'] = $this->height;
         }
 
         return $row;

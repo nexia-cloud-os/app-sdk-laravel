@@ -35,7 +35,8 @@ $widget = new DashboardWidget(
 
 $row = $widget->toArray();
 
-if ($row['kind'] !== 'table'
+if (array_key_exists('height', $row)
+    || $row['kind'] !== 'table'
     || $row['title_key'] !== 'dashboard-widgets.sample.report.open.title'
     || $row['spec']['component'] !== 'Table'
     || $row['parameters'][0]['target'] !== 'filter.status'
@@ -45,6 +46,19 @@ if ($row['kind'] !== 'table'
     || RendererCapability::HumanOnly->allowsAgent()
 ) {
     throw new RuntimeException('Dashboard widget contracts changed unexpectedly.');
+}
+
+$height = ['minRows' => 8, 'defaultRows' => 24, 'maxRows' => null];
+$tallWidget = new DashboardWidget(
+    key: $widget->key,
+    titleKey: $widget->titleKey,
+    description: $widget->description,
+    spec: $widget->spec,
+    kind: $widget->kind,
+    height: $height,
+);
+if ($tallWidget->toArray()['height'] !== $height) {
+    throw new RuntimeException('Widget height must preserve an explicit open maximum.');
 }
 
 $querySource = new DashboardQuerySource(
