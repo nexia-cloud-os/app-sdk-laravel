@@ -13,9 +13,11 @@ final readonly class ApprovalSubmissionDelivery
         public string $submissionId,
         public string $outcome,
         public ?string $casePublicId = null,
+        public ?CurrentBoundApprovalResult $currentResult = null,
     ) {
         if (! in_array($outcome, ['commit', 'release'], true)
-            || ($outcome === 'commit') !== ($casePublicId !== null)) {
+            || ($outcome === 'commit') !== ($casePublicId !== null)
+            || ($currentResult !== null && ($outcome !== 'commit' || $currentResult->case->publicId !== $casePublicId))) {
             throw new InvalidArgumentException('Invalid approval submission delivery.');
         }
     }
