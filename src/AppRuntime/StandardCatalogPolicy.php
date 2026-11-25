@@ -43,11 +43,15 @@ final class StandardCatalogPolicy
             }
             $bindings[$identity] = $binding;
         }
+        $publicActions = [];
         foreach ($catalog['contracts'] ?? [] as $resource) {
             if (! is_string($resource['version'] ?? null) || $resource['version'] === '' || strlen($resource['version']) > 80) {
                 throw new CatalogValidationException('catalog_contract_unsupported');
             }
             foreach ($resource['actions'] ?? [] as $action) {
+                if (is_string($resource['key'] ?? null) && is_string($action['key'] ?? null)) {
+                    $publicActions[$resource['key']][$action['key']] = $action;
+                }
                 if (array_key_exists('execution', $action)) {
                     \Nexia\Actions\ActionExecutionContract::fromArray($action['execution']);
                 }
@@ -65,6 +69,7 @@ final class StandardCatalogPolicy
         }
         foreach ($catalog['actions'] ?? [] as $entry) {
             $action = $entry['definition'];
+            $declared = $publicActions[$entry['resource_key'] ?? ''][$action['key'] ?? ''] ?? null;
             if (isset($action['execution'])) {
                 $execution = \Nexia\Actions\ActionExecutionContract::fromArray($action['execution']);
                 if ($execution->available) {
@@ -77,7 +82,10 @@ final class StandardCatalogPolicy
             $binding = $bindings[$entry['key'].':action'] ?? null;
             if (! isset($permissions[$action['permission']])
                 || ($permissions[$action['permission']]['lifecycle'] ?? null) !== 'active'
-                || ($entry['resource_key'] !== null && ! isset($resources[$entry['resource_key']]))
+                || ($entry['resource_key'] !== null && ! isset($resources[$entry['resource_key']])
+                    && ($declared === null || ($declared['permission'] ?? null) !== $action['permission']
+                        || ($declared['effect'] ?? null) !== ($action['effect'] ?? null)
+                        || ! array_key_exists('input_schema', $declared) || $declared['input_schema'] !== ($action['input_schema'] ?? null)))
                 || $binding === null || $binding['method'] !== $action['method'] || $binding['path'] !== $action['path']) {
                 throw new CatalogValidationException('catalog_reference_invalid');
             }

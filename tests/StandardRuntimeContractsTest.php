@@ -110,6 +110,20 @@ $catalog = ['app_key' => 'sample', 'requirements' => $requirements,
     ]]],
     'route_bindings' => [['key' => 'sample.note.complete', 'operation' => 'action', 'method' => 'POST', 'path' => '/api/sample/notes/{note}/complete']]];
 \Nexia\AppRuntime\StandardCatalogPolicy::validate($catalog);
+$metadataAction = ['key' => 'complete', 'permission' => 'sample.note.update', 'effect' => 'read',
+    'input_schema' => ['type' => 'object', 'properties' => ['contract' => ['type' => 'boolean']]]];
+$metadataOnly = [...$catalog, 'resources' => [], 'contracts' => [[
+    'key' => 'sample.note', 'version' => '1.0', 'actions' => [$metadataAction], 'events' => [],
+]], 'actions' => [[...$catalog['actions'][0], 'definition' => [...$catalog['actions'][0]['definition'], ...$metadataAction]]]];
+\Nexia\AppRuntime\StandardCatalogPolicy::validate($metadataOnly);
+foreach ([['permission' => 'sample.note.other'], ['effect' => 'mutate'], ['input_schema' => null]] as $change) {
+    $bad = $metadataOnly;
+    $bad['contracts'][0]['actions'][0] = [...$metadataAction, ...$change];
+    $rejects(fn () => \Nexia\AppRuntime\StandardCatalogPolicy::validate($bad));
+}
+$bad = $metadataOnly;
+$bad['contracts'][0]['actions'] = [];
+$rejects(fn () => \Nexia\AppRuntime\StandardCatalogPolicy::validate($bad));
 $executable = [...$catalog, 'actions' => [[...$catalog['actions'][0], 'definition' => $versioned->toArray()]]];
 \Nexia\AppRuntime\StandardCatalogPolicy::validate($executable);
 try {
