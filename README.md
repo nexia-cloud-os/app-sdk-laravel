@@ -10,6 +10,32 @@ SDK package during the package split.
 For package development, run `composer test` from this directory. The PHP
 package does not require the React package or Node tooling.
 
+## Report a handled operation failure
+
+Use `OperationFailure::with()` when a governed write returns a successful HTTP
+status and some or all of its work failed. Pass the existing object-shaped
+response and one or more failure reasons.
+
+```php
+use Nexia\AppRuntime\OperationFailure;
+
+return response()->json(OperationFailure::with(
+    ['data' => $result],
+    'batch_update',
+    new OperationFailure('validate_item', 'item_access_denied', count: $failedCount, httpStatus: 403),
+));
+```
+
+The helper attaches up to eight reasons. Use fixed operation, stage, and code
+identifiers. Each starts with a letter and contains up to 100 letters, digits,
+dots, underscores, or hyphens. Exclude account IDs, tenant data, and exception
+text. The helper skips invalid reasons and omits out-of-range optional counts
+and inner HTTP statuses. Pass no reasons to return the original payload.
+
+The helper performs no I/O. A compatible Core reports these diagnostics in
+the Developer Console after the existing production write receipt completes.
+See [Test an App](https://developers.nexia.to/docs/building-apps-test-an-app).
+
 ## Reference conditions for governed writes
 
 Use `PartyWritePreconditions` when an App save depends on selected Party properties:

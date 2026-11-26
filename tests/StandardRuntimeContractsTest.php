@@ -4,11 +4,29 @@ declare(strict_types=1);
 
 use Nexia\Actions\ActionExecutionContract;
 use Nexia\AppRuntime\CatalogValidationException;
+use Nexia\AppRuntime\OperationFailure;
 use Nexia\AppRuntime\RuntimeDependencyPolicy;
 use Nexia\AppRuntime\RuntimeRequirements;
 use Nexia\Settings\SettingDefinition;
 
 require dirname(__DIR__).'/vendor/autoload.php';
+
+$response = ['data' => ['updated' => 5, 'failed' => 2]];
+$failure = new OperationFailure('validate_item', 'item_access_denied', count: 2, httpStatus: 403);
+$reported = OperationFailure::with($response, 'batch_update', $failure);
+assert($reported === $response + ['__nexia_operation_failure' => [
+    'operation' => 'batch_update',
+    'reasons' => [['stage' => 'validate_item', 'code' => 'item_access_denied', 'count' => 2, 'http_status' => 403]],
+]]);
+assert(OperationFailure::with($response, 'batch_update') === $response);
+assert(OperationFailure::with($response, 'invalid operation', $failure) === $response);
+assert(OperationFailure::with($response, 'batch_update', new OperationFailure('validate_item', 'message with spaces')) === $response);
+assert(OperationFailure::with([1, 2], 'batch_update', $failure) === [1, 2]);
+assert(OperationFailure::with($reported, 'another_operation', $failure) === $reported);
+assert(OperationFailure::with($response, 'batch_update', new OperationFailure('validate_item', 'item_invalid', 0, 200))
+    ['__nexia_operation_failure']['reasons'] === [['stage' => 'validate_item', 'code' => 'item_invalid']]);
+assert(count(OperationFailure::with($response, 'batch_update', ...array_fill(0, 9, $failure))
+    ['__nexia_operation_failure']['reasons']) === 8);
 
 $phpConstraint = json_decode(file_get_contents(dirname(__DIR__).'/composer.json'), true, 512, JSON_THROW_ON_ERROR)['require']['php'];
 foreach (['8.4.27' => false, '8.4.28' => false, '8.5.12' => true, '8.5.13' => true,
